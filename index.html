@@ -781,11 +781,11 @@ function searchProducts(query) {
 // ── SHARE PRODUCT ──
 function shareProduct(p) {
   var url  = window.location.href;
-  var text = '🐝 Check out this cute kids outfit from Bbee.Co!
+  var text = '\uD83D\uDC1D Check out this cute kids outfit from Bbee.Co! ' + p.name + ' - P' + p.price + ' ' + url;
 
-' + p.name + ' — ₱' + p.price + '
 
-' + url;
+
+
 
   if (navigator.share) {
     navigator.share({
