@@ -360,6 +360,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);
 
 <script>
 var SHOP_PW='Bbeeco2026!',CLOUD_NAME='djchrmzgk',UPLOAD_PRESET='bbee_unsigned';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxqmUdpjlvNNBqK7_FSWHl9biSUJpnoAMVGIVkiKB3I4Ik-DUkXVLpid6MvtE2m9qyV-w/exec';
 var COLOR_MAP={'Pink':'#FFB6C1','Blue':'#87CEEB','Yellow':'#FFE066','White':'#F5F5F5','Red':'#FF6B6B','Green':'#90EE90','Purple':'#DDA0DD','Orange':'#FFA07A','Black':'#333333','Gray':'#C0C0C0','Beige':'#F5DEB3','Navy':'#1A1A2E'};
 var CAT_EMOJIS={'Dresses':'👗','Tops':'👕','Bottoms':'👖','Sets':'🎀','Accessories':'👒'};
 var cart=[],products=[],orders=[],curProduct=null,selSize='',selColor='',selPayMethod='gcash',selDelivery2='local',editProdId=null,uploadedImgUrl='';
@@ -393,7 +394,7 @@ function goScreen(id){
   window.scrollTo(0,0);
   var showHeader=['s-home','s-product'].indexOf(id)!==-1;
   document.getElementById('mainHeader').style.display=showHeader?'':'none';
-  if(id==='s-admin'){renderAdminProducts();renderOrders();}
+  if(id==='s-admin'){renderAdminProducts();renderOrders();loadOrdersFromSheet();}
 }
 function setNav(id){document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById(id).classList.add('active');}
 
@@ -497,6 +498,15 @@ function placeOrder(){
   document.getElementById('successOrderNum').textContent='#'+orderId;
   var insts={gcash:['GCash: 09XX XXX XXXX','Account Name: Bbee.Co','Amount: ₱'+total,'Send screenshot as proof'],maya:['Maya: 09XX XXX XXXX','Account Name: Bbee.Co','Amount: ₱'+total,'Send screenshot as proof'],bank:['Bank: BDO / BPI / UnionBank','Account: XXXX-XXXX-XXXX','Name: Bbee.Co','Amount: ₱'+total,'Send screenshot as proof'],cod:['Pay ₱'+total+' upon delivery','Prepare exact amount','Our rider will contact you']};
   document.getElementById('payInstructions').innerHTML='<div class="pay-inst-title">Payment Instructions</div>'+(insts[selPayMethod]||[]).map(function(i){return '<div class="pay-inst-item"><span>•</span>'+i+'</div>';}).join('');
+  // Log to Google Sheet
+  if(APPS_SCRIPT_URL){
+    var itemsStr=cart.map(function(i){return i.name+' ('+i.size+'/'+i.color+') x'+i.qty;}).join(', ');
+    fetch(APPS_SCRIPT_URL+'?'+new URLSearchParams({
+      type:'NEW_ORDER',orderId:orderId,name:name,phone:phone,
+      address:addr,delivery:selDelivery2,payment:selPayMethod,
+      total:total,items:itemsStr,date:new Date().toLocaleString('en-PH')
+    })).catch(function(){});
+  }
   goScreen('s-success');showToast('Order placed! 🎉');
 }
 
@@ -534,7 +544,29 @@ function renderOrders(){
   });
 }
 
-function updateOrderStatus(id,status){var o=orders.find(function(x){return x.id===id;});if(o){o.status=status;saveData();showToast('Order: '+status);}}
+function updateOrderStatus(id,status){
+  var o=orders.find(function(x){return x.id===id;});
+  if(o){
+    o.status=status;saveData();
+    if(APPS_SCRIPT_URL){fetch(APPS_SCRIPT_URL+'?'+new URLSearchParams({type:'UPDATE_ORDER',orderId:id,status:status})).catch(function(){});}
+    showToast('Order: '+status);
+  }
+}
+function loadOrdersFromSheet(){
+  if(!APPS_SCRIPT_URL)return;
+  fetch(APPS_SCRIPT_URL+'?type=GET_ORDERS')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.status==='ok'&&data.orders&&data.orders.length){
+        data.orders.forEach(function(so){
+          var exists=orders.find(function(o){return o.id===so.orderId;});
+          if(!exists){orders.push({id:so.orderId,name:so.name,phone:so.phone,address:so.address,delivery:so.delivery,payment:so.payment,items:[{name:so.items}],total:so.total,status:so.status,date:so.date});}
+          else{exists.status=so.status;}
+        });
+        saveData();renderOrders();
+      }
+    }).catch(function(){});
+}
 
 function editProduct(id){
   var p=products.find(function(x){return x.id===id;});if(!p)return;
