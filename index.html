@@ -133,7 +133,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);
 .nav-lbl{font-family:'Syne',sans-serif;font-weight:700;font-size:.6rem;color:var(--gray4);text-transform:uppercase;letter-spacing:.04em}
 .nav-btn.active .nav-lbl{color:var(--navy)}
 .pb-safe{height:72px}
+
+.social-btn{width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--gray2);background:var(--white);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;color:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s}
+.social-btn:active{transform:scale(.97)}
+
 </style>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 <header class="shop-header" id="mainHeader">
@@ -145,6 +152,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);
 
 <!-- HOME -->
 <div class="screen on" id="s-home">
+  <div class="search-bar" style="background:var(--navy);padding:0 18px 14px">
+    <input class="search-inp" type="text" placeholder="🔍 Search products..." id="searchInp" oninput="searchProducts(this.value)">
+  </div>
   <div class="hero">
     <div class="hero-tag">New Arrivals ✨</div>
     <h1>Cute fits for<br>little ones 🐝</h1>
@@ -182,7 +192,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);
     <div class="size-label">Color</div>
     <div class="color-grid" id="colorGrid"></div>
     <div class="prod-desc" id="prodDescTxt">--</div>
-    <button class="add-cart-btn" onclick="addToCart()">🛒 Add to Cart</button>
+    <div style="display:flex;gap:10px">
+    <button class="add-cart-btn" onclick="addToCart()" style="flex:1">🛒 Add to Cart</button>
+    <button onclick="shareProduct(curProduct)" style="width:50px;padding:15px;background:var(--white);border:1.5px solid var(--gray2);border-radius:var(--r);font-size:1.2rem;cursor:pointer;flex-shrink:0">🔗</button>
+  </div>
   </div>
   <div class="pb-safe"></div>
 </div>
@@ -350,10 +363,133 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);
   </div>
 </div>
 
+<!-- LOGIN SCREEN -->
+<div class="screen" id="s-login">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-home')">←</button>
+    <div class="screen-title">Sign In</div>
+  </div>
+  <div style="padding:24px;display:flex;flex-direction:column;gap:14px;flex:1">
+    <div style="text-align:center;margin-bottom:8px">
+      <div style="font-size:2.5rem;margin-bottom:8px">🐝</div>
+      <div style="font-family:Syne,sans-serif;font-weight:800;font-size:1.2rem;color:var(--navy)">Welcome to Bbee.Co!</div>
+      <div style="font-size:.82rem;color:var(--gray6)">Sign in to track your orders</div>
+    </div>
+
+    <!-- Social Login -->
+    <button class="social-btn" onclick="signInGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px">
+      <span>Continue with Google</span>
+    </button>
+    <button class="social-btn" onclick="signInFacebook()" style="background:#1877F2;color:var(--white);border-color:#1877F2">
+      <span style="font-size:1.2rem;font-weight:800">f</span>
+      <span>Continue with Facebook</span>
+    </button>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:4px 0">
+      <div style="flex:1;height:1px;background:var(--gray2)"></div>
+      <div style="font-size:.75rem;color:var(--gray4)">or</div>
+      <div style="flex:1;height:1px;background:var(--gray2)"></div>
+    </div>
+
+    <!-- Email Login -->
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-inp" id="authEmail" placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-inp" id="authPw" placeholder="••••••••">
+    </div>
+    <div id="authErr" style="display:none;font-size:.75rem;color:var(--red);font-weight:600"></div>
+
+    <button class="order-btn" onclick="signInEmail()">Sign In</button>
+    <button class="social-btn" onclick="goScreen('s-register')" style="background:none;border-color:var(--navy);color:var(--navy)">
+      Create Account
+    </button>
+    <button onclick="goScreen('s-home')" style="background:none;border:none;font-size:.78rem;color:var(--gray4);cursor:pointer;text-align:center">
+      Continue as Guest
+    </button>
+  </div>
+</div>
+
+<!-- REGISTER SCREEN -->
+<div class="screen" id="s-register">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-login')">←</button>
+    <div class="screen-title">Create Account</div>
+  </div>
+  <div style="padding:24px;display:flex;flex-direction:column;gap:14px;flex:1">
+    <div style="text-align:center;margin-bottom:8px">
+      <div style="font-size:2rem;margin-bottom:6px">🐝</div>
+      <div style="font-family:Syne,sans-serif;font-weight:800;font-size:1.1rem;color:var(--navy)">Join Bbee.Co!</div>
+      <div style="font-size:.82rem;color:var(--gray6)">Or sign up with</div>
+    </div>
+
+    <button class="social-btn" onclick="signInGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px">
+      <span>Continue with Google</span>
+    </button>
+    <button class="social-btn" onclick="signInFacebook()" style="background:#1877F2;color:var(--white);border-color:#1877F2">
+      <span style="font-size:1.2rem;font-weight:800">f</span>
+      <span>Continue with Facebook</span>
+    </button>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:4px 0">
+      <div style="flex:1;height:1px;background:var(--gray2)"></div>
+      <div style="font-size:.75rem;color:var(--gray4)">or create with email</div>
+      <div style="flex:1;height:1px;background:var(--gray2)"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input type="text" class="form-inp" id="regName" placeholder="Juan dela Cruz">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-inp" id="regEmail" placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password (min 6 characters)</label>
+      <input type="password" class="form-inp" id="regPw" placeholder="••••••••">
+    </div>
+    <div id="regErr" style="display:none;font-size:.75rem;color:var(--red);font-weight:600"></div>
+    <button class="order-btn" onclick="registerEmail()">Create Account</button>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="screen" id="s-profile">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-home')">←</button>
+    <div class="screen-title">My Account</div>
+  </div>
+  <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+    <!-- User Info -->
+    <div style="background:var(--white);border-radius:var(--r);padding:20px;box-shadow:var(--sh);display:flex;align-items:center;gap:14px">
+      <div id="profileAvatar" style="width:56px;height:56px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-weight:800;font-size:1.3rem;color:var(--navy);overflow:hidden;flex-shrink:0">?</div>
+      <div>
+        <div style="font-family:Syne,sans-serif;font-weight:800;font-size:1rem;color:var(--navy)" id="profileName">--</div>
+        <div style="font-size:.78rem;color:var(--gray6)" id="profileEmail">--</div>
+      </div>
+    </div>
+
+    <!-- My Orders -->
+    <div style="background:var(--white);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)">
+      <div style="background:var(--navy);padding:12px 16px;font-family:Syne,sans-serif;font-weight:700;font-size:.82rem;color:var(--white);text-transform:uppercase;letter-spacing:.05em">My Orders</div>
+      <div id="myOrdersList" style="max-height:300px;overflow-y:auto"></div>
+    </div>
+
+    <button class="order-btn" style="background:var(--red)" onclick="signOut()">Sign Out</button>
+  </div>
+  <div class="pb-safe"></div>
+</div>
+
 <nav class="bottom-nav">
   <button class="nav-btn active" id="nav-home" onclick="goScreen('s-home');setNav('nav-home')"><span class="nav-icon">🏠</span><span class="nav-lbl">Home</span></button>
   <button class="nav-btn" id="nav-shop" onclick="goScreen('s-home');filterCat('All',document.querySelector('.cat-btn'));setNav('nav-shop')"><span class="nav-icon">👗</span><span class="nav-lbl">Shop</span></button>
   <button class="nav-btn" id="nav-cart" onclick="goScreen('s-cart');renderCart();setNav('nav-cart')"><span class="nav-icon">🛒</span><span class="nav-lbl">Cart</span></button>
+  <button class="nav-btn" id="nav-profile" onclick="openProfile();setNav('nav-profile')"><span class="nav-icon">👤</span><span class="nav-lbl">Account</span></button>
   <button class="nav-btn" id="nav-admin" onclick="goScreen('s-admin-login');setNav('nav-admin')"><span class="nav-icon">⚙️</span><span class="nav-lbl">Admin</span></button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -395,6 +531,7 @@ function goScreen(id){
   var showHeader=['s-home','s-product'].indexOf(id)!==-1;
   document.getElementById('mainHeader').style.display=showHeader?'':'none';
   if(id==='s-admin'){renderAdminProducts();renderOrders();loadOrdersFromSheet();}
+  if(id==='s-checkout'){prefillCheckout();}
 }
 function setNav(id){document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById(id).classList.add('active');}
 
@@ -493,7 +630,7 @@ function placeOrder(){
   if(!cart.length){showToast('Walang items sa cart!');return;}
   var total=cart.reduce(function(s,i){return s+i.price*i.qty;},0);
   var orderId='BEE-'+String(Date.now()).slice(-6);
-  orders.push({id:orderId,name:name,phone:phone,address:addr,delivery:selDelivery2,payment:selPayMethod,items:cart.slice(),total:total,status:'Pending',date:new Date().toLocaleString('en-PH')});
+  orders.push({id:orderId,name:name,phone:phone,address:addr,delivery:selDelivery2,payment:selPayMethod,items:cart.slice(),total:total,status:'Pending',date:new Date().toLocaleString('en-PH'),email:curUser?curUser.email:''});
   saveData();
   document.getElementById('successOrderNum').textContent='#'+orderId;
   var insts={gcash:['GCash: 09XX XXX XXXX','Account Name: Bbee.Co','Amount: ₱'+total,'Send screenshot as proof'],maya:['Maya: 09XX XXX XXXX','Account Name: Bbee.Co','Amount: ₱'+total,'Send screenshot as proof'],bank:['Bank: BDO / BPI / UnionBank','Account: XXXX-XXXX-XXXX','Name: Bbee.Co','Amount: ₱'+total,'Send screenshot as proof'],cod:['Pay ₱'+total+' upon delivery','Prepare exact amount','Our rider will contact you']};
@@ -621,6 +758,219 @@ function handleImgUpload(e){
 }
 
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+
+
+
+// ── PRODUCT SEARCH ──
+function searchProducts(query) {
+  query = query.trim().toLowerCase();
+  if (!query) {
+    renderProducts(products);
+    document.getElementById('productsTitle').textContent = 'All Products';
+    return;
+  }
+  var filtered = products.filter(function(p) {
+    return p.name.toLowerCase().indexOf(query) !== -1 ||
+           p.cat.toLowerCase().indexOf(query) !== -1 ||
+           p.desc.toLowerCase().indexOf(query) !== -1;
+  });
+  document.getElementById('productsTitle').textContent = 'Results for "' + query + '"';
+  renderProducts(filtered);
+}
+
+// ── SHARE PRODUCT ──
+function shareProduct(p) {
+  var url  = window.location.href;
+  var text = '🐝 Check out this cute kids outfit from Bbee.Co!
+
+' + p.name + ' — ₱' + p.price + '
+
+' + url;
+
+  if (navigator.share) {
+    navigator.share({
+      title: p.name + ' — Bbee.Co',
+      text:  p.name + ' — ₱' + p.price,
+      url:   url
+    }).catch(function(){});
+  } else {
+    // Fallback — copy to clipboard
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('Link copied! I-share sa friends mo 😊');
+    }).catch(function() {
+      showToast('I-share ang link: ' + url);
+    });
+  }
+}
+
+
+// ── FIREBASE AUTH ──
+var firebaseConfig = {
+  apiKey: "AIzaSyBU9GRgPz2kBxUifRSWCwCn1K5fp-ArNBc",
+  authDomain: "bbee-shop.firebaseapp.com",
+  projectId: "bbee-shop",
+  storageBucket: "bbee-shop.firebasestorage.app",
+  messagingSenderId: "475135864874",
+  appId: "1:475135864874:web:9c45bfc3e7b93de49f1353",
+  measurementId: "G-Z3YFS3M507"
+};
+
+firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var curUser = null;
+
+// Auth state listener
+auth.onAuthStateChanged(function(user) {
+  curUser = user;
+  updateNavProfile();
+});
+
+function updateNavProfile() {
+  var navProfile = document.getElementById('nav-profile');
+  if (!navProfile) return;
+  if (curUser) {
+    navProfile.querySelector('.nav-icon').textContent = '👤';
+    navProfile.querySelector('.nav-lbl').textContent = curUser.displayName ? curUser.displayName.split(' ')[0] : 'Account';
+  } else {
+    navProfile.querySelector('.nav-icon').textContent = '👤';
+    navProfile.querySelector('.nav-lbl').textContent = 'Account';
+  }
+}
+
+// Google Sign In
+function signInGoogle() {
+  var provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then(function(result) {
+      curUser = result.user;
+      showToast('Welcome, ' + (curUser.displayName||curUser.email) + '! 👋');
+      goScreen('s-home');
+    })
+    .catch(function(e) {
+      showToast('Google sign in failed: ' + e.message);
+    });
+}
+
+// Facebook Sign In
+function signInFacebook() {
+  var provider = new firebase.auth.FacebookAuthProvider();
+  auth.signInWithPopup(provider)
+    .then(function(result) {
+      curUser = result.user;
+      showToast('Welcome, ' + (curUser.displayName||curUser.email) + '! 👋');
+      goScreen('s-home');
+    })
+    .catch(function(e) {
+      showToast('Facebook sign in failed. ' + e.message);
+    });
+}
+
+// Email Sign In
+function signInEmail() {
+  var email = document.getElementById('authEmail').value.trim();
+  var pw    = document.getElementById('authPw').value;
+  var errEl = document.getElementById('authErr');
+  errEl.style.display = 'none';
+
+  if (!email || !pw) { showToast('I-enter ang email at password!'); return; }
+
+  auth.signInWithEmailAndPassword(email, pw)
+    .then(function(result) {
+      curUser = result.user;
+      showToast('Welcome back! 👋');
+      goScreen('s-home');
+    })
+    .catch(function(e) {
+      errEl.textContent = e.code === 'auth/user-not-found' ? 'Walang account na may email na ito.' :
+                          e.code === 'auth/wrong-password' ? 'Mali ang password.' :
+                          e.message;
+      errEl.style.display = 'block';
+    });
+}
+
+// Email Register
+function registerEmail() {
+  var name  = document.getElementById('regName').value.trim();
+  var email = document.getElementById('regEmail').value.trim();
+  var pw    = document.getElementById('regPw').value;
+  var errEl = document.getElementById('regErr');
+  errEl.style.display = 'none';
+
+  if (!name)  { showToast('I-enter ang iyong pangalan!'); return; }
+  if (!email) { showToast('I-enter ang email!'); return; }
+  if (pw.length < 6) { showToast('Password must be at least 6 characters!'); return; }
+
+  auth.createUserWithEmailAndPassword(email, pw)
+    .then(function(result) {
+      return result.user.updateProfile({ displayName: name });
+    })
+    .then(function() {
+      curUser = auth.currentUser;
+      showToast('Account created! Welcome, ' + name + '! 🎉');
+      goScreen('s-home');
+    })
+    .catch(function(e) {
+      errEl.textContent = e.code === 'auth/email-already-in-use' ? 'May account na ang email na ito.' :
+                          e.code === 'auth/invalid-email' ? 'Invalid email address.' :
+                          e.message;
+      errEl.style.display = 'block';
+    });
+}
+
+// Sign Out
+function signOut() {
+  auth.signOut().then(function() {
+    curUser = null;
+    showToast('Signed out!');
+    goScreen('s-home');
+  });
+}
+
+// Open Profile
+function openProfile() {
+  if (!curUser) {
+    goScreen('s-login');
+    return;
+  }
+  // Set profile info
+  var av = document.getElementById('profileAvatar');
+  if (curUser.photoURL) {
+    av.innerHTML = '<img src="'+curUser.photoURL+'" style="width:100%;height:100%;object-fit:cover">';
+  } else {
+    av.textContent = (curUser.displayName||curUser.email||'?')[0].toUpperCase();
+  }
+  document.getElementById('profileName').textContent  = curUser.displayName || 'User';
+  document.getElementById('profileEmail').textContent = curUser.email || '';
+
+  // Show user's orders
+  var myOrders = orders.filter(function(o){ return o.email === curUser.email; });
+  var el = document.getElementById('myOrdersList');
+  if (!myOrders.length) {
+    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--gray4);font-size:.8rem">Walang orders pa.</div>';
+  } else {
+    el.innerHTML = myOrders.slice().reverse().map(function(o) {
+      return '<div style="padding:12px 16px;border-bottom:1px solid var(--gray1)">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:2px">' +
+          '<span style="font-family:Syne,sans-serif;font-weight:700;font-size:.8rem">#'+o.id+'</span>' +
+          '<span style="font-size:.72rem;color:var(--gray4)">'+o.date+'</span>' +
+        '</div>' +
+        '<div style="font-size:.75rem;color:var(--gray6)">'+o.items.length+' item(s) • ₱'+o.total+'</div>' +
+        '<div style="font-size:.72rem;font-weight:700;color:var(--gold-dark)">'+o.status+'</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  goScreen('s-profile');
+}
+
+// Pre-fill checkout name/email if logged in
+function prefillCheckout() {
+  if (curUser) {
+    if (curUser.displayName) document.getElementById('coName').value = curUser.displayName;
+    if (curUser.email)       document.getElementById('coPhone').value = '';
+  }
+}
+
 
 loadData();renderProducts(products);updateCartCount();
 </script>
