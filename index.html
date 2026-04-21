@@ -265,12 +265,30 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 <div class="screen on" id="s-home">
   
 <!-- FLASH SALE BANNER -->
-<div id="flashBanner" style="display:none" class="flash-banner">
-  <div>
-    <div class="flash-title">Flash Sale!</div>
-    <div id="flashLabel" style="font-size:.72rem;color:rgba(255,255,255,.7)">Limited time offer</div>
+<div id="flashBanner" style="display:none;background:#EF4444;padding:14px 20px;text-align:center;position:relative;overflow:hidden">
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0px,rgba(255,255,255,.05) 2px,transparent 2px,transparent 8px)"></div>
+  <div style="position:relative;z-index:1">
+    <div style="font-family:Playfair Display,serif;font-weight:900;font-size:1.1rem;color:var(--white);letter-spacing:.02em;margin-bottom:4px" id="flashLabelDisp">Flash Sale!</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
+      <div style="font-size:.75rem;color:rgba(255,255,255,.8)">Ends in:</div>
+      <div style="display:flex;gap:6px">
+        <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:4px 10px;text-align:center">
+          <div style="font-family:DM Sans,sans-serif;font-weight:800;font-size:1.1rem;color:var(--white)" id="flashHH">00</div>
+          <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.08em">HRS</div>
+        </div>
+        <div style="font-weight:800;font-size:1.1rem;color:var(--white);padding-top:4px">:</div>
+        <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:4px 10px;text-align:center">
+          <div style="font-family:DM Sans,sans-serif;font-weight:800;font-size:1.1rem;color:var(--white)" id="flashMM">00</div>
+          <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.08em">MIN</div>
+        </div>
+        <div style="font-weight:800;font-size:1.1rem;color:var(--white);padding-top:4px">:</div>
+        <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:4px 10px;text-align:center">
+          <div style="font-family:DM Sans,sans-serif;font-weight:800;font-size:1.1rem;color:var(--white)" id="flashSS">00</div>
+          <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.08em">SEC</div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="flash-timer" id="flashTimer">00:00:00</div>
 </div>
 
 <div class="search-wrap">
@@ -1170,10 +1188,13 @@ function startFlashTimer() {
   if (flashInterval) clearInterval(flashInterval);
 
   var banner   = document.getElementById('flashBanner');
-  var timerEl  = document.getElementById('flashTimer');
-  var labelEl  = document.getElementById('flashLabel');
-  banner.style.display = 'flex';
-  if (labelEl) labelEl.textContent = flash.label || 'Flash Sale!';
+  banner.style.display = 'block';
+
+  var hhEl = document.getElementById('flashHH');
+  var mmEl = document.getElementById('flashMM');
+  var ssEl = document.getElementById('flashSS');
+  var lblEl2 = document.getElementById('flashLabelDisp');
+  if (lblEl2) lblEl2.textContent = flash.label || 'Flash Sale!';
 
   flashInterval = setInterval(function() {
     var now  = Date.now();
@@ -1188,7 +1209,9 @@ function startFlashTimer() {
     var h = Math.floor(diff/3600000);
     var m = Math.floor((diff%3600000)/60000);
     var s = Math.floor((diff%60000)/1000);
-    timerEl.textContent = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    if(hhEl) hhEl.textContent = String(h).padStart(2,'0');
+    if(mmEl) mmEl.textContent = String(m).padStart(2,'0');
+    if(ssEl) ssEl.textContent = String(s).padStart(2,'0');
   }, 1000);
 }
 
