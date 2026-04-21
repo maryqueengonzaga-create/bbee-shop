@@ -233,6 +233,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 /* ── TOAST ── */
 .toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);background:var(--black);color:var(--white);padding:11px 22px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.82rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300;white-space:nowrap;box-shadow:var(--sh-lg)}
 .toast.show{opacity:1}
+
+/* ── SALE & PROMO ── */
+.sale-badge{position:absolute;top:12px;right:12px;background:#EF4444;color:var(--white);font-size:.6rem;font-weight:700;padding:4px 8px;border-radius:100px;letter-spacing:.06em}
+.original-price{font-size:.78rem;color:var(--gray5);text-decoration:line-through;margin-right:6px}
+.sale-price{font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:#EF4444}
+.flash-banner{background:var(--black);color:var(--white);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.flash-title{font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;letter-spacing:.02em}
+.flash-timer{font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;color:#FFD700;letter-spacing:.1em}
+.promo-box{background:var(--gray1);border:1.5px dashed var(--gray3);border-radius:var(--r-sm);padding:14px 16px;margin-top:4px}
+.promo-inp{border:none;background:none;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--black);outline:none;width:100%;letter-spacing:.08em;text-transform:uppercase}
+.promo-apply{background:var(--black);border:none;border-radius:100px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.78rem;color:var(--white);cursor:pointer;flex-shrink:0}
+.promo-success{font-size:.75rem;color:#22C55E;font-weight:600;margin-top:6px}
+.promo-err{font-size:.75rem;color:#EF4444;font-weight:600;margin-top:6px}
+.discount-row{display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem}
+.discount-amt{font-weight:700;color:#22C55E}
+
 </style>
 </head>
 <body>
@@ -247,7 +263,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 
 <!-- HOME -->
 <div class="screen on" id="s-home">
-  <div class="search-wrap">
+  
+<!-- FLASH SALE BANNER -->
+<div id="flashBanner" style="display:none" class="flash-banner">
+  <div>
+    <div class="flash-title">Flash Sale!</div>
+    <div id="flashLabel" style="font-size:.72rem;color:rgba(255,255,255,.7)">Limited time offer</div>
+  </div>
+  <div class="flash-timer" id="flashTimer">00:00:00</div>
+</div>
+
+<div class="search-wrap">
     <input class="search-inp" type="text" placeholder="Search products..." id="searchInp" oninput="searchProducts(this.value)">
   </div>
   <div class="hero">
@@ -342,6 +368,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
       </div>
     </div>
     <div class="order-total-box"><div class="order-total-lbl">Order Total</div><div class="order-total-amt" id="coTotal">P0</div></div>
+    <div class="form-group">
+      <label class="form-label">Promo Code</label>
+      <div class="promo-box">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="promo-inp" type="text" id="promoInp" placeholder="ENTER CODE">
+          <button class="promo-apply" onclick="applyPromo()">Apply</button>
+        </div>
+        <div id="promoMsg"></div>
+      </div>
+    </div>
+    <div id="discountRow" style="display:none" class="discount-row">
+      <div style="color:var(--gray5)">Discount</div>
+      <div class="discount-amt" id="discountAmt">-P0</div>
+    </div>
     <button class="place-btn" onclick="placeOrder()">Place Order</button>
   </div>
 </div>
@@ -450,6 +490,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
       <div class="admin-card-hdr">Customers</div>
       <div id="adminCustomersList"></div>
     </div>
+    <div class="admin-card">
+      <div class="admin-card-hdr">Promos &amp; Sales <button class="admin-add-btn" onclick="goScreen('s-promos')">Manage</button></div>
+      <div id="adminPromosList" style="padding:12px 16px;font-size:.8rem;color:var(--gray5)">Tap Manage to set promos</div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-hdr">Categories <button class="admin-add-btn" onclick="goScreen('s-categories')">Manage</button></div>
+      <div id="adminCatsList"></div>
+    </div>
   </div>
 </div>
 
@@ -470,6 +518,83 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-inp" id="prodDesc2" placeholder="Cute and comfy outfit for your little one!"></div>
     <div class="form-group"><label class="form-label">Stock</label><input type="number" class="form-inp" id="prodStock" placeholder="10"></div>
     <button class="place-btn" onclick="saveProduct()">Save Product</button>
+  </div>
+</div>
+
+<!-- PROMOS SCREEN -->
+<div class="screen" id="s-promos">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-admin')">&#8592;</button>
+    <div class="screen-title">Promos &amp; Sales</div>
+  </div>
+  <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+
+    <!-- Flash Sale -->
+    <div style="border:1px solid var(--gray2);border-radius:var(--r-sm);overflow:hidden">
+      <div style="background:var(--black);padding:12px 16px;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--white)">Flash Sale</div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+        <div class="form-group"><label class="form-label">Sale Label</label><input type="text" class="form-inp" id="flashLabelInp" placeholder="e.g. Summer Sale!"></div>
+        <div class="form-group"><label class="form-label">End Date &amp; Time</label><input type="datetime-local" class="form-inp" id="flashEndInp"></div>
+        <div class="form-group"><label class="form-label">Sale Discount on ALL products</label>
+          <div style="display:flex;gap:8px">
+            <input type="number" class="form-inp" id="flashDiscInp" placeholder="e.g. 20" style="flex:1">
+            <select class="form-select" id="flashDiscType" style="width:100px"><option value="pct">% off</option><option value="fixed">P off</option></select>
+          </div>
+        </div>
+        <button class="place-btn" onclick="saveFlashSale()">Start Flash Sale</button>
+        <button onclick="stopFlashSale()" style="width:100%;padding:12px;border-radius:100px;border:1.5px solid var(--gray2);background:var(--white);font-family:DM Sans,sans-serif;font-weight:600;font-size:.88rem;color:var(--gray7);cursor:pointer">Stop Flash Sale</button>
+      </div>
+    </div>
+
+    <!-- Promo Codes -->
+    <div style="border:1px solid var(--gray2);border-radius:var(--r-sm);overflow:hidden">
+      <div style="background:var(--black);padding:12px 16px;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--white)">Promo Codes</div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+        <div class="form-group"><label class="form-label">Code</label><input type="text" class="form-inp" id="promoCodeInp" placeholder="e.g. BBEE10" style="text-transform:uppercase"></div>
+        <div class="form-group"><label class="form-label">Discount</label>
+          <div style="display:flex;gap:8px">
+            <input type="number" class="form-inp" id="promoDiscInp" placeholder="e.g. 10" style="flex:1">
+            <select class="form-select" id="promoDiscType" style="width:100px"><option value="pct">% off</option><option value="fixed">P off</option></select>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Min. Order Amount (P)</label><input type="number" class="form-inp" id="promoMinInp" placeholder="0 = no minimum"></div>
+        <div class="form-group"><label class="form-label">Max Uses (0 = unlimited)</label><input type="number" class="form-inp" id="promoMaxInp" placeholder="0"></div>
+        <button class="place-btn" onclick="addPromoCode()">Add Promo Code</button>
+        <div id="promoCodesList" style="margin-top:4px"></div>
+      </div>
+    </div>
+
+    <!-- Per Product Sale -->
+    <div style="border:1px solid var(--gray2);border-radius:var(--r-sm);overflow:hidden">
+      <div style="background:var(--black);padding:12px 16px;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--white)">Product Sale Prices</div>
+      <div style="padding:16px">
+        <div id="productSaleList" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES SCREEN -->
+<div class="screen" id="s-categories">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-admin')">&#8592;</button>
+    <div class="screen-title">Categories</div>
+  </div>
+  <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+    <div style="background:var(--gray1);border-radius:var(--r-sm);padding:14px;font-size:.8rem;color:var(--gray5)">
+      Manage your product categories. Changes will reflect in the shop.
+    </div>
+    <!-- Add Category -->
+    <div style="border:1px solid var(--gray2);border-radius:var(--r-sm);padding:16px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray7)">Add Category</div>
+      <div style="display:flex;gap:8px">
+        <input type="text" class="form-inp" id="catNameInp" placeholder="e.g. Pajamas" style="flex:1">
+        <input type="text" class="form-inp" id="catEmojiInp" placeholder="Emoji" style="width:70px;text-align:center">
+      </div>
+      <button class="place-btn" onclick="addCategory()">Add Category</button>
+    </div>
+    <!-- Category List -->
+    <div id="categoriesList" style="display:flex;flex-direction:column;gap:8px"></div>
   </div>
 </div>
 
@@ -521,6 +646,8 @@ function goScreen(id){
   var showHeader=['s-home','s-product'].indexOf(id)!==-1;
   document.getElementById('mainHeader').style.display=showHeader?'':'none';
   if(id==='s-admin'){renderAdminProducts();renderOrders();renderAdminCustomers();}
+  if(id==='s-promos'){renderPromoCodesList();renderProductSaleList();}
+  if(id==='s-categories'){renderCategoriesList();}
   if(id==='s-checkout'){prefillCheckout();}
 }
 function setNav(id){document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById(id).classList.add('active');}
@@ -559,14 +686,22 @@ function renderProducts(prods){
     var imgContent=p.img
       ?'<img src="'+p.img+'" alt="'+p.name+'">'
       :'<div style="width:100%;height:100%;background:var(--gray1);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gray3)">'+p.cat+'</div>';
+    var flashDisc = getFlashDiscount(p.price);
+    var effPrice = p.salePrice || (flashDisc>0 ? p.price-flashDisc : p.price);
+    var onSale = effPrice < p.price;
+    var pctOff = onSale ? Math.round((1-effPrice/p.price)*100) : 0;
+    var priceHtml = onSale
+      ? '<span class="original-price">P'+p.price+'</span><span class="sale-price">P'+effPrice+'</span>'
+      : '<span style="font-family:Playfair Display,serif;font-weight:700;font-size:1rem">P'+p.price+'</span>';
     card.innerHTML=
       '<div class="product-img-wrap">'+imgContent+'</div>'+
-      (p.isNew?'<div class="product-badge new-badge">New</div>':'')+
-      (p.stock<=3&&p.stock>0?'<div class="product-badge">Low Stock</div>':'')+
+      (p.isNew&&!onSale?'<div class="product-badge new-badge">New</div>':'')+
+      (onSale?'<div class="sale-badge">-'+pctOff+'%</div>':'')+
+      (p.stock<=3&&p.stock>0&&!onSale?'<div class="product-badge">Low Stock</div>':'')+
       '<div class="product-info">'+
         '<div class="product-cat-lbl">'+p.cat+'</div>'+
         '<div class="product-name">'+p.name+'</div>'+
-        '<div class="product-price">P'+p.price+'</div>'+
+        '<div style="display:flex;align-items:center">'+priceHtml+'</div>'+
       '</div>'+
       '<button class="add-mini" onclick="quickAdd(event,'+p.id+')">+</button>';
     grid.appendChild(card);
@@ -589,7 +724,15 @@ function openProduct(p){
   }
   document.getElementById('prodDetailCat').textContent=p.cat;
   document.getElementById('prodDetailName').textContent=p.name;
-  document.getElementById('prodDetailPrice').textContent='P'+p.price;
+  var flashDisc2 = getFlashDiscount(p.price);
+  var effPrice2  = p.salePrice || (flashDisc2>0 ? p.price-flashDisc2 : p.price);
+  var priceEl    = document.getElementById('prodDetailPrice');
+  if (effPrice2 < p.price) {
+    priceEl.innerHTML = '<span style="font-size:.9rem;color:var(--gray5);text-decoration:line-through;margin-right:8px">P'+p.price+'</span><span style="color:#EF4444">P'+effPrice2+'</span>';
+  } else {
+    priceEl.textContent = 'P'+p.price;
+  }
+  curProduct._effPrice = effPrice2;
   document.getElementById('prodDescTxt').textContent=p.desc;
   var sg=document.getElementById('sizeGrid');sg.innerHTML='';
   p.sizes.forEach(function(sz){var btn=document.createElement('button');btn.className='size-btn';btn.textContent=sz;btn.onclick=function(){document.querySelectorAll('.size-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');selSize=sz;};sg.appendChild(btn);});
@@ -604,7 +747,7 @@ function addToCart(){
   if(!curProduct)return;
   var existing=cart.find(function(i){return i.id===curProduct.id&&i.size===selSize&&i.color===selColor;});
   if(existing)existing.qty++;
-  else cart.push({id:curProduct.id,name:curProduct.name,price:curProduct.price,img:curProduct.img,size:selSize,color:selColor,qty:1});
+  else cart.push({id:curProduct.id,name:curProduct.name,price:curProduct._effPrice||curProduct.price,origPrice:curProduct.price,img:curProduct.img,size:selSize,color:selColor,qty:1});
   saveData();updateCartCount();showToast('Added to cart!');goScreen('s-home');
 }
 
@@ -636,7 +779,9 @@ function renderCart(){
       '<div class="qty-ctrl"><button class="qty-btn" onclick="changeQty('+idx+',-1)">-</button><div class="qty-num">'+item.qty+'</div><button class="qty-btn" onclick="changeQty('+idx+',1)">+</button></div>';
     el.appendChild(div);
   });
-  var total=cart.reduce(function(s,i){return s+i.price*i.qty;},0);
+  var subtotal=cart.reduce(function(s,i){return s+i.price*i.qty;},0);
+  var total=subtotal-promoDiscount;
+  if(total<0)total=0;
   document.getElementById('cartTotal').textContent='P'+total;
   document.getElementById('coTotal').textContent='P'+total;
   document.getElementById('cartFooter').style.display='';
@@ -668,6 +813,14 @@ function placeOrder(){
   if(APPS_SCRIPT_URL){
     var itemsStr=cart.map(function(i){return i.name+' ('+i.size+'/'+i.color+') x'+i.qty;}).join(', ');
     fetch(APPS_SCRIPT_URL+'?'+new URLSearchParams({type:'NEW_ORDER',orderId:orderId,name:name,phone:phone,address:addr,delivery:selDelivery2,payment:selPayMethod,total:total,items:itemsStr,date:now})).catch(function(){});
+  }
+  // Track promo code usage
+  if(appliedPromo){
+    var codes=getPromoCodes();
+    var c=codes.find(function(x){return x.code===appliedPromo.code;});
+    if(c)c.uses++;
+    savePromoCodes(codes);
+    appliedPromo=null;promoDiscount=0;
   }
   goScreen('s-success');showToast('Order placed!');
 }
@@ -908,7 +1061,262 @@ function openProfile(){
   goScreen('s-profile');
 }
 
-loadData();renderProducts(products);updateCartCount();
+
+// ── CATEGORIES ──
+var DEFAULT_CATS = ['Dresses','Tops','Bottoms','Sets','Accessories'];
+
+function getCategories() {
+  try { return JSON.parse(_g('categories','[]')); } catch(e) { return []; }
+}
+function saveCategories(cats) { _s('categories', JSON.stringify(cats)); }
+
+function getAllCategories() {
+  var custom = getCategories();
+  var all = DEFAULT_CATS.map(function(c){ return {name:c,emoji:'',isDefault:true}; });
+  custom.forEach(function(c){
+    if(!all.find(function(x){return x.name===c.name;})) all.push(c);
+  });
+  return all;
+}
+
+function renderCategoryBtns() {
+  var scroll = document.querySelector('.cat-scroll');
+  if (!scroll) return;
+  var cats = getAllCategories();
+  scroll.innerHTML = '<button class="cat-btn active" onclick="filterCat(&quot;All&quot;,this)">All</button>';
+  cats.forEach(function(c) {
+    var btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.textContent = (c.emoji ? c.emoji + ' ' : '') + c.name;
+    btn.onclick = function(){ filterCat(c.name, btn); };
+    scroll.appendChild(btn);
+  });
+}
+
+function addCategory() {
+  var name  = document.getElementById('catNameInp').value.trim();
+  var emoji = document.getElementById('catEmojiInp').value.trim();
+  if (!name) { showToast('Enter category name!'); return; }
+  var cats = getCategories();
+  if (cats.find(function(c){ return c.name === name; })) {
+    showToast('Category already exists!'); return;
+  }
+  cats.push({ name:name, emoji:emoji, isDefault:false });
+  saveCategories(cats);
+  document.getElementById('catNameInp').value = '';
+  document.getElementById('catEmojiInp').value = '';
+  renderCategoriesList();
+  renderCategoryBtns();
+  showToast('Category added: ' + name);
+}
+
+function deleteCategory(name) {
+  var cats = getCategories().filter(function(c){ return c.name !== name; });
+  saveCategories(cats);
+  renderCategoriesList();
+  renderCategoryBtns();
+  showToast('Category deleted!');
+}
+
+function renderCategoriesList() {
+  var el = document.getElementById('categoriesList');
+  if (!el) return;
+  var cats = getAllCategories();
+  el.innerHTML = '';
+  cats.forEach(function(c) {
+    var div = document.createElement('div');
+    div.style.cssText = 'background:var(--white);border:1px solid var(--gray2);border-radius:var(--r-sm);padding:12px 16px;display:flex;align-items:center;gap:10px';
+    div.innerHTML =
+      '<div style="font-size:1.2rem;width:28px;text-align:center">'+(c.emoji||'&#9632;')+'</div>'+
+      '<div style="flex:1;font-weight:600;font-size:.88rem">'+c.name+'</div>'+
+      (c.isDefault
+        ? '<div style="font-size:.7rem;color:var(--gray5);background:var(--gray1);padding:3px 10px;border-radius:100px">Default</div>'
+        : '<button onclick="deleteCategory(\"'+c.name+'\")" style="background:none;border:1px solid var(--gray2);border-radius:100px;padding:4px 12px;font-size:.72rem;font-weight:600;color:var(--gray7);cursor:pointer">Delete</button>');
+    el.appendChild(div);
+  });
+}
+
+// ── FLASH SALE ──
+var flashInterval = null;
+
+function getFlashSale() {
+  try { return JSON.parse(_g('flash_sale','{}')); } catch(e) { return {}; }
+}
+
+function saveFlashSale2() {
+  var label    = document.getElementById('flashLabelInp').value.trim() || 'Flash Sale!';
+  var endInput = document.getElementById('flashEndInp').value;
+  var disc     = parseFloat(document.getElementById('flashDiscInp').value) || 0;
+  var type     = document.getElementById('flashDiscType').value;
+  if (!endInput) { showToast('Set end date and time!'); return; }
+  if (!disc) { showToast('Set discount amount!'); return; }
+  var flash = { label:label, endTime:new Date(endInput).getTime(), disc:disc, type:type, active:true };
+  _s('flash_sale', JSON.stringify(flash));
+  startFlashTimer();
+  showToast('Flash sale started!');
+  goScreen('s-admin');
+}
+
+function stopFlashSale() {
+  _s('flash_sale', JSON.stringify({ active:false }));
+  if (flashInterval) clearInterval(flashInterval);
+  document.getElementById('flashBanner').style.display = 'none';
+  showToast('Flash sale stopped!');
+}
+
+function startFlashTimer() {
+  var flash = getFlashSale();
+  if (!flash.active || !flash.endTime) return;
+  if (flashInterval) clearInterval(flashInterval);
+
+  var banner   = document.getElementById('flashBanner');
+  var timerEl  = document.getElementById('flashTimer');
+  var labelEl  = document.getElementById('flashLabel');
+  banner.style.display = 'flex';
+  if (labelEl) labelEl.textContent = flash.label || 'Flash Sale!';
+
+  flashInterval = setInterval(function() {
+    var now  = Date.now();
+    var diff = flash.endTime - now;
+    if (diff <= 0) {
+      clearInterval(flashInterval);
+      banner.style.display = 'none';
+      _s('flash_sale', JSON.stringify({ active:false }));
+      renderProducts(products);
+      return;
+    }
+    var h = Math.floor(diff/3600000);
+    var m = Math.floor((diff%3600000)/60000);
+    var s = Math.floor((diff%60000)/1000);
+    timerEl.textContent = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }, 1000);
+}
+
+function getFlashDiscount(price) {
+  var flash = getFlashSale();
+  if (!flash.active || !flash.endTime || Date.now() > flash.endTime) return 0;
+  if (flash.type === 'pct') return Math.round(price * flash.disc / 100);
+  return Math.min(flash.disc, price);
+}
+
+// ── PROMO CODES ──
+var appliedPromo = null;
+var promoDiscount = 0;
+
+function getPromoCodes() {
+  try { return JSON.parse(_g('promo_codes','[]')); } catch(e) { return []; }
+}
+function savePromoCodes(codes) { _s('promo_codes', JSON.stringify(codes)); }
+
+function addPromoCode() {
+  var code  = document.getElementById('promoCodeInp').value.trim().toUpperCase();
+  var disc  = parseFloat(document.getElementById('promoDiscInp').value) || 0;
+  var type  = document.getElementById('promoDiscType').value;
+  var min   = parseFloat(document.getElementById('promoMinInp').value) || 0;
+  var max   = parseInt(document.getElementById('promoMaxInp').value) || 0;
+  if (!code) { showToast('Enter promo code!'); return; }
+  if (!disc) { showToast('Enter discount!'); return; }
+  var codes = getPromoCodes();
+  if (codes.find(function(c){ return c.code === code; })) {
+    showToast('Code already exists!'); return;
+  }
+  codes.push({ code:code, disc:disc, type:type, min:min, max:max, uses:0, active:true });
+  savePromoCodes(codes);
+  document.getElementById('promoCodeInp').value = '';
+  document.getElementById('promoDiscInp').value = '';
+  renderPromoCodesList();
+  showToast('Promo code added: ' + code);
+}
+
+function renderPromoCodesList() {
+  var el = document.getElementById('promoCodesList');
+  if (!el) return;
+  var codes = getPromoCodes();
+  el.innerHTML = '';
+  if (!codes.length) { el.innerHTML = '<div style="font-size:.78rem;color:var(--gray5)">No promo codes yet.</div>'; return; }
+  codes.forEach(function(c, i) {
+    var div = document.createElement('div');
+    div.style.cssText = 'background:var(--gray1);border-radius:var(--r-sm);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px';
+    div.innerHTML =
+      '<div>' +
+        '<div style="font-weight:700;font-size:.88rem;letter-spacing:.08em">'+c.code+'</div>' +
+        '<div style="font-size:.72rem;color:var(--gray5)">'+(c.type==='pct'?c.disc+'% off':'P'+c.disc+' off')+(c.min?' | Min P'+c.min:'')+(c.max?' | '+c.uses+'/'+c.max+' used':'')+'</div>' +
+      '</div>' +
+      '<button onclick="deletePromoCode('+i+')" style="background:none;border:1px solid var(--gray2);border-radius:100px;padding:4px 10px;font-size:.72rem;font-weight:600;color:var(--gray7);cursor:pointer">Delete</button>';
+    el.appendChild(div);
+  });
+}
+
+function deletePromoCode(idx) {
+  var codes = getPromoCodes();
+  codes.splice(idx, 1);
+  savePromoCodes(codes);
+  renderPromoCodesList();
+  showToast('Promo code deleted!');
+}
+
+function applyPromo() {
+  var code  = document.getElementById('promoInp').value.trim().toUpperCase();
+  var msgEl = document.getElementById('promoMsg');
+  var total = cart.reduce(function(s,i){ return s+i.price*i.qty; }, 0);
+  msgEl.className = '';
+  msgEl.textContent = '';
+
+  if (!code) { msgEl.className='promo-err';msgEl.textContent='Enter a promo code!';return; }
+
+  var codes = getPromoCodes();
+  var found = codes.find(function(c){ return c.code===code && c.active; });
+
+  if (!found) { msgEl.className='promo-err';msgEl.textContent='Invalid or expired code!';return; }
+  if (found.min && total < found.min) { msgEl.className='promo-err';msgEl.textContent='Min. order of P'+found.min+' required!';return; }
+  if (found.max && found.uses >= found.max) { msgEl.className='promo-err';msgEl.textContent='Code already maxed out!';return; }
+
+  var disc = found.type==='pct' ? Math.round(total*found.disc/100) : Math.min(found.disc, total);
+  appliedPromo  = found;
+  promoDiscount = disc;
+
+  msgEl.className='promo-success';
+  msgEl.textContent='Applied! You save P'+disc;
+  document.getElementById('discountRow').style.display='flex';
+  document.getElementById('discountAmt').textContent='-P'+disc;
+
+  var newTotal = total - disc;
+  document.getElementById('coTotal').textContent='P'+newTotal;
+  showToast('Promo applied! -P'+disc);
+}
+
+// Render product sale prices in admin
+function renderProductSaleList() {
+  var el = document.getElementById('productSaleList');
+  if (!el) return;
+  el.innerHTML = '';
+  products.forEach(function(p) {
+    var div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray2)';
+    div.innerHTML =
+      '<div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+p.name+'</div><div style="font-size:.72rem;color:var(--gray5)">Original: P'+p.price+'</div></div>'+
+      '<input type="number" placeholder="Sale price" value="'+(p.salePrice||'')+'" onchange="setProductSale('+p.id+',this.value)" style="width:90px;padding:8px;border-radius:100px;border:1px solid var(--gray2);font-family:DM Sans,sans-serif;font-size:.82rem;text-align:center">';
+    el.appendChild(div);
+  });
+}
+
+function setProductSale(id, salePrice) {
+  var p = products.find(function(x){ return x.id===id; });
+  if (!p) return;
+  var sp = parseFloat(salePrice);
+  p.salePrice = sp > 0 && sp < p.price ? sp : null;
+  saveData();
+  renderProducts(curCat==='All'?products:products.filter(function(x){return x.cat===curCat;}));
+  showToast(p.salePrice ? 'Sale set: P'+p.salePrice : 'Sale removed');
+}
+
+var curCat = 'All';
+
+// Override saveFlashSale to use correct function name
+function saveFlashSale() { saveFlashSale2(); }
+
+
+loadData();renderProducts(products);updateCartCount();renderCategoryBtns();startFlashTimer();
 </script>
 </body>
 </html>
