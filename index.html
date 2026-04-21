@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1A1A2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Bbee.Co — Kids Fashion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1A1A2E;--gold:#F5A623;--gold-dark:#C17D0E;--gold-light:#FEF6E8;--cream:#F8F9FC;--white:#FFFFFF;--gray1:#F0F2F5;--gray2:#E2E6ED;--gray4:#9AA5B4;--gray6:#5C6B7A;--green:#2ECC71;--green-light:#E8FAF0;--red:#E74C3C;--red-light:#FDECEA;--r:16px;--r-sm:10px;--sh:0 4px 24px rgba(26,26,46,.08);--sh-lg:0 8px 40px rgba(26,26,46,.15)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);min-height:100dvh;max-width:430px;margin:0 auto;position:relative;overflow-x:hidden}
+.shop-header{background:var(--navy);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(26,26,46,.3)}
+.shop-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:var(--gold);letter-spacing:-.02em}
+.shop-logo span{color:var(--white)}
+.cart-btn{background:var(--gold);border:none;border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:var(--navy);transition:all .15s}
+.cart-btn:active{transform:scale(.95)}
+.cart-count{background:var(--navy);color:var(--gold);border-radius:20px;padding:1px 7px;font-size:.72rem;font-weight:800;min-width:20px;text-align:center}
+.screen{display:none;flex-direction:column;min-height:calc(100dvh - 60px)}
+.screen.on{display:flex}
+.hero{background:linear-gradient(135deg,var(--navy) 0%,#2D2D5E 100%);padding:28px 20px;position:relative;overflow:hidden}
+.hero::before{content:'🐝';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:5rem;opacity:.15}
+.hero-tag{display:inline-block;background:var(--gold);color:var(--navy);font-family:'Syne',sans-serif;font-weight:800;font-size:.68rem;padding:4px 10px;border-radius:20px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:var(--white);line-height:1.2;margin-bottom:6px}
+.hero p{font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:16px}
+.hero-btn{background:var(--gold);border:none;border-radius:12px;padding:11px 20px;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;color:var(--navy);cursor:pointer}
+.section{padding:20px 18px 0}
+.section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:.85rem;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.cat-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin:0 -18px;padding:0 18px 12px}
+.cat-scroll::-webkit-scrollbar{display:none}
+.cat-btn{flex-shrink:0;background:var(--white);border:1.5px solid var(--gray2);border-radius:12px;padding:8px 14px;font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;color:var(--gray6);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cat-btn.active{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.products-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 18px}
+.product-card{background:var(--white);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer;transition:all .2s;position:relative}
+.product-card:active{transform:scale(.97)}
+.product-img-placeholder{width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,var(--gold-light),var(--gray1));display:flex;align-items:center;justify-content:center;font-size:3rem}
+.product-info{padding:10px 12px 12px}
+.product-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:var(--navy);margin-bottom:2px;line-height:1.3}
+.product-cat{font-size:.68rem;color:var(--gray4);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.product-price{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;color:var(--gold-dark)}
+.product-badge{position:absolute;top:8px;left:8px;background:var(--red);color:var(--white);font-family:'Syne',sans-serif;font-weight:700;font-size:.62rem;padding:3px 8px;border-radius:20px;text-transform:uppercase}
+.product-badge.new{background:var(--green)}
+.add-to-cart-mini{position:absolute;bottom:44px;right:8px;width:32px;height:32px;background:var(--navy);border:none;border-radius:50%;color:var(--white);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(26,26,46,.3)}
+.prod-detail-img{width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,var(--gold-light),var(--gray1));display:flex;align-items:center;justify-content:center;font-size:6rem;position:relative}
+.back-btn{position:absolute;top:16px;left:16px;width:38px;height:38px;background:rgba(255,255,255,.9);border:none;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh)}
+.prod-detail-body{padding:20px 18px}
+.prod-detail-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:var(--navy);margin-bottom:4px}
+.prod-detail-cat{font-size:.75rem;color:var(--gray4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.prod-detail-price{font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:var(--gold-dark);margin-bottom:16px}
+.size-label{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.size-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.size-btn{padding:7px 14px;border-radius:10px;border:1.5px solid var(--gray2);background:var(--white);font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;color:var(--navy);transition:all .15s}
+.size-btn.active{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.color-grid{display:flex;gap:8px;margin-bottom:20px}
+.color-dot{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .15s}
+.color-dot.active{border-color:var(--navy);transform:scale(1.15)}
+.prod-desc{font-size:.82rem;color:var(--gray6);line-height:1.6;margin-bottom:20px}
+.add-cart-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--navy),#2D2D5E);border:none;border-radius:var(--r);font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--white);cursor:pointer;box-shadow:0 4px 20px rgba(26,26,46,.25)}
+.cart-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--gray4);padding:40px;text-align:center}
+.cart-item{background:var(--white);border-radius:var(--r);padding:14px;margin:0 18px 10px;display:flex;gap:12px;box-shadow:var(--sh);align-items:center}
+.cart-item-img{width:60px;height:60px;border-radius:10px;background:var(--gold-light);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+.cart-item-info{flex:1}
+.cart-item-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;color:var(--navy);margin-bottom:2px}
+.cart-item-meta{font-size:.72rem;color:var(--gray4);margin-bottom:6px}
+.cart-item-price{font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem;color:var(--gold-dark)}
+.qty-ctrl{display:flex;align-items:center;gap:8px}
+.qty-btn{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--gray2);background:var(--white);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
+.qty-num{font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;min-width:20px;text-align:center}
+.cart-summary{background:var(--white);border-radius:var(--r) var(--r) 0 0;padding:20px 18px;box-shadow:0 -4px 20px rgba(26,26,46,.08);margin-top:auto}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cart-total-lbl{font-size:.88rem;color:var(--gray6)}
+.cart-total-amt{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:var(--navy)}
+.checkout-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border:none;border-radius:var(--r);font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--navy);cursor:pointer;box-shadow:0 4px 16px rgba(245,166,35,.4)}
+.checkout-body{padding:18px;display:flex;flex-direction:column;gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-family:'Syne',sans-serif;font-weight:700;font-size:.75rem;color:var(--navy);text-transform:uppercase;letter-spacing:.05em}
+.form-inp{padding:12px 14px;border-radius:12px;border:1.5px solid var(--gray2);background:var(--white);font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--navy);outline:none}
+.form-inp:focus{border-color:var(--navy)}
+.form-select{padding:12px 14px;border-radius:12px;border:1.5px solid var(--gray2);background:var(--white);font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--navy);outline:none;width:100%}
+.pay-options{display:flex;flex-direction:column;gap:8px}
+.pay-opt{background:var(--white);border:1.5px solid var(--gray2);border-radius:12px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s}
+.pay-opt.active{border-color:var(--navy);background:var(--gold-light)}
+.pay-opt-icon{font-size:1.4rem}
+.pay-opt-info{flex:1}
+.pay-opt-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;color:var(--navy)}
+.pay-opt-desc{font-size:.72rem;color:var(--gray6)}
+.pay-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--gray2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pay-radio.active{border-color:var(--navy);background:var(--navy)}
+.pay-radio.active::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--white)}
+.delivery-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.delivery-opt{background:var(--white);border:1.5px solid var(--gray2);border-radius:12px;padding:12px;cursor:pointer;text-align:center;transition:all .15s}
+.delivery-opt.active{border-color:var(--navy);background:var(--gold-light)}
+.delivery-icon{font-size:1.4rem;margin-bottom:4px}
+.delivery-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;color:var(--navy)}
+.delivery-fee{font-size:.68rem;color:var(--gray6)}
+.order-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border:none;border-radius:var(--r);font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--navy);cursor:pointer;box-shadow:0 4px 16px rgba(245,166,35,.4)}
+.order-success{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 24px;text-align:center}
+.success-icon{width:80px;height:80px;border-radius:50%;background:var(--green-light);border:3px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:20px}
+.success-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--navy);margin-bottom:8px}
+.success-sub{font-size:.85rem;color:var(--gray6);margin-bottom:6px;line-height:1.6}
+.order-num-disp{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--gold-dark);background:var(--gold-light);padding:10px 20px;border-radius:12px;margin:12px 0 20px}
+.pay-instructions{background:var(--white);border-radius:var(--r);padding:16px;width:100%;text-align:left;margin-bottom:20px;box-shadow:var(--sh)}
+.pay-inst-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.pay-inst-item{font-size:.8rem;color:var(--gray6);margin-bottom:4px;display:flex;gap:6px}
+.continue-btn{width:100%;padding:14px;background:var(--navy);border:none;border-radius:var(--r);font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--white);cursor:pointer}
+.screen-hdr{background:var(--navy);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.screen-back{width:34px;height:34px;background:rgba(255,255,255,.1);border:none;border-radius:10px;color:var(--white);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.screen-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--white)}
+.admin-login{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 24px;gap:16px}
+.admin-panel-body{padding:18px;display:flex;flex-direction:column;gap:12px}
+.admin-card{background:var(--white);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.admin-card-hdr{background:var(--navy);padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:var(--white);text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between;align-items:center}
+.admin-add-btn{background:var(--gold);border:none;border-radius:8px;padding:5px 10px;font-family:'Syne',sans-serif;font-weight:700;font-size:.72rem;color:var(--navy);cursor:pointer}
+.product-row{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--gray1)}
+.product-row:last-child{border-bottom:none}
+.prod-row-icon{width:44px;height:44px;border-radius:10px;background:var(--gold-light);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.prod-row-info{flex:1}
+.prod-row-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:var(--navy)}
+.prod-row-meta{font-size:.7rem;color:var(--gray4)}
+.prod-row-price{font-family:'Syne',sans-serif;font-weight:800;font-size:.88rem;color:var(--gold-dark)}
+.edit-btn{background:none;border:1.5px solid var(--gray2);border-radius:8px;padding:5px 10px;font-size:.72rem;cursor:pointer;color:var(--gray6);font-family:'Syne',sans-serif;font-weight:700}
+.add-prod-body{padding:18px;display:flex;flex-direction:column;gap:14px}
+.img-upload{width:100%;aspect-ratio:3/4;background:var(--gold-light);border:2px dashed var(--gold);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-size:.82rem;color:var(--gold-dark);font-family:'Syne',sans-serif;font-weight:700}
+.img-upload-icon{font-size:2.5rem}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--white);padding:11px 22px;border-radius:28px;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300;white-space:nowrap;box-shadow:0 4px 20px rgba(26,26,46,.3)}
+.toast.show{opacity:1}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--white);border-top:1px solid var(--gray2);display:flex;z-index:100;box-shadow:0 -4px 20px rgba(26,26,46,.08)}
+.nav-btn{flex:1;padding:12px 8px 10px;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s}
+.nav-icon{font-size:1.3rem}
+.nav-lbl{font-family:'Syne',sans-serif;font-weight:700;font-size:.6rem;color:var(--gray4);text-transform:uppercase;letter-spacing:.04em}
+.nav-btn.active .nav-lbl{color:var(--navy)}
+.pb-safe{height:72px}
+</style>
+</head>
+<body>
+<header class="shop-header" id="mainHeader">
+  <div class="shop-logo">bbee<span>.co</span></div>
+  <button class="cart-btn" onclick="goScreen('s-cart');renderCart()">
+    🛒 Cart <span class="cart-count" id="cartCount">0</span>
+  </button>
+</header>
+
+<!-- HOME -->
+<div class="screen on" id="s-home">
+  <div class="hero">
+    <div class="hero-tag">New Arrivals ✨</div>
+    <h1>Cute fits for<br>little ones 🐝</h1>
+    <p>Fresh styles for kids — Matina, Davao City</p>
+    <button class="hero-btn" onclick="document.getElementById('productsGrid').scrollIntoView({behavior:'smooth'})">Shop Now →</button>
+  </div>
+  <div class="section">
+    <div class="section-title">Categories</div>
+    <div class="cat-scroll">
+      <button class="cat-btn active" onclick="filterCat('All',this)">All</button>
+      <button class="cat-btn" onclick="filterCat('Dresses',this)">👗 Dresses</button>
+      <button class="cat-btn" onclick="filterCat('Tops',this)">👕 Tops</button>
+      <button class="cat-btn" onclick="filterCat('Bottoms',this)">👖 Bottoms</button>
+      <button class="cat-btn" onclick="filterCat('Sets',this)">🎀 Sets</button>
+      <button class="cat-btn" onclick="filterCat('Accessories',this)">👒 Accessories</button>
+    </div>
+  </div>
+  <div class="section"><div class="section-title" id="productsTitle">All Products</div></div>
+  <div class="products-grid" id="productsGrid"></div>
+  <div class="pb-safe"></div>
+</div>
+
+<!-- PRODUCT DETAIL -->
+<div class="screen" id="s-product">
+  <div class="prod-detail-img" id="prodDetailImg">
+    <button class="back-btn" onclick="goScreen('s-home')">←</button>
+    <span id="prodDetailEmoji">👗</span>
+  </div>
+  <div class="prod-detail-body">
+    <div class="prod-detail-cat" id="prodDetailCat">Dresses</div>
+    <div class="prod-detail-name" id="prodDetailName">--</div>
+    <div class="prod-detail-price" id="prodDetailPrice">₱0</div>
+    <div class="size-label">Select Size</div>
+    <div class="size-grid" id="sizeGrid"></div>
+    <div class="size-label">Color</div>
+    <div class="color-grid" id="colorGrid"></div>
+    <div class="prod-desc" id="prodDescTxt">--</div>
+    <button class="add-cart-btn" onclick="addToCart()">🛒 Add to Cart</button>
+  </div>
+  <div class="pb-safe"></div>
+</div>
+
+<!-- CART -->
+<div class="screen" id="s-cart">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-home')">←</button>
+    <div class="screen-title">My Cart</div>
+  </div>
+  <div id="cartItems" style="padding-top:12px;flex:1;overflow-y:auto"></div>
+  <div class="cart-summary" id="cartSummary" style="display:none">
+    <div class="cart-total-row">
+      <div class="cart-total-lbl">Total</div>
+      <div class="cart-total-amt" id="cartTotal">₱0</div>
+    </div>
+    <button class="checkout-btn" onclick="goScreen('s-checkout')">Checkout →</button>
+  </div>
+  <div class="pb-safe"></div>
+</div>
+
+<!-- CHECKOUT -->
+<div class="screen" id="s-checkout">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-cart')">←</button>
+    <div class="screen-title">Checkout</div>
+  </div>
+  <div class="checkout-body">
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input type="text" class="form-inp" id="coName" placeholder="Juan dela Cruz">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contact Number</label>
+      <input type="tel" class="form-inp" id="coPhone" placeholder="09XX XXX XXXX">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Complete Address</label>
+      <input type="text" class="form-inp" id="coAddr" placeholder="House No., Street, Barangay, City">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Delivery Option</label>
+      <div class="delivery-opts">
+        <div class="delivery-opt active" id="del-local" onclick="selDelivery('local')">
+          <div class="delivery-icon">🏪</div>
+          <div class="delivery-name">Local</div>
+          <div class="delivery-fee">Davao City</div>
+        </div>
+        <div class="delivery-opt" id="del-nationwide" onclick="selDelivery('nationwide')">
+          <div class="delivery-icon">📦</div>
+          <div class="delivery-name">Nationwide</div>
+          <div class="delivery-fee">J&amp;T / LBC</div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Payment Method</label>
+      <div class="pay-options">
+        <div class="pay-opt active" id="pay-gcash" onclick="selPayment('gcash')">
+          <div class="pay-opt-icon">💚</div>
+          <div class="pay-opt-info"><div class="pay-opt-name">GCash</div><div class="pay-opt-desc">Send to our GCash number</div></div>
+          <div class="pay-radio active" id="radio-gcash"></div>
+        </div>
+        <div class="pay-opt" id="pay-maya" onclick="selPayment('maya')">
+          <div class="pay-opt-icon">💙</div>
+          <div class="pay-opt-info"><div class="pay-opt-name">Maya</div><div class="pay-opt-desc">Send to our Maya account</div></div>
+          <div class="pay-radio" id="radio-maya"></div>
+        </div>
+        <div class="pay-opt" id="pay-bank" onclick="selPayment('bank')">
+          <div class="pay-opt-icon">🏦</div>
+          <div class="pay-opt-info"><div class="pay-opt-name">Bank Transfer</div><div class="pay-opt-desc">BDO / BPI / UnionBank</div></div>
+          <div class="pay-radio" id="radio-bank"></div>
+        </div>
+        <div class="pay-opt" id="pay-cod" onclick="selPayment('cod')">
+          <div class="pay-opt-icon">💵</div>
+          <div class="pay-opt-info"><div class="pay-opt-name">Cash on Delivery</div><div class="pay-opt-desc">Pay upon delivery</div></div>
+          <div class="pay-radio" id="radio-cod"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cart-total-row" style="background:var(--white);padding:14px;border-radius:var(--r);box-shadow:var(--sh)">
+      <div class="cart-total-lbl">Order Total</div>
+      <div class="cart-total-amt" id="coTotal">₱0</div>
+    </div>
+    <button class="order-btn" onclick="placeOrder()">🛒 Place Order</button>
+  </div>
+  <div class="pb-safe"></div>
+</div>
+
+<!-- SUCCESS -->
+<div class="screen" id="s-success">
+  <div class="order-success">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Order Placed!</div>
+    <div class="success-sub">Salamat sa iyong order!<br>Makikipag-ugnayan kami sa iyo sa loob ng 24 hours.</div>
+    <div class="order-num-disp" id="successOrderNum">#BEE-0001</div>
+    <div class="pay-instructions" id="payInstructions"></div>
+    <button class="continue-btn" onclick="goScreen('s-home');clearCart()">Continue Shopping 🛍️</button>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div class="screen" id="s-admin-login">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-home')">←</button>
+    <div class="screen-title">Admin</div>
+  </div>
+  <div class="admin-login">
+    <div style="font-size:3rem">🔒</div>
+    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:1.2rem;color:var(--navy)">Admin Login</div>
+    <input type="password" class="form-inp" id="adminPw" placeholder="Enter admin password" style="width:100%;max-width:300px">
+    <button class="order-btn" style="max-width:300px" onclick="adminLogin()">Login</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="screen" id="s-admin">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-home')">←</button>
+    <div class="screen-title">Admin Panel</div>
+  </div>
+  <div class="admin-panel-body">
+    <div class="admin-card">
+      <div class="admin-card-hdr">📦 Orders <span id="pendingCount" style="background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:20px;font-size:.7rem">0 pending</span></div>
+      <div id="ordersList"></div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-hdr">👗 Products <button class="admin-add-btn" onclick="goScreen('s-add-product');resetProdForm()">+ Add</button></div>
+      <div id="adminProductsList"></div>
+    </div>
+  </div>
+  <div class="pb-safe"></div>
+</div>
+
+<!-- ADD PRODUCT -->
+<div class="screen" id="s-add-product">
+  <div class="screen-hdr">
+    <button class="screen-back" onclick="goScreen('s-admin')">←</button>
+    <div class="screen-title" id="addProdTitle">Add Product</div>
+  </div>
+  <div class="add-prod-body">
+    <div class="img-upload" onclick="document.getElementById('prodImgInput').click()" id="imgUploadArea">
+      <div class="img-upload-icon">📸</div>
+      <div>Tap to upload product photo</div>
+      <div style="font-size:.72rem;color:var(--gray4);font-weight:400">Optional — will use emoji if no photo</div>
+    </div>
+    <input type="file" id="prodImgInput" accept="image/*" style="display:none" onchange="handleImgUpload(event)">
+    <div class="form-group"><label class="form-label">Product Name</label><input type="text" class="form-inp" id="prodName" placeholder="e.g. Floral Summer Dress"></div>
+    <div class="form-group"><label class="form-label">Category</label>
+      <select class="form-select" id="prodCat">
+        <option value="Dresses">👗 Dresses</option>
+        <option value="Tops">👕 Tops</option>
+        <option value="Bottoms">👖 Bottoms</option>
+        <option value="Sets">🎀 Sets</option>
+        <option value="Accessories">👒 Accessories</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Price (₱)</label><input type="number" class="form-inp" id="prodPrice" placeholder="299"></div>
+    <div class="form-group"><label class="form-label">Available Sizes (comma separated)</label><input type="text" class="form-inp" id="prodSizes" placeholder="2T, 3T, 4T, 5T, 6T"></div>
+    <div class="form-group"><label class="form-label">Colors (comma separated)</label><input type="text" class="form-inp" id="prodColors" placeholder="Pink, Blue, Yellow"></div>
+    <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-inp" id="prodDesc2" placeholder="Cute and comfy outfit for your little one!"></div>
+    <div class="form-group"><label class="form-label">Stock Quantity</label><input type="number" class="form-inp" id="prodStock" placeholder="10"></div>
+    <button class="order-btn" onclick="saveProduct()">💾 Save Product</button>
+    <div class="pb-safe"></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="goScreen('s-home');setNav('nav-home')"><span class="nav-icon">🏠</span><span class="nav-lbl">Home</span></button>
+  <button class="nav-btn" id="nav-shop" onclick="goScreen('s-home');filterCat('All',document.querySelector('.cat-btn'));setNav('nav-shop')"><span class="nav-icon">👗</span><span class="nav-lbl">Shop</span></button>
+  <button class="nav-btn" id="nav-cart" onclick="goScreen('s-cart');renderCart();setNav('nav-cart')"><span class="nav-icon">🛒</span><span class="nav-lbl">Cart</span></button>
+  <button class="nav-btn" id="nav-admin" onclick="goScreen('s-admin-login');setNav('nav-admin')"><span class="nav-icon">⚙️</span><span class="nav-lbl">Admin</span></button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+var SHOP_PW='Bbeeco2026!',CLOUD_NAME='djchrmzgk',UPLOAD_PRESET='bbee_unsigned';
+var COLOR_MAP={'Pink':'#FFB6C1','Blue':'#87CEEB','Yellow':'#FFE066','White':'#F5F5F5','Red':'#FF6B6B','Green':'#90EE90','Purple':'#DDA0DD','Orange':'#FFA07A','Black':'#333333','Gray':'#C0C0C0','Beige':'#F5DEB3','Navy':'#1A1A2E'};
+var CAT_EMOJIS={'Dresses':'👗','Tops':'👕','Bottoms':'👖','Sets':'🎀','Accessories':'👒'};
+var cart=[],products=[],orders=[],curProduct=null,selSize='',selColor='',selPayMethod='gcash',selDelivery2='local',editProdId=null,uploadedImgUrl='';
+
+function _s(k,v){try{localStorage.setItem('bbeeshop_'+k,v);}catch(e){}}
+function _g(k,d){try{return localStorage.getItem('bbeeshop_'+k)||d;}catch(e){return d;}}
+
+function loadData(){
+  try{products=JSON.parse(_g('products','[]'));}catch(e){products=[];}
+  try{cart=JSON.parse(_g('cart','[]'));}catch(e){cart=[];}
+  try{orders=JSON.parse(_g('orders','[]'));}catch(e){orders=[];}
+  if(!products.length)addSampleProducts();
+}
+function saveData(){_s('products',JSON.stringify(products));_s('cart',JSON.stringify(cart));_s('orders',JSON.stringify(orders));}
+
+function addSampleProducts(){
+  products=[
+    {id:1,name:'Floral Summer Dress',cat:'Dresses',price:299,sizes:['2T','3T','4T','5T','6T'],colors:['Pink','Yellow','Blue'],desc:'Cute floral dress perfect for any occasion. Lightweight and breathable.',stock:15,emoji:'👗',isNew:true,img:''},
+    {id:2,name:'Stripe Cotton Top',cat:'Tops',price:199,sizes:['2T','3T','4T','5T'],colors:['White','Blue','Pink'],desc:'Comfortable striped top for everyday wear. Soft cotton material.',stock:20,emoji:'👕',isNew:false,img:''},
+    {id:3,name:'Denim Shorts',cat:'Bottoms',price:249,sizes:['2T','3T','4T','5T','6T'],colors:['Blue','Black'],desc:'Classic denim shorts with elastic waistband for easy dressing.',stock:12,emoji:'👖',isNew:false,img:''},
+    {id:4,name:'Princess Set',cat:'Sets',price:449,sizes:['2T','3T','4T','5T'],colors:['Pink','Purple','Yellow'],desc:'Complete set with top and bottom. Perfect for special occasions.',stock:8,emoji:'🎀',isNew:true,img:''},
+    {id:5,name:'Sun Hat',cat:'Accessories',price:149,sizes:['S','M','L'],colors:['Pink','Yellow','White'],desc:'Cute sun hat to protect your little one from the sun.',stock:25,emoji:'👒',isNew:false,img:''},
+    {id:6,name:'Ruffle Dress',cat:'Dresses',price:349,sizes:['2T','3T','4T','5T','6T'],colors:['Pink','White','Red'],desc:'Beautiful ruffle dress for your little princess.',stock:10,emoji:'👗',isNew:true,img:''}
+  ];
+  saveData();
+}
+
+function goScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+  var showHeader=['s-home','s-product'].indexOf(id)!==-1;
+  document.getElementById('mainHeader').style.display=showHeader?'':'none';
+  if(id==='s-admin'){renderAdminProducts();renderOrders();}
+}
+function setNav(id){document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById(id).classList.add('active');}
+
+function filterCat(cat,btn){
+  document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  document.getElementById('productsTitle').textContent=cat==='All'?'All Products':cat;
+  renderProducts(cat==='All'?products:products.filter(function(p){return p.cat===cat;}));
+}
+
+function renderProducts(prods){
+  var grid=document.getElementById('productsGrid');
+  grid.innerHTML='';
+  if(!prods.length){grid.innerHTML='<div style="grid-column:span 2;text-align:center;padding:40px;color:var(--gray4);font-size:.85rem">Walang products sa category na ito.</div>';return;}
+  prods.forEach(function(p){
+    var card=document.createElement('div');
+    card.className='product-card';
+    card.onclick=function(){openProduct(p);};
+    card.innerHTML=(p.img?'<img src="'+p.img+'" style="width:100%;aspect-ratio:3/4;object-fit:cover">':'<div class="product-img-placeholder">'+p.emoji+'</div>')+
+      (p.isNew?'<div class="product-badge new">New</div>':'')+(p.stock<=3?'<div class="product-badge">Low Stock</div>':'')+
+      '<div class="product-info"><div class="product-cat">'+p.cat+'</div><div class="product-name">'+p.name+'</div><div class="product-price">₱'+p.price+'</div></div>'+
+      '<button class="add-to-cart-mini" onclick="quickAdd(event,'+p.id+')">+</button>';
+    grid.appendChild(card);
+  });
+}
+
+function openProduct(p){
+  curProduct=p;selSize='';selColor='';
+  document.getElementById('prodDetailEmoji').textContent=p.emoji;
+  document.getElementById('prodDetailCat').textContent=p.cat;
+  document.getElementById('prodDetailName').textContent=p.name;
+  document.getElementById('prodDetailPrice').textContent='₱'+p.price;
+  document.getElementById('prodDescTxt').textContent=p.desc;
+  var imgDiv=document.getElementById('prodDetailImg');
+  if(p.img){imgDiv.style.background='url('+p.img+') center/cover';document.getElementById('prodDetailEmoji').style.display='none';}
+  else{imgDiv.style.background='linear-gradient(135deg,var(--gold-light),var(--gray1))';document.getElementById('prodDetailEmoji').style.display='';}
+  var sg=document.getElementById('sizeGrid');sg.innerHTML='';
+  p.sizes.forEach(function(sz){var btn=document.createElement('button');btn.className='size-btn';btn.textContent=sz;btn.onclick=function(){document.querySelectorAll('.size-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');selSize=sz;};sg.appendChild(btn);});
+  var cg=document.getElementById('colorGrid');cg.innerHTML='';
+  p.colors.forEach(function(col){var dot=document.createElement('div');dot.className='color-dot';dot.style.background=COLOR_MAP[col]||'#ccc';dot.title=col;dot.onclick=function(){document.querySelectorAll('.color-dot').forEach(function(d){d.classList.remove('active');});dot.classList.add('active');selColor=col;};cg.appendChild(dot);});
+  goScreen('s-product');
+}
+
+function addToCart(){
+  if(!selSize){showToast('Piliin ang size!');return;}
+  if(!selColor){showToast('Piliin ang color!');return;}
+  if(!curProduct)return;
+  var existing=cart.find(function(i){return i.id===curProduct.id&&i.size===selSize&&i.color===selColor;});
+  if(existing)existing.qty++;
+  else cart.push({id:curProduct.id,name:curProduct.name,price:curProduct.price,emoji:curProduct.emoji,img:curProduct.img,size:selSize,color:selColor,qty:1});
+  saveData();updateCartCount();showToast('Added to cart! 🛒');goScreen('s-home');
+}
+
+function quickAdd(e,id){
+  e.stopPropagation();
+  var p=products.find(function(x){return x.id===id;});if(!p)return;
+  if(p.sizes.length>1||p.colors.length>1){openProduct(p);showToast('Piliin ang size at color!');return;}
+  cart.push({id:p.id,name:p.name,price:p.price,emoji:p.emoji,img:p.img,size:p.sizes[0],color:p.colors[0],qty:1});
+  saveData();updateCartCount();showToast('Added! 🛒');
+}
+
+function updateCartCount(){var total=cart.reduce(function(s,i){return s+i.qty;},0);document.getElementById('cartCount').textContent=total;}
+
+function renderCart(){
+  var el=document.getElementById('cartItems');el.innerHTML='';
+  if(!cart.length){
+    el.innerHTML='<div class="cart-empty"><div style="font-size:4rem;opacity:.4">🛒</div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:1rem;color:var(--navy)">Your cart is empty</div><div style="font-size:.82rem;color:var(--gray4)">Browse our products and add to cart!</div><button class="hero-btn" onclick="goScreen(\'s-home\')">Shop Now</button></div>';
+    document.getElementById('cartSummary').style.display='none';return;
+  }
+  cart.forEach(function(item,idx){
+    var div=document.createElement('div');div.className='cart-item';
+    div.innerHTML='<div class="cart-item-img">'+(item.img?'<img src="'+item.img+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px">':item.emoji)+'</div>'+
+      '<div class="cart-item-info"><div class="cart-item-name">'+item.name+'</div><div class="cart-item-meta">Size: '+item.size+' • '+item.color+'</div><div class="cart-item-price">₱'+item.price+'</div></div>'+
+      '<div class="qty-ctrl"><button class="qty-btn" onclick="changeQty('+idx+',-1)">−</button><div class="qty-num">'+item.qty+'</div><button class="qty-btn" onclick="changeQty('+idx+',1)">+</button></div>';
+    el.appendChild(div);
+  });
+  var total=cart.reduce(function(s,i){return s+i.price*i.qty;},0);
+  document.getElementById('cartTotal').textContent='₱'+total;
+  document.getElementById('coTotal').textContent='₱'+total;
+  document.getElementById('cartSummary').style.display='';
+}
+
+function changeQty(idx,delta){cart[idx].qty+=delta;if(cart[idx].qty<=0)cart.splice(idx,1);saveData();updateCartCount();renderCart();}
+function clearCart(){cart=[];saveData();updateCartCount();}
+
+function selPayment(m){selPayMethod=m;['gcash','maya','bank','cod'].forEach(function(x){document.getElementById('pay-'+x).classList.toggle('active',x===m);document.getElementById('radio-'+x).classList.toggle('active',x===m);});}
+function selDelivery(t){selDelivery2=t;document.getElementById('del-local').classList.toggle('active',t==='local');document.getElementById('del-nationwide').classList.toggle('active',t==='nationwide');}
+
+function placeOrder(){
+  var name=document.getElementById('coName').value.trim();
+  var phone=document.getElementById('coPhone').value.trim();
+  var addr=document.getElementById('coAddr').value.trim();
+  if(!name){showToast('I-enter ang iyong pangalan!');return;}
+  if(!phone){showToast('I-enter ang contact number!');return;}
+  if(!addr){showToast('I-enter ang delivery address!');return;}
+  if(!cart.length){showToast('Walang items sa cart!');return;}
+  var total=cart.reduce(function(s,i){return s+i.price*i.qty;},0);
+  var orderId='BEE-'+String(Date.now()).slice(-6);
+  orders.push({id:orderId,name:name,phone:phone,address:addr,delivery:selDelivery2,payment:selPayMethod,items:cart.slice(),total:total,status:'Pending',date:new Date().toLocaleString('en-PH')});
+  saveData();
+  document.getElementById('successOrderNum').textContent='#'+orderId;
+  var insts={gcash:['GCash: 09XX XXX XXXX','Account Name: Bbee.Co','Amount: ₱'+total,'Send screenshot as proof'],maya:['Maya: 09XX XXX XXXX','Account Name: Bbee.Co','Amount: ₱'+total,'Send screenshot as proof'],bank:['Bank: BDO / BPI / UnionBank','Account: XXXX-XXXX-XXXX','Name: Bbee.Co','Amount: ₱'+total,'Send screenshot as proof'],cod:['Pay ₱'+total+' upon delivery','Prepare exact amount','Our rider will contact you']};
+  document.getElementById('payInstructions').innerHTML='<div class="pay-inst-title">Payment Instructions</div>'+(insts[selPayMethod]||[]).map(function(i){return '<div class="pay-inst-item"><span>•</span>'+i+'</div>';}).join('');
+  goScreen('s-success');showToast('Order placed! 🎉');
+}
+
+function adminLogin(){var pw=document.getElementById('adminPw').value;if(pw===SHOP_PW){document.getElementById('adminPw').value='';goScreen('s-admin');showToast('Welcome, Admin!');}else{showToast('Mali ang password!');}}
+
+function renderAdminProducts(){
+  var el=document.getElementById('adminProductsList');el.innerHTML='';
+  if(!products.length){el.innerHTML='<div style="padding:16px;text-align:center;color:var(--gray4);font-size:.8rem">Walang products pa.</div>';return;}
+  products.forEach(function(p){
+    var row=document.createElement('div');row.className='product-row';
+    row.innerHTML='<div class="prod-row-icon">'+(p.img?'<img src="'+p.img+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px">':p.emoji)+'</div>'+
+      '<div class="prod-row-info"><div class="prod-row-name">'+p.name+'</div><div class="prod-row-meta">'+p.cat+' • Stock: '+p.stock+'</div></div>'+
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="prod-row-price">₱'+p.price+'</div>'+
+      '<button class="edit-btn" onclick="editProduct('+p.id+')">Edit</button></div>';
+    el.appendChild(row);
+  });
+}
+
+function renderOrders(){
+  var el=document.getElementById('ordersList');
+  var pending=orders.filter(function(o){return o.status==='Pending';}).length;
+  document.getElementById('pendingCount').textContent=pending+' pending';
+  el.innerHTML='';
+  if(!orders.length){el.innerHTML='<div style="padding:16px;text-align:center;color:var(--gray4);font-size:.8rem">Walang orders pa.</div>';return;}
+  orders.slice().reverse().slice(0,10).forEach(function(o){
+    var div=document.createElement('div');div.style.cssText='padding:12px 16px;border-bottom:1px solid var(--gray1)';
+    div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+      '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:.82rem">#'+o.id+'</div>'+
+      '<select onchange="updateOrderStatus(\''+o.id+'\',this.value)" style="padding:4px 8px;border-radius:8px;border:1.5px solid var(--gray2);font-family:Syne,sans-serif;font-weight:700;font-size:.72rem;background:var(--white)">'+
+      ['Pending','Confirmed','Packed','Shipped','Delivered','Cancelled'].map(function(s){return '<option value="'+s+'"'+(s===o.status?' selected':'')+'>'+s+'</option>';}).join('')+'</select></div>'+
+      '<div style="font-size:.75rem;color:var(--gray6)">'+o.name+' • '+o.phone+'</div>'+
+      '<div style="font-size:.75rem;color:var(--gray6)">'+o.items.length+' item(s) • ₱'+o.total+' • '+o.payment.toUpperCase()+'</div>'+
+      '<div style="font-size:.72rem;color:var(--gray4)">'+o.date+'</div>';
+    el.appendChild(div);
+  });
+}
+
+function updateOrderStatus(id,status){var o=orders.find(function(x){return x.id===id;});if(o){o.status=status;saveData();showToast('Order: '+status);}}
+
+function editProduct(id){
+  var p=products.find(function(x){return x.id===id;});if(!p)return;
+  editProdId=id;document.getElementById('addProdTitle').textContent='Edit Product';
+  document.getElementById('prodName').value=p.name;document.getElementById('prodCat').value=p.cat;
+  document.getElementById('prodPrice').value=p.price;document.getElementById('prodSizes').value=p.sizes.join(', ');
+  document.getElementById('prodColors').value=p.colors.join(', ');document.getElementById('prodDesc2').value=p.desc;
+  document.getElementById('prodStock').value=p.stock;uploadedImgUrl=p.img||'';
+  if(p.img)document.getElementById('imgUploadArea').innerHTML='<img src="'+p.img+'" style="width:100%;height:200px;object-fit:cover;border-radius:10px">';
+  goScreen('s-add-product');
+}
+
+function saveProduct(){
+  var name=document.getElementById('prodName').value.trim();
+  var cat=document.getElementById('prodCat').value;
+  var price=parseFloat(document.getElementById('prodPrice').value);
+  var sizes=document.getElementById('prodSizes').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
+  var colors=document.getElementById('prodColors').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
+  var desc=document.getElementById('prodDesc2').value.trim();
+  var stock=parseInt(document.getElementById('prodStock').value)||0;
+  if(!name){showToast('I-enter ang product name!');return;}
+  if(isNaN(price)){showToast('I-enter ang price!');return;}
+  if(!sizes.length){showToast('I-enter ang sizes!');return;}
+  if(!colors.length){showToast('I-enter ang colors!');return;}
+  if(editProdId){
+    var p=products.find(function(x){return x.id===editProdId;});
+    if(p){p.name=name;p.cat=cat;p.price=price;p.sizes=sizes;p.colors=colors;p.desc=desc;p.stock=stock;if(uploadedImgUrl)p.img=uploadedImgUrl;}
+  } else {
+    products.push({id:Date.now(),name:name,cat:cat,price:price,sizes:sizes,colors:colors,desc:desc,stock:stock,emoji:CAT_EMOJIS[cat]||'👗',isNew:true,img:uploadedImgUrl});
+  }
+  saveData();editProdId=null;uploadedImgUrl='';
+  document.getElementById('addProdTitle').textContent='Add Product';
+  resetProdForm();showToast('Product saved!');goScreen('s-admin');
+}
+
+function resetProdForm(){
+  ['prodName','prodPrice','prodSizes','prodColors','prodDesc2','prodStock'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('imgUploadArea').innerHTML='<div class="img-upload-icon">📸</div><div>Tap to upload product photo</div><div style="font-size:.72rem;color:var(--gray4);font-weight:400">Optional — will use emoji if no photo</div>';
+  uploadedImgUrl='';editProdId=null;
+}
+
+function handleImgUpload(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){document.getElementById('imgUploadArea').innerHTML='<img src="'+ev.target.result+'" style="width:100%;height:200px;object-fit:cover;border-radius:10px">';};
+  reader.readAsDataURL(file);
+  var fd=new FormData();fd.append('file',file);fd.append('upload_preset',UPLOAD_PRESET);fd.append('folder','bbee-shop');
+  showToast('Uploading photo...');
+  fetch('https://api.cloudinary.com/v1_1/'+CLOUD_NAME+'/image/upload',{method:'POST',body:fd})
+    .then(function(r){return r.json();}).then(function(data){if(data.secure_url){uploadedImgUrl=data.secure_url;showToast('Photo uploaded!');}})
+    .catch(function(){showToast('Upload failed. Using emoji.');});
+}
+
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+
+loadData();renderProducts(products);updateCartCount();
+</script>
+</body>
+</html>
