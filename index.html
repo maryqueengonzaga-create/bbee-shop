@@ -153,12 +153,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);
 <!-- HOME -->
 <div class="screen on" id="s-home">
   <div class="search-bar" style="background:var(--navy);padding:0 18px 14px">
-    <input class="search-inp" type="text" placeholder="🔍 Search products..." id="searchInp" oninput="searchProducts(this.value)">
+    <input class="search-inp" type="text" placeholder="Search products..." id="searchInp" oninput="searchProducts(this.value)">
   </div>
   <div class="hero">
     <div class="hero-tag">New Arrivals ✨</div>
     <h1>Cute fits for<br>little ones 🐝</h1>
-    <p>Fresh styles for kids — Matina, Davao City</p>
+    <p>Fresh styles for kids &mdash; Matina, Davao City</p>
     <button class="hero-btn" onclick="document.getElementById('productsGrid').scrollIntoView({behavior:'smooth'})">Shop Now →</button>
   </div>
   <div class="section">
@@ -604,7 +604,7 @@ function renderCart(){
   cart.forEach(function(item,idx){
     var div=document.createElement('div');div.className='cart-item';
     div.innerHTML='<div class="cart-item-img">'+(item.img?'<img src="'+item.img+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px">':item.emoji)+'</div>'+
-      '<div class="cart-item-info"><div class="cart-item-name">'+item.name+'</div><div class="cart-item-meta">Size: '+item.size+' • '+item.color+'</div><div class="cart-item-price">₱'+item.price+'</div></div>'+
+      '<div class="cart-item-info"><div class="cart-item-name">'+item.name+'</div><div class="cart-item-meta">Size: '+item.size+' | '+item.color+'</div><div class="cart-item-price">₱'+item.price+'</div></div>'+
       '<div class="qty-ctrl"><button class="qty-btn" onclick="changeQty('+idx+',-1)">−</button><div class="qty-num">'+item.qty+'</div><button class="qty-btn" onclick="changeQty('+idx+',1)">+</button></div>';
     el.appendChild(div);
   });
@@ -674,8 +674,8 @@ function renderOrders(){
       '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:.82rem">#'+o.id+'</div>'+
       '<select onchange="updateOrderStatus(\''+o.id+'\',this.value)" style="padding:4px 8px;border-radius:8px;border:1.5px solid var(--gray2);font-family:Syne,sans-serif;font-weight:700;font-size:.72rem;background:var(--white)">'+
       ['Pending','Confirmed','Packed','Shipped','Delivered','Cancelled'].map(function(s){return '<option value="'+s+'"'+(s===o.status?' selected':'')+'>'+s+'</option>';}).join('')+'</select></div>'+
-      '<div style="font-size:.75rem;color:var(--gray6)">'+o.name+' • '+o.phone+'</div>'+
-      '<div style="font-size:.75rem;color:var(--gray6)">'+o.items.length+' item(s) • ₱'+o.total+' • '+o.payment.toUpperCase()+'</div>'+
+      '<div style="font-size:.75rem;color:var(--gray6)">'+o.name+' | '+o.phone+'</div>'+
+      '<div style="font-size:.75rem;color:var(--gray6)">'+o.items.length+' item(s) • ₱'+o.total+' | '+o.payment.toUpperCase()+'</div>'+
       '<div style="font-size:.72rem;color:var(--gray4)">'+o.date+'</div>';
     el.appendChild(div);
   });
@@ -741,7 +741,7 @@ function saveProduct(){
 
 function resetProdForm(){
   ['prodName','prodPrice','prodSizes','prodColors','prodDesc2','prodStock'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('imgUploadArea').innerHTML='<div class="img-upload-icon">📸</div><div>Tap to upload product photo</div><div style="font-size:.72rem;color:var(--gray4);font-weight:400">Optional — will use emoji if no photo</div>';
+  document.getElementById('imgUploadArea').innerHTML='<div class="img-upload-icon">📸</div><div>Tap to upload product photo</div><div style="font-size:.72rem;color:var(--gray4);font-weight:400">Optional - will use emoji if no photo</div>';
   uploadedImgUrl='';editProdId=null;
 }
 
@@ -789,12 +789,12 @@ function shareProduct(p) {
 
   if (navigator.share) {
     navigator.share({
-      title: p.name + ' — Bbee.Co',
-      text:  p.name + ' — ₱' + p.price,
+      title: p.name + ' - Bbee.Co',
+      text:  p.name + ' - P' + p.price,
       url:   url
     }).catch(function(){});
   } else {
-    // Fallback — copy to clipboard
+    // Fallback - copy to clipboard
     navigator.clipboard.writeText(text).then(function() {
       showToast('Link copied! I-share sa friends mo 😊');
     }).catch(function() {
@@ -954,7 +954,7 @@ function openProfile() {
           '<span style="font-family:Syne,sans-serif;font-weight:700;font-size:.8rem">#'+o.id+'</span>' +
           '<span style="font-size:.72rem;color:var(--gray4)">'+o.date+'</span>' +
         '</div>' +
-        '<div style="font-size:.75rem;color:var(--gray6)">'+o.items.length+' item(s) • ₱'+o.total+'</div>' +
+        '<div style="font-size:.75rem;color:var(--gray6)">'+o.items.length+' item(s) - P'+o.total+'</div>' +
         '<div style="font-size:.72rem;font-weight:700;color:var(--gold-dark)">'+o.status+'</div>' +
       '</div>';
     }).join('');
