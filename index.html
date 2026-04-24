@@ -1343,23 +1343,51 @@ function _s(k,v){try{localStorage.setItem('bbeeshop_'+k,v);}catch(e){}}
 function _g(k,d){try{return localStorage.getItem('bbeeshop_'+k)||d;}catch(e){return d;}}
 
 function loadData(){
-  try{products=JSON.parse(_g('products','[]'));}catch(e){products=[];}
   try{cart=JSON.parse(_g('cart','[]'));}catch(e){cart=[];}
   try{orders=JSON.parse(_g('orders','[]'));}catch(e){orders=[];}
   try{customers=JSON.parse(_g('customers','[]'));}catch(e){customers=[];}
-  if(!products.length)addSampleProducts();
+  // Always load products from Google Sheet
+  loadProductsFromSheet();
+}
+
+function loadProductsFromSheet(){
+  // Show loading state
+  var grid = document.getElementById('productsGrid');
+  if(grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted);font-size:.88rem">Loading products...</div>';
+
+  fetch(APPS_SCRIPT_URL + '?type=GET_PRODUCTS')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.products && data.products.length){
+        products = data.products;
+        // Cache locally
+        try{ _s('products', JSON.stringify(products)); }catch(e){}
+        renderProducts(products);
+        renderCategoryBtns();
+      } else {
+        // Try cache
+        try{
+          var cached = JSON.parse(_g('products','[]'));
+          if(cached.length){ products=cached; renderProducts(products); return; }
+        }catch(e){}
+        if(grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted);font-size:.88rem">No products yet. Check back soon! 🐝</div>';
+      }
+    })
+    .catch(function(e){
+      console.warn('Sheet load failed:', e);
+      // Fallback to cache
+      try{
+        var cached = JSON.parse(_g('products','[]'));
+        if(cached.length){ products=cached; renderProducts(products); return; }
+      }catch(err){}
+      if(grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted);font-size:.88rem">Could not load products. Please refresh.</div>';
+    });
 }
 function saveData(){_s('products',JSON.stringify(products));_s('cart',JSON.stringify(cart));_s('orders',JSON.stringify(orders));_s('customers',JSON.stringify(customers));}
 
 function addSampleProducts(){
-  products=[
-    {id:1,name:'Floral Summer Dress',cat:'Dresses',price:299,sizes:['2T','3T','4T','5T','6T'],colors:['Pink','Yellow','Blue'],desc:'Cute floral dress perfect for any occasion. Lightweight and breathable.',stock:15,emoji:'',isNew:true,img:''},
-    {id:2,name:'Stripe Cotton Top',cat:'Tops',price:199,sizes:['2T','3T','4T','5T'],colors:['White','Blue','Pink'],desc:'Comfortable striped top for everyday wear. Soft cotton material.',stock:20,emoji:'',isNew:false,img:''},
-    {id:3,name:'Denim Shorts',cat:'Bottoms',price:249,sizes:['2T','3T','4T','5T','6T'],colors:['Blue','Black'],desc:'Classic denim shorts with elastic waistband for easy dressing.',stock:12,emoji:'',isNew:false,img:''},
-    {id:4,name:'Princess Set',cat:'Sets',price:449,sizes:['2T','3T','4T','5T'],colors:['Pink','Purple','Yellow'],desc:'Complete set with top and bottom. Perfect for special occasions.',stock:8,emoji:'',isNew:true,img:''},
-    {id:5,name:'Sun Hat',cat:'Accessories',price:149,sizes:['S','M','L'],colors:['Pink','Yellow','White'],desc:'Cute sun hat to protect your little one from the sun.',stock:25,emoji:'',isNew:false,img:''},
-    {id:6,name:'Ruffle Dress',cat:'Dresses',price:349,sizes:['2T','3T','4T','5T','6T'],colors:['Pink','White','Red'],desc:'Beautiful ruffle dress for your little princess.',stock:10,emoji:'',isNew:true,img:''}
-  ];
+  // No sample products - load from Google Sheet only
+  products = [];
   saveData();
 }
 
@@ -2469,7 +2497,7 @@ function addToCart() {
 
 
 
-loadData();renderProducts(products);updateCartCount();renderCategoryBtns();startFlashTimer();
+loadData();updateCartCount();startFlashTimer();
 </script>
 
 <script>
