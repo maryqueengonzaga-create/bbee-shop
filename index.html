@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — index.html -->
-<!-- Last updated: 2026-04-25 12:30 AM PHT -->
+<!-- Last updated: 2026-04-25 1:15 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -643,6 +643,38 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .scroll-top-btn{bottom:72px;right:12px;width:36px;height:36px}
 }
 
+
+/* ── FLOATING NEWSLETTER BAR ── */
+.newsletter-bar{position:fixed;bottom:0;left:0;right:0;background:var(--black);z-index:300;transform:translateY(100%);transition:transform .4s cubic-bezier(.25,.46,.45,.94);border-top:2px solid var(--honey)}
+.newsletter-bar.show{transform:translateY(0)}
+.newsletter-bar-inner{max-width:900px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.newsletter-bar-title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--white);margin-bottom:2px}
+.newsletter-bar-sub{font-size:.72rem;color:rgba(255,255,255,.5)}
+.newsletter-bar-form{display:flex;gap:8px;flex:1;min-width:240px}
+.newsletter-bar-inp{flex:1;padding:10px 14px;border:none;background:rgba(255,255,255,.1);color:var(--white);font-family:'Jost',sans-serif;font-size:.85rem;outline:none}
+.newsletter-bar-inp::placeholder{color:rgba(255,255,255,.35)}
+.newsletter-bar-inp:focus{background:rgba(255,255,255,.15)}
+.newsletter-bar-btn{padding:10px 18px;background:var(--honey);border:none;color:var(--white);font-family:'Jost',sans-serif;font-weight:600;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background .2s}
+.newsletter-bar-btn:hover{background:var(--honey-dark)}
+.newsletter-bar-close{background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer;padding:4px;flex-shrink:0;line-height:1;transition:color .2s}
+.newsletter-bar-close:hover{color:var(--white)}
+
+/* ── NAV MENU CUSTOMIZER ── */
+.nav-menu-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.nav-menu-card{background:var(--white);max-width:460px;width:100%;max-height:80vh;overflow-y:auto}
+.nav-menu-hdr{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white)}
+.nav-menu-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600}
+.nav-item-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border-light)}
+.nav-item-row:hover{background:var(--off-white)}
+.nav-item-drag{color:var(--text-light);cursor:grab;font-size:1rem;padding:4px}
+.nav-item-visible{accent-color:var(--black);width:16px;height:16px;cursor:pointer}
+.nav-item-label{flex:1;font-size:.85rem;font-weight:500}
+
+@media(max-width:768px){
+  .newsletter-bar-inner{padding:12px 16px;gap:12px}
+  .newsletter-bar-form{min-width:100%;order:3}
+}
+
 </style>
 </head>
 <body>
@@ -713,6 +745,21 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   </div>
 </div>
 
+<!-- FLOATING NEWSLETTER BAR -->
+<div id="newsletterBar" class="newsletter-bar" style="display:none">
+  <div class="newsletter-bar-inner">
+    <div>
+      <div class="newsletter-bar-title">Get ₱200 off your first order! 🎉</div>
+      <div class="newsletter-bar-sub">Subscribe for exclusive deals & new arrivals</div>
+    </div>
+    <div class="newsletter-bar-form">
+      <input type="email" id="nlBarEmail" placeholder="your@email.com" class="newsletter-bar-inp">
+      <button onclick="subscribeNewsletter('bar')" class="newsletter-bar-btn">Subscribe</button>
+    </div>
+    <button onclick="dismissNewsletter()" class="newsletter-bar-close">×</button>
+  </div>
+</div>
+
 <!-- SCROLL TO TOP -->
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
@@ -723,6 +770,90 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
      HOME SCREEN
 ══════════════════════════════════ -->
 <div class="screen on" id="s-home" style="padding-top:calc(var(--nav-h) + 40px)">
+
+  <div class="shopee-bar" id="filterBar">
+      <!-- Search Row -->
+      <div class="shopee-search-row">
+        <div class="shopee-search-wrap">
+          <svg class="shopee-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="shopee-search-inp" id="navSearchInp"
+            placeholder="Search dresses, tops, sets..."
+            oninput="liveSearch(this.value)"
+            onkeydown="if(event.key==='Enter')this.blur()">
+          <button class="shopee-clear-btn" id="searchClearBtn" onclick="clearSearch()" style="display:none">✕</button>
+        </div>
+        <div class="shopee-count" id="productsCount"></div>
+      </div>
+      <!-- Category Pills Row -->
+      <div class="shopee-cats" id="shopee-cats-row">
+        <button class="shopee-cat active" id="scat-All" onclick="shopeeFilterCat('All',this)">All</button>
+        <button class="shopee-cat" id="scat-Dresses" onclick="shopeeFilterCat('Dresses',this)">👗 Dresses</button>
+        <button class="shopee-cat" id="scat-Tops" onclick="shopeeFilterCat('Tops',this)">👕 Tops</button>
+        <button class="shopee-cat" id="scat-Bottoms" onclick="shopeeFilterCat('Bottoms',this)">👖 Bottoms</button>
+        <button class="shopee-cat" id="scat-Sets" onclick="shopeeFilterCat('Sets',this)">👘 Sets</button>
+        <button class="shopee-cat" id="scat-Accessories" onclick="shopeeFilterCat('Accessories',this)">🎀 Accessories</button>
+      </div>
+    </div>
+
+  <!-- Products -->
+  <div class="products-section" id="productsSection">
+    <div style="padding-top:16px">
+      <div class="products-grid" id="productsGrid"></div>
+    </div>
+  </div>
+
+  <footer style="background:var(--black)">
+    <!-- Trust strips -->
+    <div style="border-bottom:1px solid rgba(255,255,255,.08);padding:20px 48px;display:flex;justify-content:center;gap:0;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 24px;border-right:1px solid rgba(255,255,255,.08);flex:1;min-width:160px;justify-content:center">
+        <span style="font-size:1.1rem">🚀</span>
+        <div style="font-size:.75rem"><strong style="color:var(--white);display:block">Free Delivery</strong><span style="color:rgba(255,255,255,.4)">Orders ₱2,500+</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 24px;border-right:1px solid rgba(255,255,255,.08);flex:1;min-width:160px;justify-content:center">
+        <span style="font-size:1.1rem">🔄</span>
+        <div style="font-size:.75rem"><strong style="color:var(--white);display:block">Easy Returns</strong><span style="color:rgba(255,255,255,.4)">7-day policy</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 24px;border-right:1px solid rgba(255,255,255,.08);flex:1;min-width:160px;justify-content:center">
+        <span style="font-size:1.1rem">🔒</span>
+        <div style="font-size:.75rem"><strong style="color:var(--white);display:block">Safe Checkout</strong><span style="color:rgba(255,255,255,.4)">GCash, Maya, COD</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 24px;flex:1;min-width:160px;justify-content:center">
+        <span style="font-size:1.1rem">💬</span>
+        <div style="font-size:.75rem"><strong style="color:var(--white);display:block">Live Support</strong><span style="color:rgba(255,255,255,.4)">FB & TikTok Live</span></div>
+      </div>
+    </div>
+    <!-- Footer bottom -->
+    <div style="padding:24px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+      <div style="font-family:Cormorant Garamond,serif;font-weight:700;font-size:1.2rem;color:var(--white)">bbee<em style="color:var(--accent);font-weight:400">.co</em></div>
+      <div style="display:flex;gap:16px;align-items:center">
+        <span style="font-size:.75rem;color:rgba(255,255,255,.4)">Matina, Davao City</span>
+        <span style="font-size:.75rem;color:rgba(255,255,255,.4)">·</span>
+        <span style="font-size:.75rem;color:rgba(255,255,255,.5);cursor:pointer" onclick="showNewsletterBar()">Subscribe & Get ₱200 off</span>
+        <span style="font-size:.75rem;color:rgba(255,255,255,.4)">·</span>
+        <span style="font-size:.75rem;color:rgba(255,255,255,.5);cursor:pointer" onclick="goScreen('s-admin-login')">Admin</span>
+      </div>
+      <div style="font-size:.72rem;color:rgba(255,255,255,.3)">© 2026 Bbee.Co</div>
+    </div>
+  </footer>
+</div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">New Collection 2026</div>
+      <h1 class="hero-title">Cute fits for<br><em>little ones</em></h1>
+      <p class="hero-subtitle">Adorable, comfortable clothing for your little ones. Handpicked styles from Matina, Davao City. 🐝</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="document.getElementById('productsSection').scrollIntoView({behavior:'smooth'})">Shop Now →</button>
+        <button class="btn-outline" onclick="filterCat('Dresses',null)">View Dresses</button>
+      </div>
+    </div>
+    <div class="hero-img-side">
+      <span style="font-size:6rem;opacity:.2">🧒</span>
+    </div>
+  </div>
+
+
 
   <div class="shopee-bar" id="filterBar">
       <!-- Search Row -->
@@ -767,11 +898,37 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   </div>
 
   <!-- Footer -->
-  <footer style="background:var(--black);border-top:1px solid rgba(255,255,255,.08);padding:32px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
-    <div style="font-family:Cormorant Garamond,serif;font-weight:700;font-size:1.2rem;color:var(--white)">bbee<em style="color:var(--accent);font-weight:400">.co</em></div>
-    <div style="font-size:.75rem;color:rgba(255,255,255,.4)">© 2026 Bbee.Co. Matina, Davao City.</div>
-    <div style="display:flex;gap:16px">
-      <span style="font-size:.75rem;color:rgba(255,255,255,.5);cursor:pointer;transition:color .2s" onclick="goScreen('s-admin-login')">Admin</span>
+  <footer style="background:var(--black)">
+    <!-- Trust strips -->
+    <div style="border-bottom:1px solid rgba(255,255,255,.08);padding:20px 48px;display:flex;justify-content:center;gap:0;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 24px;border-right:1px solid rgba(255,255,255,.08);flex:1;min-width:160px;justify-content:center">
+        <span style="font-size:1.1rem">🚀</span>
+        <div style="font-size:.75rem"><strong style="color:var(--white);display:block">Free Delivery</strong><span style="color:rgba(255,255,255,.4)">Orders ₱2,500+</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 24px;border-right:1px solid rgba(255,255,255,.08);flex:1;min-width:160px;justify-content:center">
+        <span style="font-size:1.1rem">🔄</span>
+        <div style="font-size:.75rem"><strong style="color:var(--white);display:block">Easy Returns</strong><span style="color:rgba(255,255,255,.4)">7-day policy</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 24px;border-right:1px solid rgba(255,255,255,.08);flex:1;min-width:160px;justify-content:center">
+        <span style="font-size:1.1rem">🔒</span>
+        <div style="font-size:.75rem"><strong style="color:var(--white);display:block">Safe Checkout</strong><span style="color:rgba(255,255,255,.4)">GCash, Maya, COD</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 24px;flex:1;min-width:160px;justify-content:center">
+        <span style="font-size:1.1rem">💬</span>
+        <div style="font-size:.75rem"><strong style="color:var(--white);display:block">Live Support</strong><span style="color:rgba(255,255,255,.4)">FB & TikTok Live</span></div>
+      </div>
+    </div>
+    <!-- Footer bottom -->
+    <div style="padding:24px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+      <div style="font-family:Cormorant Garamond,serif;font-weight:700;font-size:1.2rem;color:var(--white)">bbee<em style="color:var(--accent);font-weight:400">.co</em></div>
+      <div style="display:flex;gap:16px;align-items:center">
+        <span style="font-size:.75rem;color:rgba(255,255,255,.4)">Matina, Davao City</span>
+        <span style="font-size:.75rem;color:rgba(255,255,255,.4)">·</span>
+        <span style="font-size:.75rem;color:rgba(255,255,255,.5);cursor:pointer" onclick="showNewsletterBar()">Subscribe & Get ₱200 off</span>
+        <span style="font-size:.75rem;color:rgba(255,255,255,.4)">·</span>
+        <span style="font-size:.75rem;color:rgba(255,255,255,.5);cursor:pointer" onclick="goScreen('s-admin-login')">Admin</span>
+      </div>
+      <div style="font-size:.72rem;color:rgba(255,255,255,.3)">© 2026 Bbee.Co</div>
     </div>
   </footer>
 </div>
@@ -792,13 +949,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
     </div>
   </div>
 
-  <!-- Strips -->
-  <div class="hero-strips">
-    <div class="hero-strip-item"><span class="strip-icon">🚀</span><div class="strip-text"><strong>Free Delivery</strong>Orders ₱2,500+</div></div>
-    <div class="hero-strip-item"><span class="strip-icon">🔄</span><div class="strip-text"><strong>Easy Returns</strong>7-day policy</div></div>
-    <div class="hero-strip-item"><span class="strip-icon">🔒</span><div class="strip-text"><strong>Safe Checkout</strong>GCash, Maya, COD</div></div>
-    <div class="hero-strip-item"><span class="strip-icon">💬</span><div class="strip-text"><strong>Live Support</strong>FB & TikTok Live</div></div>
-  </div>
+
 
   <!-- Categories -->
   <div class="section">
@@ -2433,6 +2584,152 @@ var curCat = 'All';
 function saveFlashSale() { saveFlashSale2(); }
 
 
+
+
+
+// ── NEWSLETTER BAR ──
+var _nlShown = false;
+
+function showNewsletterBar() {
+  var bar = document.getElementById('newsletterBar');
+  if (!bar || _nlShown) return;
+  bar.style.display = 'block';
+  setTimeout(function(){ bar.classList.add('show'); }, 50);
+  _nlShown = true;
+}
+
+function dismissNewsletter() {
+  var bar = document.getElementById('newsletterBar');
+  if (bar) bar.classList.remove('show');
+  try { localStorage.setItem('bbee_nl_dismissed', '1'); } catch(e) {}
+}
+
+function subscribeNewsletter(source) {
+  var emailEl = source === 'bar' 
+    ? document.getElementById('nlBarEmail')
+    : document.getElementById('newsletterEmail');
+  if (!emailEl || !emailEl.value.trim()) { showToast('Enter your email!'); return; }
+  showToast('Thank you! ₱200 off code sent to ' + emailEl.value + ' 🎉');
+  emailEl.value = '';
+  dismissNewsletter();
+}
+
+// Show newsletter bar after 30 seconds or 60% scroll
+setTimeout(function() {
+  try {
+    if (localStorage.getItem('bbee_nl_dismissed') !== '1') showNewsletterBar();
+  } catch(e) {}
+}, 30000);
+
+window.addEventListener('scroll', function() {
+  var pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  if (pct > 0.6) {
+    try {
+      if (localStorage.getItem('bbee_nl_dismissed') !== '1') showNewsletterBar();
+    } catch(e) {}
+  }
+});
+
+// ── NAV MENU CUSTOMIZER ──
+var DEFAULT_NAV_ITEMS = [
+  { id:'all',        label:'All',         cat:'All',         visible:true  },
+  { id:'dresses',    label:'Dresses',     cat:'Dresses',     visible:true  },
+  { id:'tops',       label:'Tops',        cat:'Tops',        visible:true  },
+  { id:'bottoms',    label:'Bottoms',     cat:'Bottoms',     visible:true  },
+  { id:'sets',       label:'Sets',        cat:'Sets',        visible:true  },
+  { id:'accessories',label:'Accessories', cat:'Accessories', visible:true  },
+  { id:'sleepwear',  label:'Sleepwear',   cat:'Sleepwear',   visible:false },
+  { id:'sale',       label:'On Sale',     cat:'sale',        visible:false }
+];
+
+function getNavItems() {
+  try {
+    var saved = localStorage.getItem('bbee_nav_items');
+    return saved ? JSON.parse(saved) : DEFAULT_NAV_ITEMS;
+  } catch(e) { return DEFAULT_NAV_ITEMS; }
+}
+
+function saveNavItems(items) {
+  try { localStorage.setItem('bbee_nav_items', JSON.stringify(items)); } catch(e) {}
+}
+
+function renderNavLinks() {
+  var items    = getNavItems();
+  var navLinks = document.querySelector('.nav-links');
+  if (!navLinks) return;
+  var html = '';
+  items.filter(function(i){ return i.visible; }).forEach(function(item) {
+    var el = document.createElement('span');
+    el.className = 'nav-link';
+    el.textContent = item.label;
+    el.onclick = (function(cat) {
+      return function() { shopeeFilterCat(cat, null); goScreen('s-home'); };
+    })(item.cat);
+    navLinks.appendChild(el);
+    html += el.outerHTML;
+  });
+  navLinks.innerHTML = html;
+}
+function openNavCustomizer() {
+  var items = getNavItems();
+  var html  = '<div class="nav-menu-modal" onclick="if(event.target===this)closeNavCustomizer()">' +
+    '<div class="nav-menu-card">' +
+    '<div class="nav-menu-hdr">' +
+      '<div class="nav-menu-title">Customize Navigation</div>' +
+      '<button onclick="closeNavCustomizer()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)">×</button>' +
+    '</div>' +
+    '<div style="padding:12px 16px;font-size:.75rem;color:var(--muted);border-bottom:1px solid var(--border)">Toggle items on/off. Changes apply immediately.</div>' +
+    items.map(function(item, i) {
+      return '<div class="nav-item-row">' +
+        '<span class="nav-item-drag">⠿</span>' +
+        '<input type="checkbox" class="nav-item-visible" id="nav_' + i + '" ' + (item.visible?'checked':'') + ' onchange="toggleNavItem(' + i + ',this.checked)">' +
+        '<label for="nav_' + i + '" class="nav-item-label">' + item.label + '</label>' +
+        '<span style="font-size:.7rem;color:var(--text-light)">' + item.cat + '</span>' +
+      '</div>';
+    }).join('') +
+    '<div style="padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:8px">' +
+      '<button onclick="addNavItem()" style="flex:1;padding:9px;border:1.5px dashed var(--border);background:none;font-family:Jost,sans-serif;font-size:.78rem;cursor:pointer;color:var(--muted)">+ Add Item</button>' +
+      '<button onclick="resetNavItems()" style="padding:9px 14px;border:1.5px solid var(--border);background:none;font-family:Jost,sans-serif;font-size:.78rem;cursor:pointer;color:var(--text-muted)">Reset</button>' +
+    '</div>' +
+    '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeNavCustomizer() {
+  var modal = document.querySelector('.nav-menu-modal');
+  if (modal) modal.remove();
+}
+
+function toggleNavItem(idx, visible) {
+  var items = getNavItems();
+  items[idx].visible = visible;
+  saveNavItems(items);
+  renderNavLinks();
+}
+
+function addNavItem() {
+  var label = prompt('Category name (e.g. Sleepwear):');
+  if (!label) return;
+  var items = getNavItems();
+  items.push({ id: label.toLowerCase(), label: label, cat: label, visible: true });
+  saveNavItems(items);
+  closeNavCustomizer();
+  renderNavLinks();
+  openNavCustomizer();
+}
+
+function resetNavItems() {
+  if (!confirm('Reset to default navigation?')) return;
+  try { localStorage.removeItem('bbee_nav_items'); } catch(e) {}
+  closeNavCustomizer();
+  renderNavLinks();
+  openNavCustomizer();
+}
+
+// Init nav on load
+document.addEventListener('DOMContentLoaded', function() {
+  renderNavLinks();
+});
 
 
 // ── SCROLL TO TOP ──
