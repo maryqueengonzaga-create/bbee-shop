@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bbee.Co — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#111111;--white:#FFFFFF;--off:#FAFAFA;
+  --border:#E8E8E8;--border-lt:#F2F2F2;
+  --text:#111111;--muted:#888;--light:#BBB;
+  --honey:#C9943A;--honey-lt:#FDF5E8;--honey-dk:#A87A2A;
+  --green:#16A34A;--green-lt:#F0FDF4;
+  --red:#DC2626;--red-lt:#FEF2F2;
+  --blue:#2563EB;--blue-lt:#EFF6FF;
+  --purple:#7C3AED;--purple-lt:#F5F3FF;
+  --yellow:#F59E0B;--yellow-lt:#FFF8E1;
+  --sidebar:220px;
+  --sh:0 1px 6px rgba(0,0,0,.05);
+  --sh-md:0 4px 16px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-height:100dvh;display:flex}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100dvh;display:flex;align-items:center;justify-content:center;background:var(--black);width:100%}
+.login-card{background:var(--white);padding:48px;width:100%;max-width:380px}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--black);margin-bottom:4px}
+.login-logo em{color:var(--honey);font-weight:400;font-style:italic}
+.login-sub{font-size:.8rem;color:var(--muted);margin-bottom:32px;letter-spacing:.05em}
+.login-label{font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:7px}
+.login-inp{width:100%;padding:13px 14px;border:1.5px solid var(--border);background:var(--white);font-family:'Jost',sans-serif;font-size:.9rem;color:var(--text);outline:none;margin-bottom:14px;transition:border .15s}
+.login-inp:focus{border-color:var(--black)}
+.login-btn{width:100%;padding:14px;background:var(--black);border:none;color:var(--white);font-family:'Jost',sans-serif;font-weight:600;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:4px}
+.login-btn:hover{background:var(--honey)}
+.login-err{font-size:.78rem;color:var(--red);margin-bottom:10px;display:none}
+
+/* ── LAYOUT ── */
+.admin-layout{display:flex;min-height:100dvh;width:100%}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:var(--black);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto}
+.sidebar-brand{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--white)}
+.sidebar-logo em{color:var(--honey);font-style:italic;font-weight:400}
+.sidebar-sub{font-size:.65rem;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+.sidebar-nav{padding:16px 0;flex:1}
+.nav-section-lbl{font-size:.6rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:14px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:.8rem;font-weight:500;color:rgba(255,255,255,.55);cursor:pointer;transition:all .2s;border-left:3px solid transparent;text-decoration:none}
+.nav-item:hover{color:var(--white);background:rgba(255,255,255,.05)}
+.nav-item.active{color:var(--white);background:rgba(255,255,255,.08);border-left-color:var(--honey)}
+.nav-item-icon{font-size:.95rem;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{background:var(--honey);color:var(--white);font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.logout-btn{width:100%;padding:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-family:'Jost',sans-serif;font-size:.75rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.logout-btn:hover{background:rgba(255,255,255,.12);color:var(--white)}
+
+/* ── MAIN ── */
+.main-content{margin-left:var(--sidebar);flex:1;min-width:0;padding:0}
+
+/* ── TOP BAR ── */
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.2rem;color:var(--black)}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.topbar-btn{padding:7px 16px;border:1.5px solid var(--border);background:var(--white);font-family:'Jost',sans-serif;font-size:.75rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--text);transition:all .2s}
+.topbar-btn:hover{border-color:var(--black);background:var(--off)}
+.topbar-btn.primary{background:var(--black);color:var(--white);border-color:var(--black)}
+.topbar-btn.primary:hover{background:var(--honey);border-color:var(--honey)}
+
+/* ── PAGE ── */
+.page{padding:28px 32px;display:none}
+.page.active{display:block}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--white);border:1px solid var(--border);padding:20px 22px}
+.stat-label{font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--black);margin-bottom:4px;line-height:1}
+.stat-sub{font-size:.72rem;color:var(--muted)}
+.stat-trend-up{color:var(--green);font-size:.72rem;font-weight:600}
+.stat-trend-dn{color:var(--red);font-size:.72rem;font-weight:600}
+
+/* ── CHARTS ── */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:28px}
+.chart-card{background:var(--white);border:1px solid var(--border);padding:22px}
+.chart-title{font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{background:var(--black);border-radius:1px;width:100%;transition:height .5s;min-height:2px}
+.bar:hover{background:var(--honey)}
+.bar-lbl{font-size:.6rem;color:var(--light);letter-spacing:.06em}
+.bar-val{font-size:.65rem;font-weight:600;color:var(--muted)}
+.pie-wrap{display:flex;flex-direction:column;gap:8px}
+.pie-row{display:flex;align-items:center;gap:10px}
+.pie-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pie-label{font-size:.8rem;color:var(--text);flex:1}
+.pie-pct{font-size:.8rem;font-weight:600;color:var(--black)}
+.pie-bar-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.pie-bar{height:6px;border-radius:3px;transition:width .6s}
+
+/* ── TABLE ── */
+.table-card{background:var(--white);border:1px solid var(--border)}
+.table-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.table-hdr-title{font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:.65rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--light);padding:10px 20px;text-align:left;border-bottom:1.5px solid var(--border);white-space:nowrap}
+.tbl td{padding:13px 20px;border-bottom:1px solid var(--border-lt);font-size:.84rem;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--off)}
+.tbl-img{width:40px;height:52px;object-fit:cover;background:var(--off)}
+.tbl-img-ph{width:40px;height:52px;background:var(--off);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+
+/* ── STATUS PILLS ── */
+.pill{display:inline-block;padding:3px 10px;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.pill-pending{background:var(--yellow-lt);color:var(--yellow)}
+.pill-confirmed{background:var(--green-lt);color:var(--green)}
+.pill-shipped{background:var(--blue-lt);color:var(--blue)}
+.pill-delivered{background:var(--purple-lt);color:var(--purple)}
+.pill-cancelled{background:var(--red-lt);color:var(--red)}
+.pill-low{background:var(--red-lt);color:var(--red)}
+.pill-ok{background:var(--green-lt);color:var(--green)}
+.pill-out{background:#F3F4F6;color:#9CA3AF}
+
+/* ── ACTION BUTTONS ── */
+.act-btn{padding:4px 12px;font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;transition:all .15s;font-family:'Jost',sans-serif}
+.act-btn-primary{background:var(--black);color:var(--white)}
+.act-btn-primary:hover{background:var(--honey)}
+.act-btn-outline{background:var(--white);color:var(--text);border:1.5px solid var(--border)}
+.act-btn-outline:hover{border-color:var(--black)}
+.act-btn-danger{background:var(--red-lt);color:var(--red)}
+.act-btn-success{background:var(--green-lt);color:var(--green)}
+
+/* ── FORMS ── */
+.form-section{background:var(--white);border:1px solid var(--border);padding:24px;margin-bottom:16px}
+.form-section-title{font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.form-inp{padding:10px 12px;border:1.5px solid var(--border);background:var(--white);font-family:'Jost',sans-serif;font-size:.88rem;color:var(--text);outline:none;transition:border .15s}
+.form-inp:focus{border-color:var(--black)}
+.form-select{padding:10px 12px;border:1.5px solid var(--border);background:var(--white);font-family:'Jost',sans-serif;font-size:.88rem;color:var(--text);outline:none;cursor:pointer;width:100%}
+.form-textarea{padding:10px 12px;border:1.5px solid var(--border);background:var(--white);font-family:'Jost',sans-serif;font-size:.88rem;color:var(--text);outline:none;resize:vertical;width:100%;min-height:80px}
+.form-hint{font-size:.72rem;color:var(--muted)}
+.img-upload{border:2px dashed var(--border);padding:28px;text-align:center;cursor:pointer;transition:border .2s}
+.img-upload:hover{border-color:var(--black)}
+
+/* ── MODAL ── */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-ov.on{display:flex}
+.modal{background:var(--white);width:100%;max-width:540px;max-height:90vh;overflow-y:auto}
+.modal-hdr{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:1}
+.modal-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.2rem}
+.modal-close{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+
+/* ── SEARCH + FILTER ── */
+.search-filter-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center}
+.admin-search{flex:1;padding:9px 14px;border:1.5px solid var(--border);background:var(--white);font-family:'Jost',sans-serif;font-size:.85rem;color:var(--text);outline:none;max-width:280px}
+.admin-search:focus{border-color:var(--black)}
+.filter-select{padding:9px 12px;border:1.5px solid var(--border);background:var(--white);font-family:'Jost',sans-serif;font-size:.82rem;color:var(--text);outline:none;cursor:pointer}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--black);color:var(--white);padding:12px 20px;font-size:.82rem;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;box-shadow:var(--sh-md)}
+.toast.show{opacity:1}
+
+/* ── INVENTORY STOCK BAR ── */
+.stock-bar-wrap{width:80px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;display:inline-block}
+.stock-bar{height:6px;border-radius:3px;transition:width .4s}
+.stock-high{background:var(--green)}
+.stock-med{background:var(--yellow)}
+.stock-low{background:var(--red)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .chart-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  :root{--sidebar:0px}
+  .sidebar{transform:translateX(-100%);transition:transform .3s}
+  .sidebar.open{transform:translateX(0);width:240px}
+  .main-content{margin-left:0}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .page{padding:20px 16px}
+  .topbar{padding:0 16px}
+  .form-row,.form-row-3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginWrap" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">bbee<em>.co</em></div>
+    <div class="login-sub">Admin Panel — Authorized Access Only</div>
+    <label class="login-label">Password</label>
+    <input type="password" class="login-inp" id="loginPw" placeholder="Enter admin password"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-err" id="loginErr">Invalid password. Try again.</div>
+    <button class="login-btn" onclick="doLogin()">Access Admin Panel</button>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="adminApp" class="admin-layout" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">bbee<em>.co</em></div>
+      <div class="sidebar-sub">Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-lbl">Overview</div>
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <span class="nav-item-icon">📊</span>Dashboard
+      </div>
+
+      <div class="nav-section-lbl">Store</div>
+      <div class="nav-item" onclick="showPage('orders')">
+        <span class="nav-item-icon">📦</span>Orders
+        <span class="nav-badge" id="pendingBadge">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('products')">
+        <span class="nav-item-icon">👗</span>Products
+      </div>
+      <div class="nav-item" onclick="showPage('inventory')">
+        <span class="nav-item-icon">🗂</span>Inventory
+      </div>
+      <div class="nav-item" onclick="showPage('categories')">
+        <span class="nav-item-icon">🏷</span>Categories
+      </div>
+
+      <div class="nav-section-lbl">Customers</div>
+      <div class="nav-item" onclick="showPage('customers')">
+        <span class="nav-item-icon">👥</span>Customers
+      </div>
+
+      <div class="nav-section-lbl">Analytics</div>
+      <div class="nav-item" onclick="showPage('analytics')">
+        <span class="nav-item-icon">📈</span>Sales Analytics
+      </div>
+
+      <div class="nav-section-lbl">Marketing</div>
+      <div class="nav-item" onclick="showPage('promos')">
+        <span class="nav-item-icon">🎁</span>Promos & Sales
+      </div>
+
+      <div class="nav-section-lbl">Settings</div>
+      <div class="nav-item" onclick="showPage('settings')">
+        <span class="nav-item-icon">⚙️</span>Shop Settings
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">← Log Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button onclick="toggleSidebar()" style="display:none;background:none;border:none;cursor:pointer;font-size:1.2rem" id="menuToggle">☰</button>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-actions">
+        <span style="font-size:.75rem;color:var(--muted)" id="lastRefresh"></span>
+        <button class="topbar-btn" onclick="refreshPage()">↻ Refresh</button>
+        <a href="index.html" class="topbar-btn" target="_blank">View Shop →</a>
+      </div>
+    </div>
+
+    <!-- ════════ DASHBOARD ════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Today's Sales</div>
+          <div class="stat-value" id="statTodaySales">₱0</div>
+          <div class="stat-sub" id="statTodayOrders">0 orders today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">This Month</div>
+          <div class="stat-value" id="statMonthSales">₱0</div>
+          <div class="stat-sub" id="statMonthOrders">0 orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Orders</div>
+          <div class="stat-value" id="statPending" style="color:var(--yellow)">0</div>
+          <div class="stat-sub">Needs attention</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Customers</div>
+          <div class="stat-value" id="statCustomers">0</div>
+          <div class="stat-sub" id="statNewCustomers"></div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-title">Sales — Last 7 Days</div>
+          <div class="bar-chart" id="salesChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Orders by Status</div>
+          <div class="pie-wrap" id="statusChart"></div>
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="table-card">
+        <div class="table-hdr">
+          <div class="table-hdr-title">Recent Orders</div>
+          <button class="act-btn act-btn-outline" onclick="showPage('orders')">View All</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl" id="recentOrdersTbl">
+            <thead><tr>
+              <th>Order ID</th><th>Customer</th><th>Items</th>
+              <th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Action</th>
+            </tr></thead>
+            <tbody id="recentOrdersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Low Stock Alert -->
+      <div class="table-card" style="margin-top:16px" id="lowStockCard">
+        <div class="table-hdr">
+          <div class="table-hdr-title">⚠️ Low Stock Alerts</div>
+          <button class="act-btn act-btn-outline" onclick="showPage('inventory')">Manage Inventory</button>
+        </div>
+        <div id="lowStockList" style="padding:16px 20px"></div>
+      </div>
+    </div>
+
+    <!-- ════════ ORDERS ════════ -->
+    <div class="page" id="page-orders">
+      <div class="search-filter-bar">
+        <input class="admin-search" placeholder="Search orders..." oninput="filterOrders(this.value)" id="orderSearch">
+        <select class="filter-select" onchange="filterOrdersByStatus(this.value)" id="orderStatusFilter">
+          <option value="">All Status</option>
+          <option value="PENDING">Pending</option>
+          <option value="CONFIRMED">Confirmed</option>
+          <option value="SHIPPED">Shipped</option>
+          <option value="DELIVERED">Delivered</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+        <button class="topbar-btn primary" onclick="exportOrders()">↓ Export CSV</button>
+      </div>
+      <div class="table-card">
+        <div style="overflow-x:auto">
+          <table class="tbl" id="ordersTable">
+            <thead><tr>
+              <th>Order ID</th><th>Date</th><th>Customer</th><th>Phone</th>
+              <th>Items</th><th>Total</th><th>Payment</th><th>Delivery</th>
+              <th>Status</th><th>Tracking</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ PRODUCTS ════════ -->
+    <div class="page" id="page-products">
+      <div class="search-filter-bar">
+        <input class="admin-search" placeholder="Search products..." oninput="filterProducts(this.value)">
+        <select class="filter-select" onchange="filterProductsByCat(this.value)">
+          <option value="">All Categories</option>
+          <option>Dresses</option><option>Tops</option><option>Bottoms</option>
+          <option>Sets</option><option>Accessories</option>
+        </select>
+        <button class="topbar-btn primary" onclick="openProductModal()">+ Add Product</button>
+      </div>
+      <div class="table-card">
+        <div style="overflow-x:auto">
+          <table class="tbl" id="productsTable">
+            <thead><tr>
+              <th>Image</th><th>Name</th><th>Category</th><th>Price</th>
+              <th>Stock</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="productsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ INVENTORY ════════ -->
+    <div class="page" id="page-inventory">
+      <div style="margin-bottom:20px">
+        <div style="font-size:.78rem;color:var(--muted);line-height:1.7;background:var(--yellow-lt);border:1px solid #FDE68A;padding:12px 16px">
+          📦 Inventory is tracked per product. Update stock counts here — low stock (≤5) will trigger alerts on the Dashboard.
+        </div>
+      </div>
+      <div class="search-filter-bar">
+        <input class="admin-search" placeholder="Search inventory...">
+        <select class="filter-select">
+          <option value="">All Stock Levels</option>
+          <option value="low">Low Stock (≤5)</option>
+          <option value="out">Out of Stock</option>
+          <option value="ok">In Stock</option>
+        </select>
+        <button class="topbar-btn primary" onclick="saveAllStock()">💾 Save Stock Updates</button>
+      </div>
+      <div class="table-card">
+        <div style="overflow-x:auto">
+          <table class="tbl" id="inventoryTable">
+            <thead><tr>
+              <th>Product</th><th>Category</th><th>Price</th>
+              <th>Current Stock</th><th>Stock Level</th><th>Update Stock</th>
+            </tr></thead>
+            <tbody id="inventoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ CUSTOMERS ════════ -->
+    <div class="page" id="page-customers">
+      <div class="search-filter-bar">
+        <input class="admin-search" placeholder="Search customers...">
+        <button class="topbar-btn primary" onclick="exportCustomers()">↓ Export CSV</button>
+      </div>
+      <div class="table-card">
+        <div style="overflow-x:auto">
+          <table class="tbl" id="customersTable">
+            <thead><tr>
+              <th>Name</th><th>Email</th><th>Phone</th><th>Sign-in</th>
+              <th>Registered</th><th>Last Login</th><th>Total Orders</th>
+            </tr></thead>
+            <tbody id="customersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ ANALYTICS ════════ -->
+    <div class="page" id="page-analytics">
+      <div class="stat-grid" style="margin-bottom:24px">
+        <div class="stat-card">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value" id="anaTotal">₱0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value" id="anaOrders">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Order Value</div>
+          <div class="stat-value" id="anaAvg">₱0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Delivery Rate</div>
+          <div class="stat-value" id="anaDelivery">0%</div>
+        </div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-title">Monthly Revenue</div>
+          <div class="bar-chart" id="monthlyChart" style="height:140px"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Payment Methods</div>
+          <div class="pie-wrap" id="paymentChart"></div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><div class="table-hdr-title">Best Selling Products</div></div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>Rank</th><th>Product</th><th>Orders</th><th>Revenue</th></tr></thead>
+            <tbody id="bestSellersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ PROMOS ════════ -->
+    <div class="page" id="page-promos">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <!-- Flash Sale -->
+        <div class="form-section">
+          <div class="form-section-title">Flash Sale</div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">Sale Label</label>
+            <input type="text" class="form-inp" id="flashLabel" placeholder="e.g. Summer Sale!">
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">End Date & Time</label>
+            <input type="datetime-local" class="form-inp" id="flashEnd">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 100px;gap:8px;margin-bottom:16px">
+            <div class="form-group">
+              <label class="form-label">Discount</label>
+              <input type="number" class="form-inp" id="flashDisc" placeholder="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select class="form-select" id="flashDiscType">
+                <option value="pct">% off</option>
+                <option value="fixed">₱ off</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="topbar-btn primary" style="flex:1" onclick="saveFlashSale()">Start Flash Sale</button>
+            <button class="topbar-btn" onclick="stopFlashSale()">Stop</button>
+          </div>
+        </div>
+        <!-- Promo Codes -->
+        <div class="form-section">
+          <div class="form-section-title">Promo Codes</div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">Code</label>
+            <input type="text" class="form-inp" id="promoCode" placeholder="BBEE10" style="text-transform:uppercase">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 100px;gap:8px;margin-bottom:12px">
+            <div class="form-group">
+              <label class="form-label">Discount</label>
+              <input type="number" class="form-inp" id="promoDisc" placeholder="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select class="form-select" id="promoDiscType">
+                <option value="pct">% off</option>
+                <option value="fixed">₱ off</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">Min. Order (₱)</label>
+            <input type="number" class="form-inp" id="promoMin" placeholder="0">
+          </div>
+          <button class="topbar-btn primary" style="width:100%" onclick="addPromoCode()">Add Promo Code</button>
+          <div id="promoCodesList" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ CATEGORIES ════════ -->
+    <div class="page" id="page-categories">
+      <div id="categoriesContent" style="max-width:600px">
+        <div class="form-section">
+          <div class="form-section-title">Manage Categories</div>
+          <div id="catsList"></div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <input type="text" class="form-inp" id="newCatInp" placeholder="New category name" style="flex:1">
+            <button class="topbar-btn primary" onclick="addCategory()">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ SETTINGS ════════ -->
+    <div class="page" id="page-settings">
+      <div style="max-width:700px">
+        <div class="form-section">
+          <div class="form-section-title">Shop Information</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Shop Name</label>
+              <input type="text" class="form-inp" id="settShopName" value="Bbee.Co">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tagline</label>
+              <input type="text" class="form-inp" id="settTagline" placeholder="Cute fits for little ones">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Address</label>
+            <input type="text" class="form-inp" id="settAddress" value="Matina, Davao City">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-inp" id="settEmail" placeholder="contact@bbeeco.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-inp" id="settPhone" placeholder="09XX XXX XXXX">
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Payment Details</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">GCash Number</label>
+              <input type="text" class="form-inp" id="settGcash" placeholder="09XX XXX XXXX">
+            </div>
+            <div class="form-group">
+              <label class="form-label">GCash Name</label>
+              <input type="text" class="form-inp" id="settGcashName" placeholder="Account name">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Maya Number</label>
+              <input type="text" class="form-inp" id="settMaya" placeholder="09XX XXX XXXX">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bank Details</label>
+              <input type="text" class="form-inp" id="settBank" placeholder="BDO - Account Number">
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Delivery Settings</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Local Delivery Fee (₱)</label>
+              <input type="number" class="form-inp" id="settLocalFee" value="0" placeholder="0 = Free">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nationwide Fee (₱)</label>
+              <input type="number" class="form-inp" id="settNatFee" value="120">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Free Shipping Minimum (₱)</label>
+            <input type="number" class="form-inp" id="settFreeShip" value="2500">
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Change Admin Password</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" class="form-inp" id="settNewPw" placeholder="New password">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password</label>
+              <input type="password" class="form-inp" id="settConfirmPw" placeholder="Confirm">
+            </div>
+          </div>
+        </div>
+        <button class="topbar-btn primary" style="width:100%;padding:14px" onclick="saveSettings()">Save All Settings</button>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end adminApp -->
+
+<!-- ORDER EDIT MODAL -->
+<div class="modal-ov" id="orderModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="orderModalTitle">Edit Order</div>
+      <button class="modal-close" onclick="closeModal('orderModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="orderModalContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="topbar-btn" onclick="closeModal('orderModal')">Cancel</button>
+      <button class="topbar-btn primary" onclick="saveOrderChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-ov" id="productModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="productModalTitle">Add Product</div>
+      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="img-upload" onclick="document.getElementById('pmImg').click()" id="pmImgArea">
+        <div style="font-size:1.8rem;margin-bottom:8px;opacity:.3">📷</div>
+        <div style="font-size:.82rem;color:var(--muted)">Click to upload product image</div>
+      </div>
+      <input type="file" id="pmImg" accept="image/*" style="display:none" onchange="handlePmImg(event)">
+      <input type="hidden" id="pmId">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Product Name</label>
+          <input type="text" class="form-inp" id="pmName" placeholder="Floral Summer Dress">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="pmCat">
+            <option>Dresses</option><option>Tops</option><option>Bottoms</option>
+            <option>Sets</option><option>Accessories</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Price (₱)</label>
+          <input type="number" class="form-inp" id="pmPrice" placeholder="299">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stock</label>
+          <input type="number" class="form-inp" id="pmStock" placeholder="10">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label">Sizes (comma separated)</label>
+        <input type="text" class="form-inp" id="pmSizes" placeholder="2T, 3T, 4T, 5T, 6T">
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label">Colors (comma separated)</label>
+        <input type="text" class="form-inp" id="pmColors" placeholder="Pink, Blue, Yellow">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="pmDesc" placeholder="Cute and comfy outfit for your little one!"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="topbar-btn" onclick="closeModal('productModal')">Cancel</button>
+      <button class="topbar-btn primary" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+var APPS_SCRIPT_URL =  + APPS_URL + ;
+var ADMIN_PW        = 'Bbeeco2026!';
+var CLOUD_NAME      = 'djchrmzgk';
+var UPLOAD_PRESET   = 'bbee_unsigned';
+
+var allOrders   = [];
+var allProducts = [];
+var allCustomers= [];
+var settings    = {};
+
+// ── AUTH ──
+function doLogin() {
+  var pw = document.getElementById('loginPw').value;
+  if (pw === ADMIN_PW || pw === (settings.adminPw||'')) {
+    localStorage.setItem('bbee_admin_auth', 'true');
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('adminApp').style.display  = 'flex';
+    loadSettings();
+    loadDashboard();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+    document.getElementById('loginPw').value = '';
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('bbee_admin_auth');
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('adminApp').style.display  = 'none';
+  document.getElementById('loginPw').value = '';
+}
+
+// Check if already logged in
+if (localStorage.getItem('bbee_admin_auth') === 'true') {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('adminApp').style.display  = 'flex';
+  loadSettings && loadSettings();
+  setTimeout(function(){ loadDashboard(); }, 100);
+}
+
+document.getElementById('loginPw').focus();
+
+// ── NAVIGATION ──
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+  // Find and activate nav item
+  document.querySelectorAll('.nav-item').forEach(function(n){
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').indexOf("'" + page + "'") > -1)
+      n.classList.add('active');
+  });
+  // Update topbar title
+  var titles = {
+    dashboard:'Dashboard', orders:'Orders', products:'Products',
+    inventory:'Inventory', customers:'Customers', analytics:'Sales Analytics',
+    promos:'Promos & Sales', categories:'Categories', settings:'Shop Settings'
+  };
+  document.getElementById('topbarTitle').textContent = titles[page] || page;
+  // Load data for page
+  if (page === 'orders')    loadOrders();
+  if (page === 'products')  loadProducts();
+  if (page === 'inventory') loadInventory();
+  if (page === 'customers') loadCustomers();
+  if (page === 'analytics') loadAnalytics();
+  if (page === 'categories')loadCategories();
+  if (page === 'settings')  loadSettings();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function refreshPage() {
+  var active = document.querySelector('.page.active');
+  if (active) {
+    var id = active.id.replace('page-','');
+    showPage(id);
+  }
+  document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ── TOAST ──
+function toast(msg, dur) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, dur||2500);
+}
+
+// ── API HELPER ──
+function api(params) {
+  var url = APPS_SCRIPT_URL + '?' + Object.keys(params).map(function(k){
+    return k + '=' + encodeURIComponent(params[k]);
+  }).join('&');
+  return fetch(url).then(function(r){ return r.json(); });
+}
+
+// ── DASHBOARD ──
+function loadDashboard() {
+  document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+  api({ type:'GET_ORDERS' }).then(function(data) {
+    if (!data.orders) return;
+    allOrders = data.orders;
+    renderDashboard(data.orders);
+  }).catch(function(e){ toast('Error loading orders'); });
+
+  api({ type:'GET_PRODUCTS', adminView:'true' }).then(function(data) {
+    if (!data.products) return;
+    allProducts = data.products;
+    renderLowStock(data.products);
+  });
+
+  api({ type:'GET_ORDERS' }).then(function(data) {
+    if (!data.orders) return;
+    var custs = {};
+    data.orders.forEach(function(o){ if(o.email) custs[o.email]=true; });
+    document.getElementById('statCustomers').textContent = Object.keys(custs).length;
+  });
+}
+
+function renderDashboard(orders) {
+  var now   = new Date();
+  var today = now.toDateString();
+
+  // Today's orders
+  var todayOrders = orders.filter(function(o){
+    return o.date && new Date(o.date).toDateString() === today;
+  });
+  var todayTotal = todayOrders.reduce(function(s,o){ return s+(parseFloat(o.total)||0); },0);
+  document.getElementById('statTodaySales').textContent  = '₱' + todayTotal.toLocaleString();
+  document.getElementById('statTodayOrders').textContent = todayOrders.length + ' orders today';
+
+  // This month
+  var monthOrders = orders.filter(function(o){
+    if(!o.date) return false;
+    var d = new Date(o.date);
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  });
+  var monthTotal = monthOrders.reduce(function(s,o){ return s+(parseFloat(o.total)||0); },0);
+  document.getElementById('statMonthSales').textContent  = '₱' + monthTotal.toLocaleString();
+  document.getElementById('statMonthOrders').textContent = monthOrders.length + ' orders';
+
+  // Pending
+  var pending = orders.filter(function(o){ return o.status==='PENDING'; }).length;
+  document.getElementById('statPending').textContent = pending;
+  document.getElementById('pendingBadge').textContent = pending;
+
+  // 7-day chart
+  render7DayChart(orders);
+
+  // Status chart
+  renderStatusChart(orders);
+
+  // Recent orders table (last 8)
+  var recent = orders.slice(0,8);
+  var tbody = document.getElementById('recentOrdersBody');
+  tbody.innerHTML = recent.map(function(o){
+    return '<tr>' +
+      '<td style="font-weight:600;font-size:.8rem">' + o.id + '</td>' +
+      '<td>' + (o.name||'') + '</td>' +
+      '<td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (o.items||'').split(',').slice(0,1).join('') + '</td>' +
+      '<td style="font-weight:600">₱' + parseFloat(o.total||0).toLocaleString() + '</td>' +
+      '<td>' + (o.payment||'') + '</td>' +
+      '<td><span class="pill pill-' + (o.status||'pending').toLowerCase() + '">' + (o.status||'PENDING') + '</span></td>' +
+      '<td style="font-size:.78rem;color:var(--muted)">' + (o.date||'').split(',')[0] + '</td>' +
+      '<td><button class="act-btn act-btn-primary" onclick="openOrderModal('' + o.id + '')">Edit</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function render7DayChart(orders) {
+  var days = [];
+  var now  = new Date();
+  for (var i = 6; i >= 0; i--) {
+    var d = new Date(now);
+    d.setDate(d.getDate() - i);
+    days.push({ label: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()], date: d.toDateString(), total: 0 });
+  }
+  orders.forEach(function(o) {
+    if(!o.date) return;
+    var ds = new Date(o.date).toDateString();
+    var day = days.find(function(d){ return d.date === ds; });
+    if (day) day.total += parseFloat(o.total)||0;
+  });
+  var max = Math.max.apply(null, days.map(function(d){ return d.total; })) || 1;
+  var html = days.map(function(d){
+    var h = Math.max((d.total/max*100), d.total>0?4:0);
+    return '<div class="bar-col">' +
+      '<div class="bar-val">₱' + (d.total > 999 ? (d.total/1000).toFixed(1)+'k' : d.total.toFixed(0)) + '</div>' +
+      '<div class="bar" style="height:' + h + 'px" title="₱' + d.total.toLocaleString() + '"></div>' +
+      '<div class="bar-lbl">' + d.label + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('salesChart').innerHTML = html;
+}
+
+function renderStatusChart(orders) {
+  var counts = { PENDING:0, CONFIRMED:0, SHIPPED:0, DELIVERED:0, CANCELLED:0 };
+  orders.forEach(function(o){ if(counts[o.status]!==undefined) counts[o.status]++; });
+  var total = orders.length || 1;
+  var colors = { PENDING:'#F59E0B', CONFIRMED:'#16A34A', SHIPPED:'#2563EB', DELIVERED:'#7C3AED', CANCELLED:'#DC2626' };
+  var html = Object.keys(counts).map(function(k){
+    var pct = Math.round(counts[k]/total*100);
+    return '<div class="pie-row">' +
+      '<div class="pie-dot" style="background:' + colors[k] + '"></div>' +
+      '<div class="pie-label">' + k + '</div>' +
+      '<div class="pie-bar-wrap"><div class="pie-bar" style="width:' + pct + '%;background:' + colors[k] + '"></div></div>' +
+      '<div class="pie-pct">' + counts[k] + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('statusChart').innerHTML = html;
+}
+
+function renderLowStock(products) {
+  var low = products.filter(function(p){ return (p.stock||0) <= 5 && p.active; });
+  var el  = document.getElementById('lowStockList');
+  if (!low.length) {
+    document.getElementById('lowStockCard').style.display = 'none';
+    return;
+  }
+  document.getElementById('lowStockCard').style.display = 'block';
+  el.innerHTML = low.map(function(p){
+    var level = p.stock === 0 ? 'out' : 'low';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-lt)">' +
+      '<div style="flex:1;font-size:.85rem;font-weight:500">' + p.name + '</div>' +
+      '<div style="font-size:.78rem;color:var(--muted)">' + p.cat + '</div>' +
+      '<span class="pill pill-' + level + '">' + (p.stock===0?'Out of Stock':p.stock + ' left') + '</span>' +
+      '<button class="act-btn act-btn-outline" onclick="showPage('inventory')">Update</button>' +
+    '</div>';
+  }).join('');
+}
+
+// ── ORDERS ──
+function loadOrders() {
+  document.getElementById('ordersBody').innerHTML = '<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
+  api({ type:'GET_ORDERS' }).then(function(data) {
+    allOrders = data.orders || [];
+    renderOrdersTable(allOrders);
+  });
+}
+
+function renderOrdersTable(orders) {
+  var tbody = document.getElementById('ordersBody');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--muted)">No orders found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.map(function(o){
+    return '<tr>' +
+      '<td style="font-weight:600;font-size:.8rem;white-space:nowrap">' + o.id + '</td>' +
+      '<td style="font-size:.78rem;white-space:nowrap">' + (o.date||'').split(',')[0] + '</td>' +
+      '<td><div style="font-weight:500">' + (o.name||'') + '</div><div style="font-size:.72rem;color:var(--muted)">' + (o.phone||'') + '</div></td>' +
+      '<td style="font-size:.78rem">' + (o.phone||'') + '</td>' +
+      '<td style="max-width:180px;font-size:.8rem">' + (o.items||'').substring(0,60) + (o.items&&o.items.length>60?'...':'') + '</td>' +
+      '<td style="font-weight:600;white-space:nowrap">₱' + parseFloat(o.total||0).toLocaleString() + '</td>' +
+      '<td><span style="font-size:.78rem">' + (o.payment||'') + '</span></td>' +
+      '<td><span style="font-size:.78rem">' + (o.delivery||'') + '</span></td>' +
+      '<td><span class="pill pill-' + (o.status||'PENDING').toLowerCase() + '">' + (o.status||'PENDING') + '</span></td>' +
+      '<td style="font-size:.78rem;font-weight:600;white-space:nowrap">' + (o.trackingNum||'—') + '</td>' +
+      '<td style="white-space:nowrap"><button class="act-btn act-btn-primary" style="margin-right:4px" onclick="openOrderModal('' + o.id + '')">Edit</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function filterOrders(q) {
+  q = q.toLowerCase();
+  renderOrdersTable(allOrders.filter(function(o){
+    return (o.id+o.name+o.items+o.phone).toLowerCase().indexOf(q) > -1;
+  }));
+}
+
+function filterOrdersByStatus(status) {
+  renderOrdersTable(status ? allOrders.filter(function(o){ return o.status===status; }) : allOrders);
+}
+
+var editingOrderId = null;
+function openOrderModal(orderId) {
+  editingOrderId = orderId;
+  var order = allOrders.find(function(o){ return o.id === orderId; });
+  if (!order) return;
+  document.getElementById('orderModalTitle').textContent = 'Order — ' + orderId;
+  document.getElementById('orderModalContent').innerHTML =
+    '<div style="display:grid;gap:12px">' +
+    '<div><div class="form-label" style="margin-bottom:6px">Customer</div><div style="font-size:.9rem;font-weight:500">' + (order.name||'') + ' — ' + (order.phone||'') + '</div></div>' +
+    '<div><div class="form-label" style="margin-bottom:6px">Address</div><div style="font-size:.85rem">' + (order.address||'') + '</div></div>' +
+    '<div><div class="form-label" style="margin-bottom:6px">Items</div><div style="font-size:.85rem">' + (order.items||'') + '</div></div>' +
+    '<div class="form-group"><label class="form-label">Order Status</label>' +
+      '<select class="form-select" id="editStatus">' +
+        '<option' + (order.status==='PENDING'?' selected':'')   + '>PENDING</option>' +
+        '<option' + (order.status==='CONFIRMED'?' selected':'') + '>CONFIRMED</option>' +
+        '<option' + (order.status==='SHIPPED'?' selected':'')   + '>SHIPPED</option>' +
+        '<option' + (order.status==='DELIVERED'?' selected':'') + '>DELIVERED</option>' +
+        '<option' + (order.status==='CANCELLED'?' selected':'') + '>CANCELLED</option>' +
+      '</select></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label class="form-label">Tracking Number</label><input type="text" class="form-inp" id="editTracking" value="' + (order.trackingNum||'') + '" placeholder="e.g. 12345678901"></div>' +
+      '<div class="form-group"><label class="form-label">Courier</label><select class="form-select" id="editCourier"><option' + (!order.courier||order.courier==="J&T"?' selected':'') + '>J&T</option><option' + (order.courier==="LBC"?' selected':'') + '>LBC</option><option' + (order.courier==="JRS"?' selected':'') + '>JRS</option></select></div>' +
+    '</div>' +
+    '<div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="editNotes">' + (order.notes||'') + '</textarea></div>' +
+    '</div>';
+  document.getElementById('orderModal').classList.add('on');
+}
+
+function saveOrderChanges() {
+  if (!editingOrderId) return;
+  var status   = document.getElementById('editStatus').value;
+  var tracking = document.getElementById('editTracking').value;
+  var courier  = document.getElementById('editCourier').value;
+  var notes    = document.getElementById('editNotes').value;
+  api({ type:'UPDATE_ORDER', orderId:editingOrderId, status:status,
+    trackingNum:tracking, courier:courier, notes:notes })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      toast('Order updated!');
+      closeModal('orderModal');
+      loadOrders();
+    } else {
+      toast('Error: ' + (data.message||''));
+    }
+  });
+}
+
+function exportOrders() {
+  var rows = [['Order ID','Date','Customer','Phone','Address','Items','Total','Payment','Delivery','Status','Tracking']];
+  allOrders.forEach(function(o){
+    rows.push([o.id,o.date,o.name,o.phone,o.address,o.items,o.total,o.payment,o.delivery,o.status,o.trackingNum||'']);
+  });
+  downloadCSV(rows, 'bbee-orders.csv');
+}
+
+// ── PRODUCTS ──
+function loadProducts() {
+  api({ type:'GET_PRODUCTS', adminView:'true' }).then(function(data) {
+    allProducts = data.products || [];
+    renderProductsTable(allProducts);
+  });
+}
+
+function renderProductsTable(products) {
+  var tbody = document.getElementById('productsBody');
+  tbody.innerHTML = products.map(function(p){
+    var stockCls = p.stock===0?'pill-out':p.stock<=5?'pill-low':'pill-ok';
+    var stockLbl = p.stock===0?'Out':p.stock<=5?'Low':p.stock+' pcs';
+    return '<tr' + (!p.active?' style="opacity:.5"':'') + '>' +
+      '<td><div class="tbl-img-ph">' + ({Dresses:'👗',Tops:'👕',Bottoms:'👖',Sets:'👘',Accessories:'🎀'}[p.cat]||'🧒') + '</div></td>' +
+      '<td><div style="font-weight:600;font-size:.88rem">' + p.name + '</div><div style="font-size:.72rem;color:var(--muted)">' + p.id + '</div></td>' +
+      '<td>' + p.cat + '</td>' +
+      '<td style="font-weight:600">₱' + parseFloat(p.price||0).toLocaleString() + '</td>' +
+      '<td>' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<div class="stock-bar-wrap"><div class="stock-bar ' + (p.stock===0?'stock-low':p.stock<=5?'stock-med':'stock-high') + '" style="width:' + Math.min((p.stock/20)*100,100) + '%"></div></div>' +
+          p.stock +
+        '</div>' +
+      '</td>' +
+      '<td><span class="pill ' + stockCls + '">' + stockLbl + '</span></td>' +
+      '<td style="white-space:nowrap">' +
+        '<button class="act-btn act-btn-outline" style="margin-right:4px" onclick="openProductModal('' + p.id + '')">Edit</button>' +
+        '<button class="act-btn act-btn-danger" onclick="deleteProduct('' + p.id + '')">Delete</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function filterProducts(q) {
+  q = q.toLowerCase();
+  renderProductsTable(allProducts.filter(function(p){ return (p.name+p.cat).toLowerCase().indexOf(q)>-1; }));
+}
+function filterProductsByCat(cat) {
+  renderProductsTable(cat ? allProducts.filter(function(p){ return p.cat===cat; }) : allProducts);
+}
+
+var pmImgUrl = '';
+function openProductModal(id) {
+  pmImgUrl = '';
+  var p = id ? allProducts.find(function(x){ return x.id===id; }) : null;
+  document.getElementById('productModalTitle').textContent = p ? 'Edit Product' : 'Add Product';
+  document.getElementById('pmId').value    = p ? p.id    : '';
+  document.getElementById('pmName').value  = p ? p.name  : '';
+  document.getElementById('pmCat').value   = p ? p.cat   : 'Dresses';
+  document.getElementById('pmPrice').value = p ? p.price : '';
+  document.getElementById('pmStock').value = p ? p.stock : '';
+  document.getElementById('pmSizes').value = p ? (p.sizes||[]).join(', ') : '';
+  document.getElementById('pmColors').value= p ? (p.colors||[]).join(', ') : '';
+  document.getElementById('pmDesc').value  = p ? p.desc  : '';
+  if (p && p.img) {
+    pmImgUrl = p.img;
+    document.getElementById('pmImgArea').innerHTML = '<img src="' + p.img + '" style="width:100%;height:140px;object-fit:cover">';
+  }
+  document.getElementById('productModal').classList.add('on');
+}
+
+function handlePmImg(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', UPLOAD_PRESET);
+  document.getElementById('pmImgArea').innerHTML = '<div style="text-align:center;padding:20px;font-size:.8rem;color:var(--muted)">Uploading...</div>';
+  fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method:'POST', body:fd })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      pmImgUrl = d.secure_url;
+      document.getElementById('pmImgArea').innerHTML = '<img src="' + pmImgUrl + '" style="width:100%;height:140px;object-fit:cover">';
+      toast('Image uploaded!');
+    });
+}
+
+function saveProduct() {
+  var id    = document.getElementById('pmId').value;
+  var name  = document.getElementById('pmName').value.trim();
+  var price = document.getElementById('pmPrice').value;
+  if (!name || !price) { toast('Name and price required!'); return; }
+  api({ type:'SAVE_PRODUCT', id:id||'', name:name, cat:document.getElementById('pmCat').value,
+    price:price, stock:document.getElementById('pmStock').value||0,
+    sizes:document.getElementById('pmSizes').value, colors:document.getElementById('pmColors').value,
+    desc:document.getElementById('pmDesc').value, img:pmImgUrl, active:'true' })
+  .then(function(data) {
+    if (data.status==='ok') { toast(id?'Product updated!':'Product added!'); closeModal('productModal'); loadProducts(); }
+    else toast('Error: ' + (data.message||''));
+  });
+}
+
+function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  api({ type:'DELETE_PRODUCT', id:id }).then(function(d){
+    if (d.status==='ok') { toast('Product deleted!'); loadProducts(); }
+  });
+}
+
+// ── INVENTORY ──
+function loadInventory() {
+  api({ type:'GET_PRODUCTS', adminView:'true' }).then(function(data) {
+    allProducts = data.products || [];
+    renderInventoryTable(allProducts);
+  });
+}
+
+function renderInventoryTable(products) {
+  var tbody = document.getElementById('inventoryBody');
+  tbody.innerHTML = products.filter(function(p){ return p.active; }).map(function(p){
+    var level = p.stock===0?'out':p.stock<=5?'low':'ok';
+    var labels= { out:'Out of Stock', low:'Low Stock', ok:'In Stock' };
+    var barPct = Math.min((p.stock/20)*100, 100);
+    var barCls = p.stock===0?'stock-low':p.stock<=5?'stock-med':'stock-high';
+    return '<tr>' +
+      '<td><div style="font-weight:600;font-size:.88rem">' + p.name + '</div></td>' +
+      '<td>' + p.cat + '</td>' +
+      '<td style="font-weight:600">₱' + parseFloat(p.price||0).toLocaleString() + '</td>' +
+      '<td>' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<div class="stock-bar-wrap" style="width:60px"><div class="stock-bar ' + barCls + '" style="width:' + barPct + '%"></div></div>' +
+          '<span style="font-weight:600;font-size:.9rem">' + p.stock + ' pcs</span>' +
+        '</div>' +
+      '</td>' +
+      '<td><span class="pill pill-' + level + '">' + labels[level] + '</span></td>' +
+      '<td>' +
+        '<div style="display:flex;align-items:center;gap:6px">' +
+          '<input type="number" class="form-inp" min="0" value="' + p.stock + '" id="stock_' + p.id + '" style="width:80px;padding:6px 8px">' +
+          '<button class="act-btn act-btn-success" onclick="updateOneStock('' + p.id + '')">Save</button>' +
+        '</div>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function updateOneStock(id) {
+  var inp   = document.getElementById('stock_' + id);
+  var stock = parseInt(inp.value) || 0;
+  api({ type:'SAVE_PRODUCT', id:id, stock:stock, active:'true' })
+    .then(function(d){
+      if (d.status==='ok') { toast('Stock updated!'); loadInventory(); }
+    });
+}
+
+function saveAllStock() {
+  var updates = allProducts.filter(function(p){ return p.active; }).map(function(p){
+    var inp = document.getElementById('stock_' + p.id);
+    return { id:p.id, stock: inp ? parseInt(inp.value)||0 : p.stock };
+  });
+  var promises = updates.map(function(u){
+    return api({ type:'SAVE_PRODUCT', id:u.id, stock:u.stock, active:'true' });
+  });
+  Promise.all(promises).then(function(){ toast('All stock updated!'); loadInventory(); });
+}
+
+// ── CUSTOMERS ──
+function loadCustomers() {
+  api({ type:'GET_ORDERS' }).then(function(data) {
+    var orders = data.orders || [];
+    var custMap = {};
+    orders.forEach(function(o){
+      if (!o.email) return;
+      if (!custMap[o.email]) custMap[o.email] = { name:o.name, email:o.email, phone:o.phone, orders:0, total:0 };
+      custMap[o.email].orders++;
+      custMap[o.email].total += parseFloat(o.total||0);
+    });
+    var custs = Object.values(custMap);
+    allCustomers = custs;
+    var tbody = document.getElementById('customersBody');
+    if (!custs.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No customers yet</td></tr>'; return; }
+    tbody.innerHTML = custs.map(function(c){
+      return '<tr>' +
+        '<td style="font-weight:600">' + (c.name||'') + '</td>' +
+        '<td style="font-size:.82rem">' + (c.email||'') + '</td>' +
+        '<td>' + (c.phone||'') + '</td>' +
+        '<td><span class="pill pill-confirmed">Google</span></td>' +
+        '<td style="font-size:.78rem;color:var(--muted)">—</td>' +
+        '<td style="font-size:.78rem;color:var(--muted)">—</td>' +
+        '<td style="font-weight:600">' + c.orders + ' orders</td>' +
+      '</tr>';
+    }).join('');
+  });
+}
+
+function exportCustomers() {
+  var rows = [['Name','Email','Phone','Orders']];
+  allCustomers.forEach(function(c){ rows.push([c.name,c.email,c.phone,c.orders]); });
+  downloadCSV(rows,'bbee-customers.csv');
+}
+
+// ── ANALYTICS ──
+function loadAnalytics() {
+  api({ type:'GET_ORDERS' }).then(function(data) {
+    var orders = data.orders || [];
+    var doneOrders = orders.filter(function(o){ return o.status!=='CANCELLED'; });
+    var total  = doneOrders.reduce(function(s,o){ return s+(parseFloat(o.total)||0); },0);
+    var avg    = doneOrders.length ? total/doneOrders.length : 0;
+    var delivered = orders.filter(function(o){ return o.status==='DELIVERED'; }).length;
+    document.getElementById('anaTotal').textContent   = '₱' + total.toLocaleString();
+    document.getElementById('anaOrders').textContent  = orders.length;
+    document.getElementById('anaAvg').textContent     = '₱' + Math.round(avg).toLocaleString();
+    document.getElementById('anaDelivery').textContent= orders.length ? Math.round(delivered/orders.length*100)+'%' : '0%';
+    renderMonthlyChart(orders);
+    renderPaymentChart(orders);
+    renderBestSellers(orders);
+  });
+}
+
+function renderMonthlyChart(orders) {
+  var months = {};
+  orders.forEach(function(o){
+    if(!o.date) return;
+    var d = new Date(o.date);
+    var k = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    months[k] = (months[k]||0) + (parseFloat(o.total)||0);
+  });
+  var keys = Object.keys(months).sort().slice(-6);
+  var max = Math.max.apply(null, keys.map(function(k){ return months[k]; })) || 1;
+  document.getElementById('monthlyChart').innerHTML = keys.map(function(k){
+    var h = Math.max((months[k]/max)*120, months[k]>0?4:0);
+    var lbl = k.split('-')[1] + '/' + k.split('-')[0].slice(-2);
+    return '<div class="bar-col"><div class="bar-val">₱' + (months[k]>999?(months[k]/1000).toFixed(1)+'k':months[k].toFixed(0)) + '</div><div class="bar" style="height:' + h + 'px"></div><div class="bar-lbl">' + lbl + '</div></div>';
+  }).join('');
+}
+
+function renderPaymentChart(orders) {
+  var pay = {};
+  orders.forEach(function(o){ if(o.payment) pay[o.payment]=(pay[o.payment]||0)+1; });
+  var total = orders.length||1;
+  var colors = { GCash:'#00B14F', Maya:'#1D3FAF', 'Bank Transfer':'#6B7280', 'Cash on Delivery':'#F59E0B' };
+  document.getElementById('paymentChart').innerHTML = Object.keys(pay).map(function(k){
+    var pct = Math.round(pay[k]/total*100);
+    return '<div class="pie-row"><div class="pie-dot" style="background:' + (colors[k]||'#888') + '"></div><div class="pie-label">' + k + '</div><div class="pie-bar-wrap"><div class="pie-bar" style="width:' + pct + '%;background:' + (colors[k]||'#888') + '"></div></div><div class="pie-pct">' + pay[k] + '</div></div>';
+  }).join('');
+}
+
+function renderBestSellers(orders) {
+  var prods = {};
+  orders.forEach(function(o){
+    if(!o.items) return;
+    o.items.split(',').forEach(function(item){
+      var name = item.trim().replace(/^\d+x\s*/,'').split('(')[0].trim();
+      if(name) prods[name] = (prods[name]||0)+1;
+    });
+  });
+  var sorted = Object.keys(prods).sort(function(a,b){ return prods[b]-prods[a]; }).slice(0,8);
+  document.getElementById('bestSellersBody').innerHTML = sorted.map(function(name,i){
+    return '<tr><td style="font-weight:600;color:var(--muted)">' + (i+1) + '</td><td style="font-weight:500">' + name + '</td><td>' + prods[name] + '</td><td>—</td></tr>';
+  }).join('');
+}
+
+// ── CATEGORIES ──
+function loadCategories() {
+  var cats = JSON.parse(localStorage.getItem('bbee_cats')||'["Dresses","Tops","Bottoms","Sets","Accessories"]');
+  document.getElementById('catsList').innerHTML = cats.map(function(c,i){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-lt)">' +
+      '<div style="flex:1;font-size:.9rem;font-weight:500">' + c + '</div>' +
+      '<button class="act-btn act-btn-danger" onclick="deleteCat(' + i + ')">Remove</button>' +
+    '</div>';
+  }).join('');
+}
+
+function addCategory() {
+  var name = document.getElementById('newCatInp').value.trim();
+  if (!name) return;
+  var cats = JSON.parse(localStorage.getItem('bbee_cats')||'["Dresses","Tops","Bottoms","Sets","Accessories"]');
+  cats.push(name);
+  localStorage.setItem('bbee_cats', JSON.stringify(cats));
+  document.getElementById('newCatInp').value = '';
+  loadCategories();
+  toast('Category added!');
+}
+
+function deleteCat(idx) {
+  var cats = JSON.parse(localStorage.getItem('bbee_cats')||'["Dresses","Tops","Bottoms","Sets","Accessories"]');
+  cats.splice(idx, 1);
+  localStorage.setItem('bbee_cats', JSON.stringify(cats));
+  loadCategories();
+}
+
+// ── PROMOS ──
+var promoCodes = [];
+function addPromoCode() {
+  var code = document.getElementById('promoCode').value.toUpperCase().trim();
+  var disc = parseFloat(document.getElementById('promoDisc').value)||0;
+  var type = document.getElementById('promoDiscType').value;
+  var min  = parseFloat(document.getElementById('promoMin').value)||0;
+  if (!code || !disc) { toast('Code and discount required!'); return; }
+  api({ type:'SAVE_PROMO', code:code, discount:disc, type:type, minOrder:min, maxUses:0 })
+    .then(function(d){
+      if(d.status==='ok') { toast('Promo code added!'); loadPromoCodes(); document.getElementById('promoCode').value=''; }
+    });
+}
+
+function loadPromoCodes() {
+  api({ type:'GET_PROMOS' }).then(function(d){
+    promoCodes = d.promos||[];
+    document.getElementById('promoCodesList').innerHTML = promoCodes.map(function(p){
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-lt)">' +
+        '<div style="flex:1"><div style="font-weight:700;font-size:.88rem">' + p.code + '</div>' +
+        '<div style="font-size:.72rem;color:var(--muted)">' + p.discount + (p.type==="pct"?"% off":"₱ off") + (p.minOrder>0?' · Min ₱'+p.minOrder:'') + '</div></div>' +
+        '<button class="act-btn act-btn-danger" onclick="deletePromo('' + p.code + '')">Delete</button>' +
+      '</div>';
+    }).join('') || '<div style="font-size:.8rem;color:var(--muted);padding:8px 0">No promo codes yet.</div>';
+  });
+}
+
+function deletePromo(code) {
+  api({ type:'DELETE_PROMO', code:code }).then(function(d){
+    if(d.status==='ok') { toast('Promo deleted!'); loadPromoCodes(); }
+  });
+}
+
+function saveFlashSale() {
+  var label = document.getElementById('flashLabel').value;
+  var end   = document.getElementById('flashEnd').value;
+  var disc  = document.getElementById('flashDisc').value;
+  var type  = document.getElementById('flashDiscType').value;
+  if (!end || !disc) { toast('Set end date and discount!'); return; }
+  localStorage.setItem('bbee_flash', JSON.stringify({ label:label||'Flash Sale!', end:end, disc:parseFloat(disc), type:type, active:true }));
+  toast('Flash sale started!');
+}
+
+function stopFlashSale() {
+  localStorage.removeItem('bbee_flash');
+  toast('Flash sale stopped.');
+}
+
+// ── SETTINGS ──
+function loadSettings() {
+  var s = JSON.parse(localStorage.getItem('bbee_settings')||'{}');
+  settings = s;
+  if (s.shopName)   document.getElementById('settShopName') && (document.getElementById('settShopName').value=s.shopName);
+  if (s.tagline)    document.getElementById('settTagline')  && (document.getElementById('settTagline').value=s.tagline);
+  if (s.address)    document.getElementById('settAddress')  && (document.getElementById('settAddress').value=s.address);
+  if (s.gcash)      document.getElementById('settGcash')    && (document.getElementById('settGcash').value=s.gcash);
+  if (s.gcashName)  document.getElementById('settGcashName')&& (document.getElementById('settGcashName').value=s.gcashName);
+  if (s.maya)       document.getElementById('settMaya')     && (document.getElementById('settMaya').value=s.maya);
+  if (s.bank)       document.getElementById('settBank')     && (document.getElementById('settBank').value=s.bank);
+  if (s.localFee!==undefined) document.getElementById('settLocalFee') && (document.getElementById('settLocalFee').value=s.localFee);
+  if (s.natFee!==undefined)   document.getElementById('settNatFee')   && (document.getElementById('settNatFee').value=s.natFee);
+  if (s.freeShip!==undefined) document.getElementById('settFreeShip') && (document.getElementById('settFreeShip').value=s.freeShip);
+}
+
+function saveSettings() {
+  var newPw  = document.getElementById('settNewPw').value;
+  var confPw = document.getElementById('settConfirmPw').value;
+  if (newPw && newPw !== confPw) { toast('Passwords do not match!'); return; }
+  var s = {
+    shopName: document.getElementById('settShopName').value,
+    tagline:  document.getElementById('settTagline').value,
+    address:  document.getElementById('settAddress').value,
+    gcash:    document.getElementById('settGcash').value,
+    gcashName:document.getElementById('settGcashName').value,
+    maya:     document.getElementById('settMaya').value,
+    bank:     document.getElementById('settBank').value,
+    localFee: parseFloat(document.getElementById('settLocalFee').value)||0,
+    natFee:   parseFloat(document.getElementById('settNatFee').value)||120,
+    freeShip: parseFloat(document.getElementById('settFreeShip').value)||2500,
+  };
+  if (newPw) s.adminPw = newPw;
+  localStorage.setItem('bbee_settings', JSON.stringify(s));
+  settings = s;
+  if (newPw) { ADMIN_PW = newPw; document.getElementById('settNewPw').value=''; document.getElementById('settConfirmPw').value=''; }
+  toast('Settings saved!');
+}
+
+// ── MODAL ──
+function closeModal(id) {
+  document.getElementById(id).classList.remove('on');
+}
+
+// ── CSV EXPORT ──
+function downloadCSV(rows, filename) {
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"' + String(c||'').replace(/"/g,'""') + '"'; }).join(','); }).join('\n');
+  var blob = new Blob([csv], { type:'text/csv' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+// ── ORDERS APP SCRIPT UPDATE ──
+// Update Orders.gs to handle trackingNum and courier in UPDATE_ORDER
+function updateOrder_ExtendedNote() {
+  // Note: UPDATE_ORDER handler in Orders.gs needs to save tracking info
+  // Tracking is saved in columns M (trackingNum) and N (courier) of Orders sheet
+}
+
+// Load promos on init
+setTimeout(function() {
+  if (localStorage.getItem('bbee_admin_auth') === 'true') {
+    loadPromoCodes();
+  }
+}, 500);
+
+// Mobile menu toggle
+if (window.innerWidth <= 768) {
+  var toggle = document.getElementById('menuToggle');
+  if (toggle) toggle.style.display = 'flex';
+}
+</script>
+</body>
+</html>
