@@ -452,6 +452,75 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .nav-search-btn:hover{background:var(--black);color:var(--white);border-color:var(--black)}
 }
 
+
+/* ── SHOPEE-STYLE SEARCH + FILTER BAR ── */
+.shopee-bar{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:12px 48px 0;
+  position:sticky;
+  top:var(--nav-h);
+  z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+}
+.shopee-search-row{
+  display:flex;align-items:center;gap:12px;margin-bottom:10px;
+}
+.shopee-search-wrap{
+  flex:1;max-width:480px;position:relative;display:flex;align-items:center;
+  background:var(--off-white);border:1.5px solid var(--border);
+  border-radius:100px;overflow:hidden;transition:border .2s;
+}
+.shopee-search-wrap:focus-within{
+  border-color:var(--black);background:var(--white);
+  box-shadow:0 0 0 3px rgba(17,17,17,.06);
+}
+.shopee-search-icon{
+  position:absolute;left:14px;color:var(--text-muted);flex-shrink:0;pointer-events:none;
+}
+.shopee-search-inp{
+  flex:1;padding:10px 36px 10px 40px;border:none;background:transparent;
+  font-family:'Jost',sans-serif;font-size:.88rem;color:var(--black);
+  outline:none;
+}
+.shopee-search-inp::placeholder{color:var(--text-light)}
+.shopee-clear-btn{
+  position:absolute;right:12px;background:var(--text-light);border:none;
+  color:var(--white);width:18px;height:18px;border-radius:50%;
+  font-size:.65rem;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;transition:background .15s;
+}
+.shopee-clear-btn:hover{background:var(--text-muted)}
+.shopee-count{
+  font-size:.75rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0;
+}
+.shopee-cats{
+  display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
+  -ms-overflow-style:none;margin:0 -48px;padding:0 48px;
+}
+.shopee-cats::-webkit-scrollbar{display:none}
+.shopee-cat{
+  flex-shrink:0;padding:8px 16px;background:none;border:none;
+  font-family:'Jost',sans-serif;font-size:.78rem;font-weight:500;
+  color:var(--text-muted);cursor:pointer;transition:all .2s;
+  border-bottom:2px solid transparent;white-space:nowrap;
+}
+.shopee-cat:hover{color:var(--black)}
+.shopee-cat.active{
+  color:var(--black);border-bottom-color:var(--black);font-weight:600;
+}
+
+/* Adjust products section top */
+.products-section{padding-top:16px}
+
+@media(max-width:768px){
+  .shopee-bar{padding:10px 16px 0}
+  .shopee-cats{margin:0 -16px;padding:0 16px}
+  .shopee-search-wrap{max-width:100%}
+  .shopee-search-inp{font-size:.85rem}
+  .shopee-count{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -476,17 +545,6 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
     <span class="nav-link" onclick="filterCat('Accessories',null);goScreen('s-home')">Accessories</span>
   </div>
 
-  <!-- Search — desktop: always visible, mobile: in actions -->
-  <div class="nav-search-wrap" id="desktopSearch">
-    <input type="text" class="nav-search-inp" id="navSearchInp"
-      placeholder="Search products..."
-      oninput="liveSearch(this.value)"
-      onkeydown="if(event.key==='Escape')closeNavSearch()">
-    <button class="nav-search-btn" id="navSearchBtn" onclick="toggleNavSearch()" title="Search">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    </button>
-  </div>
-
   <div class="nav-actions">
     <button class="nav-icon-btn" onclick="curUser?goScreen('s-account'):goScreen('s-login');if(curUser)renderAccount();">
       <span>👤</span><span>Account</span>
@@ -495,12 +553,6 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
       <span>🛍</span><span>Cart</span>
       <span class="nav-cart-badge" id="cartCount">0</span>
     </button>
-    <!-- Mobile search icon -->
-    <div class="nav-search-wrap" id="mobileSearch" style="display:none">
-      <button class="nav-search-btn" onclick="toggleNavSearch()" title="Search">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
-    </div>
     <button class="nav-hamburger" onclick="openMobileMenu()">☰</button>
   </div>
 </nav>
@@ -600,16 +652,28 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 
   <!-- Products -->
   <div class="products-section" id="productsSection">
-    <!-- Filter bar -->
-    <div class="filter-bar" id="filterBar">
-      <button class="filter-btn active" onclick="filterCat('All',this)">All</button>
-      <button class="filter-btn" onclick="filterCat('Dresses',this)">Dresses</button>
-      <button class="filter-btn" onclick="filterCat('Tops',this)">Tops</button>
-      <button class="filter-btn" onclick="filterCat('Bottoms',this)">Bottoms</button>
-      <button class="filter-btn" onclick="filterCat('Sets',this)">Sets</button>
-      <button class="filter-btn" onclick="filterCat('Accessories',this)">Accessories</button>
-      <div class="filter-right">
-        <span class="products-count" id="productsCount"></span>
+    <!-- Shopee-style Search + Filter Bar -->
+    <div class="shopee-bar" id="filterBar">
+      <!-- Search Row -->
+      <div class="shopee-search-row">
+        <div class="shopee-search-wrap">
+          <svg class="shopee-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="shopee-search-inp" id="navSearchInp"
+            placeholder="Search dresses, tops, sets..."
+            oninput="liveSearch(this.value)"
+            onkeydown="if(event.key==='Enter')this.blur()">
+          <button class="shopee-clear-btn" id="searchClearBtn" onclick="clearSearch()" style="display:none">✕</button>
+        </div>
+        <div class="shopee-count" id="productsCount"></div>
+      </div>
+      <!-- Category Pills Row -->
+      <div class="shopee-cats" id="shopee-cats-row">
+        <button class="shopee-cat active" id="scat-All" onclick="shopeeFilterCat('All',this)">All</button>
+        <button class="shopee-cat" id="scat-Dresses" onclick="shopeeFilterCat('Dresses',this)">👗 Dresses</button>
+        <button class="shopee-cat" id="scat-Tops" onclick="shopeeFilterCat('Tops',this)">👕 Tops</button>
+        <button class="shopee-cat" id="scat-Bottoms" onclick="shopeeFilterCat('Bottoms',this)">👖 Bottoms</button>
+        <button class="shopee-cat" id="scat-Sets" onclick="shopeeFilterCat('Sets',this)">👘 Sets</button>
+        <button class="shopee-cat" id="scat-Accessories" onclick="shopeeFilterCat('Accessories',this)">🎀 Accessories</button>
       </div>
     </div>
     <div style="padding-top:16px">
@@ -1270,6 +1334,37 @@ document.addEventListener('click', function(e) {
 });
 
 
+
+// ── SHOPEE SEARCH + FILTER ──
+function shopeeFilterCat(cat, btn) {
+  curCat = cat;
+  // Update active pill
+  document.querySelectorAll('.shopee-cat').forEach(function(b){
+    b.classList.remove('active');
+  });
+  if (btn) btn.classList.add('active');
+  else {
+    var el = document.getElementById('scat-' + cat);
+    if (el) el.classList.add('active');
+  }
+  // Get current search query
+  var q = (document.getElementById('navSearchInp') || {}).value || '';
+  filterCat(cat, null, q);
+  // Scroll to products
+  var el = document.getElementById('productsSection');
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function clearSearch() {
+  var inp = document.getElementById('navSearchInp');
+  var btn = document.getElementById('searchClearBtn');
+  if (inp) inp.value = '';
+  if (btn) btn.style.display = 'none';
+  liveSearch('');
+  if (inp) inp.focus();
+}
+
+
 // ── PHOTO CAROUSEL ──
 var detailPhotos  = [];
 var detailPhotoIdx = 0;
@@ -1342,13 +1437,18 @@ function searchProducts(q){
   filterCat(curCat||'All', null, q);
 }
 function liveSearch(q){
+  // Show/hide clear button
+  var clearBtn = document.getElementById('searchClearBtn');
+  if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
   if(!q.trim()){
     filterCat(curCat||'All', null, '');
     return;
   }
   // Scroll to products section
   var el = document.getElementById('productsSection');
-  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  if(el && window.scrollY < el.offsetTop - 100) {
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
   filterCat(curCat||'All', null, q);
 }
 
