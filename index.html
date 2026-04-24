@@ -44,7 +44,7 @@
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
-body{font-family:'Jost',sans-serif;background:var(--white);color:var(--text-main);min-height:100dvh;overflow-x:hidden}
+body{font-family:'Jost',sans-serif;background:var(--white);color:var(--text-main);min-height:100dvh;overflow-x:clip}
 
 /* ── TYPOGRAPHY ── */
 .serif{font-family:'Cormorant Garamond',serif}
@@ -127,7 +127,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 .products-count{font-size:.75rem;color:var(--text-light);letter-spacing:.05em}
 
 /* ── PRODUCTS GRID ── */
-.products-section{padding:36px 48px 72px;background:var(--white)}
+.products-section{padding:0 48px 72px;background:var(--white);overflow:visible}
 .products-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
 .product-card{cursor:pointer;position:relative;background:var(--white);transition:all .25s;border:1px solid transparent}
 .product-card:hover{box-shadow:var(--sh-md);border-color:var(--border)}
@@ -345,7 +345,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .section-hdr{flex-direction:column;align-items:flex-start;gap:10px}
   .cat-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .filter-bar{padding:12px 20px;overflow-x:auto;top:var(--nav-h-mobile)}
-  .products-section{padding:16px 20px 48px}
+  .products-section{padding:0 20px 48px;overflow:visible}
   .products-grid{grid-template-columns:repeat(2,1fr);gap:12px}
   .pc-quick-add{transform:translateY(0);opacity:.85}
   .detail-grid{grid-template-columns:1fr}
@@ -458,8 +458,8 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   background:var(--white);
   border-bottom:1px solid var(--border);
   padding:12px 48px 0;
-  position:sticky;
-  top:calc(var(--nav-h) + 40px);
+  position:sticky !important;
+  top:calc(var(--nav-h) + 40px) !important;
   z-index:100;
   box-shadow:0 2px 8px rgba(0,0,0,.04);
 }
@@ -516,9 +516,9 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 
 @media(max-width:768px){
   .shopee-bar{
-    padding:10px 16px 0;
-    top:calc(var(--nav-h-mobile) + 40px);
-    position:sticky;
+    padding:10px 16px 0 !important;
+    top:calc(var(--nav-h-mobile) + 40px) !important;
+    position:sticky !important;
   }
   .shopee-cats{margin:0 -16px;padding:0 16px}
   .shopee-search-wrap{max-width:100%;touch-action:manipulation}
@@ -665,10 +665,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
     </div>
   </div>
 
-  <!-- Products -->
-  <div class="products-section" id="productsSection">
-    <!-- Shopee-style Search + Filter Bar -->
-    <div class="shopee-bar" id="filterBar">
+  <div class="shopee-bar" id="filterBar">
       <!-- Search Row -->
       <div class="shopee-search-row">
         <div class="shopee-search-wrap">
@@ -691,6 +688,9 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
         <button class="shopee-cat" id="scat-Accessories" onclick="shopeeFilterCat('Accessories',this)">🎀 Accessories</button>
       </div>
     </div>
+
+  <!-- Products -->
+  <div class="products-section" id="productsSection">
     <div style="padding-top:16px">
       <div class="products-grid" id="productsGrid"></div>
     </div>
