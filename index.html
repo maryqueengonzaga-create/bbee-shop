@@ -613,6 +613,58 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 ══════════════════════════════════ -->
 <div class="screen on" id="s-home" style="padding-top:calc(var(--nav-h) + 40px)">
 
+  <div class="shopee-bar" id="filterBar">
+      <!-- Search Row -->
+      <div class="shopee-search-row">
+        <div class="shopee-search-wrap">
+          <svg class="shopee-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="shopee-search-inp" id="navSearchInp"
+            placeholder="Search dresses, tops, sets..."
+            oninput="liveSearch(this.value)"
+            onkeydown="if(event.key==='Enter')this.blur()">
+          <button class="shopee-clear-btn" id="searchClearBtn" onclick="clearSearch()" style="display:none">✕</button>
+        </div>
+        <div class="shopee-count" id="productsCount"></div>
+      </div>
+      <!-- Category Pills Row -->
+      <div class="shopee-cats" id="shopee-cats-row">
+        <button class="shopee-cat active" id="scat-All" onclick="shopeeFilterCat('All',this)">All</button>
+        <button class="shopee-cat" id="scat-Dresses" onclick="shopeeFilterCat('Dresses',this)">👗 Dresses</button>
+        <button class="shopee-cat" id="scat-Tops" onclick="shopeeFilterCat('Tops',this)">👕 Tops</button>
+        <button class="shopee-cat" id="scat-Bottoms" onclick="shopeeFilterCat('Bottoms',this)">👖 Bottoms</button>
+        <button class="shopee-cat" id="scat-Sets" onclick="shopeeFilterCat('Sets',this)">👘 Sets</button>
+        <button class="shopee-cat" id="scat-Accessories" onclick="shopeeFilterCat('Accessories',this)">🎀 Accessories</button>
+      </div>
+    </div>
+
+  <!-- Products -->
+  <div class="products-section" id="productsSection">
+    <div style="padding-top:16px">
+      <div class="products-grid" id="productsGrid"></div>
+    </div>
+  </div>
+
+  <!-- Newsletter strip -->
+  <div style="background:var(--black);padding:56px 48px;text-align:center">
+    <div class="section-eyebrow" style="color:var(--accent)">Stay in the loop</div>
+    <div style="font-family:Cormorant Garamond,serif;font-size:1.8rem;font-weight:600;color:var(--white);margin:8px 0 6px">Get ₱200 off your first order</div>
+    <div style="font-size:.85rem;color:rgba(255,255,255,.6);margin-bottom:24px">Sign up for exclusive deals and new arrivals</div>
+    <div style="display:flex;gap:0;max-width:400px;margin:0 auto">
+      <input type="email" id="newsletterEmail" placeholder="your@email.com" style="flex:1;padding:14px 16px;border:none;background:rgba(255,255,255,.1);color:var(--white);font-family:Jost,sans-serif;font-size:.88rem;outline:none">
+      <button onclick="subscribeNewsletter()" style="padding:14px 22px;background:var(--honey);border:none;color:var(--white);font-family:Jost,sans-serif;font-weight:600;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Join Us</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="background:var(--black);border-top:1px solid rgba(255,255,255,.08);padding:32px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+    <div style="font-family:Cormorant Garamond,serif;font-weight:700;font-size:1.2rem;color:var(--white)">bbee<em style="color:var(--accent);font-weight:400">.co</em></div>
+    <div style="font-size:.75rem;color:rgba(255,255,255,.4)">© 2026 Bbee.Co. Matina, Davao City.</div>
+    <div style="display:flex;gap:16px">
+      <span style="font-size:.75rem;color:rgba(255,255,255,.5);cursor:pointer;transition:color .2s" onclick="goScreen('s-admin-login')">Admin</span>
+    </div>
+  </footer>
+</div>
+
   <!-- Hero -->
   <div class="hero">
     <div class="hero-content">
@@ -665,57 +717,6 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
     </div>
   </div>
 
-  <div class="shopee-bar" id="filterBar">
-      <!-- Search Row -->
-      <div class="shopee-search-row">
-        <div class="shopee-search-wrap">
-          <svg class="shopee-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" class="shopee-search-inp" id="navSearchInp"
-            placeholder="Search dresses, tops, sets..."
-            oninput="liveSearch(this.value)"
-            onkeydown="if(event.key==='Enter')this.blur()">
-          <button class="shopee-clear-btn" id="searchClearBtn" onclick="clearSearch()" style="display:none">✕</button>
-        </div>
-        <div class="shopee-count" id="productsCount"></div>
-      </div>
-      <!-- Category Pills Row -->
-      <div class="shopee-cats" id="shopee-cats-row">
-        <button class="shopee-cat active" id="scat-All" onclick="shopeeFilterCat('All',this)">All</button>
-        <button class="shopee-cat" id="scat-Dresses" onclick="shopeeFilterCat('Dresses',this)">👗 Dresses</button>
-        <button class="shopee-cat" id="scat-Tops" onclick="shopeeFilterCat('Tops',this)">👕 Tops</button>
-        <button class="shopee-cat" id="scat-Bottoms" onclick="shopeeFilterCat('Bottoms',this)">👖 Bottoms</button>
-        <button class="shopee-cat" id="scat-Sets" onclick="shopeeFilterCat('Sets',this)">👘 Sets</button>
-        <button class="shopee-cat" id="scat-Accessories" onclick="shopeeFilterCat('Accessories',this)">🎀 Accessories</button>
-      </div>
-    </div>
-
-  <!-- Products -->
-  <div class="products-section" id="productsSection">
-    <div style="padding-top:16px">
-      <div class="products-grid" id="productsGrid"></div>
-    </div>
-  </div>
-
-  <!-- Newsletter strip -->
-  <div style="background:var(--black);padding:56px 48px;text-align:center">
-    <div class="section-eyebrow" style="color:var(--accent)">Stay in the loop</div>
-    <div style="font-family:Cormorant Garamond,serif;font-size:1.8rem;font-weight:600;color:var(--white);margin:8px 0 6px">Get ₱200 off your first order</div>
-    <div style="font-size:.85rem;color:rgba(255,255,255,.6);margin-bottom:24px">Sign up for exclusive deals and new arrivals</div>
-    <div style="display:flex;gap:0;max-width:400px;margin:0 auto">
-      <input type="email" id="newsletterEmail" placeholder="your@email.com" style="flex:1;padding:14px 16px;border:none;background:rgba(255,255,255,.1);color:var(--white);font-family:Jost,sans-serif;font-size:.88rem;outline:none">
-      <button onclick="subscribeNewsletter()" style="padding:14px 22px;background:var(--honey);border:none;color:var(--white);font-family:Jost,sans-serif;font-weight:600;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Join Us</button>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer style="background:var(--black);border-top:1px solid rgba(255,255,255,.08);padding:32px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
-    <div style="font-family:Cormorant Garamond,serif;font-weight:700;font-size:1.2rem;color:var(--white)">bbee<em style="color:var(--accent);font-weight:400">.co</em></div>
-    <div style="font-size:.75rem;color:rgba(255,255,255,.4)">© 2026 Bbee.Co. Matina, Davao City.</div>
-    <div style="display:flex;gap:16px">
-      <span style="font-size:.75rem;color:rgba(255,255,255,.5);cursor:pointer;transition:color .2s" onclick="goScreen('s-admin-login')">Admin</span>
-    </div>
-  </footer>
-</div>
 
 <!-- ══════════════════════════════════
      PRODUCT DETAIL
