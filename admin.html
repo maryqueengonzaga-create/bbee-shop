@@ -1200,7 +1200,78 @@ function filterProductsByCat(cat) {
 }
 
 // ── PRODUCT MANAGEMENT ──
-var pmPhotos = [];
+var pmPhotos   = [];
+var pmVariants = []; // [{name, photo, price, stock:{}}]
+
+function addVariantRow(v) {
+  var idx = pmVariants.length;
+  pmVariants.push(v || { name:'', photo:'', price:'', stock:{} });
+  renderVariantsList();
+}
+
+function removeVariantRow(idx) {
+  pmVariants.splice(idx, 1);
+  renderVariantsList();
+}
+
+function renderVariantsList() {
+  var list = document.getElementById('variantsList');
+  if (!list) return;
+  list.innerHTML = pmVariants.map(function(v, i) {
+    return '<div class="variant-row" id="vrow_'+i+'">' +
+      '<div class="variant-ph" onclick="uploadVariantPhoto('+i+')" title="Click to upload photo">' +
+        (v.photo ? '<img src="'+v.photo+'" style="width:44px;height:44px;object-fit:cover">' : '📷') +
+      '</div>' +
+      '<input type="hidden" id="vpho_'+i+'" value="'+(v.photo||''+'">' ) +
+      '<input class="variant-name-inp" id="vname_'+i+'" placeholder="Design name (e.g. MICKEY)" value="'+(v.name||'')+'">' +
+      '<span style="font-size:.75rem;color:var(--muted);white-space:nowrap">₱</span>' +
+      '<input class="variant-price-inp" id="vprice_'+i+'" placeholder="299" type="number" value="'+(v.price||'')+'">' +
+      '<button onclick="removeVariantRow('+i+')" style="background:var(--red-lt);color:var(--red);border:none;padding:6px 10px;cursor:pointer;font-size:.8rem;flex-shrink:0">✕</button>' +
+    '</div>';
+  }).join('');
+}
+
+function uploadVariantPhoto(idx) {
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', UPLOAD_PRESET);
+    toast('Uploading variant photo...');
+    fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method:'POST', body:fd })
+      .then(function(r){ return r.json(); })
+      .then(function(d) {
+        pmVariants[idx].photo = d.secure_url;
+        renderVariantsList();
+        toast('Photo uploaded!');
+      });
+  };
+  input.click();
+}
+
+function collectVariants() {
+  // Collect variants from form inputs
+  var collected = [];
+  pmVariants.forEach(function(v, i) {
+    var nameEl  = document.getElementById('vname_'+i);
+    var priceEl = document.getElementById('vprice_'+i);
+    var phoEl   = document.getElementById('vpho_'+i);
+    if (!nameEl) return;
+    var name = nameEl.value.trim().toUpperCase();
+    if (!name) return;
+    collected.push({
+      name:  name,
+      photo: v.photo || '',
+      price: parseFloat(priceEl ? priceEl.value : 0) || 0,
+      stock: v.stock || {}
+    });
+  });
+  return collected;
+}
+
 var COLOR_MAP = {
   'Pink':'#FFB6C1','Blue':'#87CEEB','Yellow':'#FFE066','White':'#F5F5F5',
   'Red':'#FF6B6B','Green':'#90EE90','Purple':'#DDA0DD','Orange':'#FFA07A',
@@ -1251,6 +1322,15 @@ function openProductModal(id) {
     pmPhotos = [{ url: p.img, isMain: true }];
   }
   renderPhotoGrid();
+  // Load variants
+  pmVariants = [];
+  if (p && p.variants) {
+    try {
+      var vv = JSON.parse(p.variants);
+      pmVariants = Array.isArray(vv) ? vv : [];
+    } catch(e) { pmVariants = []; }
+  }
+  renderVariantsList();
   document.getElementById('productModal').classList.add('on');
 }
 
@@ -1304,6 +1384,7 @@ function saveProduct() {
   if (!price) { toast('Price is required!'); return; }
   var mainPhoto = pmPhotos.find(function(p){ return p.isMain; });
   var mainUrl   = mainPhoto ? mainPhoto.url : (pmPhotos[0] ? pmPhotos[0].url : '');
+  var collectedVariants = collectVariants();
   api({
     type:'SAVE_PRODUCT', id:id||'', name:name,
     sku:document.getElementById('pmSku').value.trim(),
@@ -1317,6 +1398,7 @@ function saveProduct() {
     colors:document.getElementById('pmColors').value,
     desc:document.getElementById('pmDesc').value,
     img:mainUrl, photos:JSON.stringify(pmPhotos),
+    variants:JSON.stringify(collectedVariants),
     active:document.getElementById('pmActive').checked?'true':'false'
   }).then(function(data) {
     if (data.status==='ok') { toast(id?'Product updated!':'Product added!'); closeModal('productModal'); loadProducts(); }

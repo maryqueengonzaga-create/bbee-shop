@@ -536,6 +536,57 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .shopee-clear-btn{touch-action:manipulation}
 }
 
+
+/* ── PRODUCT VARIANTS (Shopee-style) ── */
+.design-chip{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 10px 6px 6px;
+  border:1.5px solid var(--border);
+  background:var(--white);cursor:pointer;
+  transition:all .2s;border-radius:4px;
+  font-family:'Jost',sans-serif;font-size:.75rem;
+  font-weight:500;color:var(--text-muted);
+}
+.design-chip:hover{border-color:var(--black);color:var(--black)}
+.design-chip.active{
+  border-color:var(--black);color:var(--black);
+  font-weight:600;background:var(--off-white);
+}
+.design-chip.out-of-stock{opacity:.4;cursor:not-allowed}
+.design-chip img{
+  width:40px;height:40px;object-fit:cover;
+  border-radius:2px;flex-shrink:0;
+}
+.design-chip .design-ph{
+  width:40px;height:40px;background:var(--warm-gray);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;border-radius:2px;flex-shrink:0;
+}
+.size-chip{
+  min-width:44px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--border);background:var(--white);
+  font-family:'Jost',sans-serif;font-size:.82rem;
+  font-weight:500;cursor:pointer;color:var(--text-muted);
+  transition:all .15s;padding:0 10px;
+}
+.size-chip:hover{border-color:var(--black);color:var(--black)}
+.size-chip.active{background:var(--black);border-color:var(--black);color:var(--white);font-weight:600}
+.size-chip.out{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+
+/* Admin variant builder */
+.variant-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border:1px solid var(--border);
+  margin-bottom:8px;background:var(--white);
+}
+.variant-row img{width:44px;height:44px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)}
+.variant-ph{width:44px;height:44px;background:var(--off);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;cursor:pointer;border:1.5px dashed var(--border)}
+.variant-name-inp{flex:1;padding:7px 10px;border:1.5px solid var(--border);font-family:'Jost',sans-serif;font-size:.85rem;outline:none}
+.variant-name-inp:focus{border-color:var(--black)}
+.variant-price-inp{width:90px;padding:7px 10px;border:1.5px solid var(--border);font-family:'Jost',sans-serif;font-size:.85rem;outline:none}
+.variant-price-inp:focus{border-color:var(--black)}
+
 </style>
 </head>
 <body>
@@ -739,12 +790,30 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
       <h1 class="detail-name" id="detailName">Product Name</h1>
       <div class="detail-price" id="detailPrice">₱0</div>
       <div class="detail-divider"></div>
-      <div class="opt-label">Size</div>
-      <div class="size-row" id="sizeRow"></div>
-      <div class="opt-label">Color</div>
-      <div class="color-row" id="colorRow"></div>
+
+      <!-- DESIGN VARIANTS -->
+      <div id="designSection" style="display:none;margin-bottom:20px">
+        <div class="opt-label" style="margin-bottom:10px">Design</div>
+        <div id="designGrid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      </div>
+
+      <!-- SIZE VARIANTS -->
+      <div id="sizeSection" style="display:none;margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div class="opt-label">Size</div>
+          <div id="stockHint" style="font-size:.72rem;color:var(--text-muted)"></div>
+        </div>
+        <div id="sizeRow" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      </div>
+
+      <!-- LEGACY COLOR (for non-variant products) -->
+      <div id="colorSection" style="display:none;margin-bottom:20px">
+        <div class="opt-label" style="margin-bottom:10px">Color</div>
+        <div class="color-row" id="colorRow"></div>
+      </div>
+
       <div class="detail-divider"></div>
-      <div class="detail-desc" id="detailDesc"></div>
+      <div class="detail-desc" id="detailDesc" style="margin-bottom:20px"></div>
       <button class="add-to-cart-btn" id="addToCartBtn" onclick="addToCart()">Add to Cart</button>
     </div>
   </div>
@@ -1559,28 +1628,8 @@ function openProduct(p){
   goScreen('s-product');
 }
 
-function addToCart(){
-  if(!selSize){showToast('Please select a size!');return;}
-  if(!selColor){showToast('Please select a color!');return;}
-  if(!curProduct)return;
-  // Stock validation
-  if(curProduct.stock !== undefined && curProduct.stock <= 0){
-    showToast('Sorry, this item is out of stock!');return;
-  }
-  var existing=cart.find(function(i){return i.id===curProduct.id&&i.size===selSize&&i.color===selColor;});
-  if(existing){
-    // Check if adding more exceeds stock
-    if(curProduct.stock !== undefined && existing.qty >= curProduct.stock){
-      showToast('Only ' + curProduct.stock + ' left in stock!');return;
-    }
-    existing.qty++;
-  } else {
-    cart.push({id:curProduct.id,name:curProduct.name,price:curProduct._effPrice||curProduct.price,
-      origPrice:curProduct.price,img:curProduct.img,size:selSize,color:selColor,qty:1,
-      cat:curProduct.cat,stock:curProduct.stock});
-  }
-  saveData();updateCartCount();showToast('Added to cart! 🛍');
-}
+// addToCart now in variant system above
+
 
 function quickAdd(e,id){
   e.stopPropagation();
