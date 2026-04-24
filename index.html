@@ -333,6 +333,8 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .nav-links{display:none}
   .nav-hamburger{display:flex}
   .nav-icon-btn span{display:none}
+  #desktopSearch{display:none !important}
+  #mobileSearch{display:flex !important}
   .hero{grid-template-columns:1fr;padding:40px 20px 32px;gap:28px}
   .hero-img-side{aspect-ratio:16/9;order:-1}
   .hero-title{font-size:2.4rem}
@@ -407,15 +409,47 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 
 
 /* ── EXPANDABLE SEARCH ── */
-.nav-search-wrap{position:relative;display:flex;align-items:center}
-.nav-search-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:6px;display:flex;align-items:center;justify-content:center;transition:color .2s;font-size:1rem}
+.nav-search-wrap{position:relative;display:flex;align-items:center;gap:0}
+
+/* Desktop — always visible search box */
+.nav-search-inp{
+  width:220px;padding:8px 36px 8px 14px;
+  border:1.5px solid var(--border);border-radius:2px;
+  background:var(--off-white);
+  font-family:'Jost',sans-serif;font-size:.82rem;color:var(--black);
+  outline:none;transition:all .25s;
+}
+.nav-search-inp::placeholder{color:var(--text-light);letter-spacing:.03em}
+.nav-search-inp:focus{border-color:var(--black);background:var(--white);width:260px}
+.nav-search-btn{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  color:var(--text-muted);padding:4px;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .2s;
+}
 .nav-search-btn:hover{color:var(--black)}
-.nav-search-inp{width:0;padding:0;border:none;border-bottom:1.5px solid transparent;background:transparent;font-family:'Jost',sans-serif;font-size:.85rem;color:var(--black);outline:none;transition:all .35s cubic-bezier(.25,.46,.45,.94);opacity:0;pointer-events:none}
-.nav-search-inp::placeholder{color:var(--text-light)}
-.nav-search-inp.open{width:180px;padding:4px 8px;border-bottom-color:var(--black);opacity:1;pointer-events:all}
-.nav-search-inp.open::placeholder{color:var(--text-muted)}
+
+/* Mobile — icon only, expandable */
 @media(max-width:768px){
-  .nav-search-inp.open{width:130px}
+  .nav-search-inp{
+    width:0;padding:0;border-color:transparent;background:transparent;
+    opacity:0;pointer-events:none;position:absolute;right:32px;top:50%;
+    transform:translateY(-50%);z-index:10;
+  }
+  .nav-search-inp.open{
+    width:150px;padding:8px 36px 8px 12px;
+    border-color:#555;background:rgba(255,255,255,.12);
+    color:var(--black);opacity:1;pointer-events:all;
+  }
+  .nav-search-inp.open::placeholder{color:rgba(0,0,0,.5)}
+  .nav-search-btn{
+    position:relative;right:auto;top:auto;transform:none;
+    color:#444;padding:6px;
+    background:var(--off-white);border:1.5px solid var(--border);
+    border-radius:2px;width:34px;height:34px;
+  }
+  .nav-search-btn:hover{background:var(--black);color:var(--white);border-color:var(--black)}
 }
 
 </style>
@@ -441,17 +475,19 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
     <span class="nav-link" onclick="filterCat('Sets',null);goScreen('s-home')">Sets</span>
     <span class="nav-link" onclick="filterCat('Accessories',null);goScreen('s-home')">Accessories</span>
   </div>
+
+  <!-- Search — desktop: always visible, mobile: in actions -->
+  <div class="nav-search-wrap" id="desktopSearch">
+    <input type="text" class="nav-search-inp" id="navSearchInp"
+      placeholder="Search products..."
+      oninput="liveSearch(this.value)"
+      onkeydown="if(event.key==='Escape')closeNavSearch()">
+    <button class="nav-search-btn" id="navSearchBtn" onclick="toggleNavSearch()" title="Search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+  </div>
+
   <div class="nav-actions">
-    <!-- Expandable Search -->
-    <div class="nav-search-wrap">
-      <input type="text" class="nav-search-inp" id="navSearchInp"
-        placeholder="Search products..."
-        oninput="liveSearch(this.value)"
-        onkeydown="if(event.key==='Escape')closeNavSearch()">
-      <button class="nav-search-btn" id="navSearchBtn" onclick="toggleNavSearch()" title="Search">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
-    </div>
     <button class="nav-icon-btn" onclick="curUser?goScreen('s-account'):goScreen('s-login');if(curUser)renderAccount();">
       <span>👤</span><span>Account</span>
     </button>
@@ -459,6 +495,12 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
       <span>🛍</span><span>Cart</span>
       <span class="nav-cart-badge" id="cartCount">0</span>
     </button>
+    <!-- Mobile search icon -->
+    <div class="nav-search-wrap" id="mobileSearch" style="display:none">
+      <button class="nav-search-btn" onclick="toggleNavSearch()" title="Search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </div>
     <button class="nav-hamburger" onclick="openMobileMenu()">☰</button>
   </div>
 </nav>
@@ -1190,15 +1232,18 @@ function setNav(id){document.querySelectorAll('.nav-btn').forEach(function(b){b.
 // ── EXPANDABLE SEARCH ──
 var searchOpen = false;
 function toggleNavSearch() {
+  // On desktop, search is always visible — just focus it
+  if (window.innerWidth > 768) {
+    document.getElementById('navSearchInp').focus();
+    return;
+  }
+  // Mobile: toggle expand
   var inp = document.getElementById('navSearchInp');
   if (!inp) return;
   searchOpen = !searchOpen;
   inp.classList.toggle('open', searchOpen);
   if (searchOpen) {
-    setTimeout(function(){ inp.focus(); }, 350);
-    // Scroll to products
-    var el = document.getElementById('productsSection');
-    if (el && window.scrollY > 0) el.scrollIntoView({behavior:'smooth', block:'start'});
+    setTimeout(function(){ inp.focus(); }, 300);
   } else {
     inp.value = '';
     liveSearch('');
@@ -1214,10 +1259,12 @@ function closeNavSearch() {
   liveSearch('');
 }
 
-// Close search on outside click
+// Close mobile search on outside click
 document.addEventListener('click', function(e) {
-  var wrap = document.querySelector('.nav-search-wrap');
-  if (wrap && !wrap.contains(e.target) && searchOpen) {
+  if (window.innerWidth > 768) return;
+  var mobileWrap = document.getElementById('mobileSearch');
+  var inp        = document.getElementById('navSearchInp');
+  if (mobileWrap && !mobileWrap.contains(e.target) && searchOpen) {
     closeNavSearch();
   }
 });
