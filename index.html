@@ -429,7 +429,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
     <span class="nav-link" onclick="filterCat('Accessories',null);goScreen('s-home')">Accessories</span>
   </div>
   <div class="nav-actions">
-    <button class="nav-icon-btn" onclick="goScreen('s-login');renderAccount()">
+    <button class="nav-icon-btn" onclick="curUser?goScreen('s-account'):goScreen('s-login');if(curUser)renderAccount();">
       <span>👤</span><span>Account</span>
     </button>
     <button class="nav-icon-btn" onclick="openCart()">
@@ -914,7 +914,7 @@ function loadMyOrders() {
   if (!wrap) return;
 
   // Get logged in user email
-  var email = currentUser ? currentUser.email : '';
+  var email = curUser ? curUser.email : '';
   if (!email) {
     wrap.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text-muted);font-size:.9rem">Please sign in to view your orders.</div>';
     return;
@@ -1497,7 +1497,8 @@ function signInGoogle(){
     curUser=r.user;
     saveCustomer(r.user,'Google','');
     showToast('Welcome, '+(r.user.displayName||r.user.email)+'!');
-    goScreen('s-home');
+    goScreen('s-account');
+    loadMyOrders();
   }).catch(function(e){showToast('Google sign in failed.');console.warn(e);});
 }
 
@@ -1507,7 +1508,8 @@ function signInFacebook(){
     curUser=r.user;
     saveCustomer(r.user,'Facebook','');
     showToast('Welcome, '+(r.user.displayName||r.user.email)+'!');
-    goScreen('s-home');
+    goScreen('s-account');
+    loadMyOrders();
   }).catch(function(e){showToast('Facebook sign in failed.');console.warn(e);});
 }
 
