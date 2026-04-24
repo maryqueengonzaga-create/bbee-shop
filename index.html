@@ -578,8 +578,15 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 ══════════════════════════════════ -->
 <div class="screen" id="s-product" style="padding-top:var(--nav-h)">
   <div class="detail-grid">
-    <div class="detail-img-side" id="detailImgSide">
+    <div class="detail-img-side" id="detailImgSide" style="position:relative">
+      <!-- Main photo -->
+      <img id="detailMainImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none">
       <span class="detail-emoji-ph" id="detailEmojiPh">🧒</span>
+      <!-- Thumbnail strip -->
+      <div id="detailThumbs" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:10"></div>
+      <!-- Prev/Next arrows -->
+      <button id="detailPrev" onclick="prevPhoto()" style="display:none;position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.85);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;box-shadow:0 2px 8px rgba(0,0,0,.15)">‹</button>
+      <button id="detailNext" onclick="nextPhoto()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.85);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;box-shadow:0 2px 8px rgba(0,0,0,.15)">›</button>
     </div>
     <div class="detail-info-side">
       <button class="detail-back" onclick="goScreen('s-home')">← Back to Shop</button>
@@ -593,7 +600,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
       <div class="color-row" id="colorRow"></div>
       <div class="detail-divider"></div>
       <div class="detail-desc" id="detailDesc"></div>
-      <button class="add-to-cart-btn" onclick="addToCart()">Add to Cart</button>
+      <button class="add-to-cart-btn" id="addToCartBtn" onclick="addToCart()">Add to Cart</button>
     </div>
   </div>
 </div>
@@ -1155,19 +1162,103 @@ function goScreen(id){
 }
 function setNav(id){document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById(id).classList.add('active');}
 
-function searchProducts(q){
-  q=q.trim().toLowerCase();
-  if(!q){renderProducts(products);document.getElementById('productsTitle').textContent='All Products';return;}
-  var f=products.filter(function(p){return p.name.toLowerCase().indexOf(q)!==-1||p.cat.toLowerCase().indexOf(q)!==-1||p.desc.toLowerCase().indexOf(q)!==-1;});
-  document.getElementById('productsTitle').textContent='Results for "'+q+'"';
-  renderProducts(f);
+
+// ── PHOTO CAROUSEL ──
+var detailPhotos  = [];
+var detailPhotoIdx = 0;
+
+function initProductPhotos(p) {
+  detailPhotos   = [];
+  detailPhotoIdx = 0;
+
+  // Build photos array from product data
+  if (p.photos) {
+    try {
+      var parsed = JSON.parse(p.photos);
+      detailPhotos = parsed.map(function(ph){ return ph.url; });
+    } catch(e) {}
+  }
+  if (!detailPhotos.length && p.img) detailPhotos = [p.img];
+
+  var mainImg  = document.getElementById('detailMainImg');
+  var emojiPh  = document.getElementById('detailEmojiPh');
+  var thumbs   = document.getElementById('detailThumbs');
+  var prevBtn  = document.getElementById('detailPrev');
+  var nextBtn  = document.getElementById('detailNext');
+
+  if (detailPhotos.length) {
+    mainImg.src          = detailPhotos[0];
+    mainImg.style.display= 'block';
+    emojiPh.style.display= 'none';
+  } else {
+    mainImg.style.display= 'none';
+    emojiPh.style.display= 'flex';
+    thumbs.innerHTML     = '';
+    prevBtn.style.display= 'none';
+    nextBtn.style.display= 'none';
+    return;
+  }
+
+  // Show arrows if multiple photos
+  if (detailPhotos.length > 1) {
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+    // Thumbnails
+    thumbs.innerHTML = detailPhotos.map(function(url, i) {
+      return '<div onclick="setDetailPhoto(' + i + ')" style="width:40px;height:40px;border:2px solid ' + (i===0?'var(--white)':'rgba(255,255,255,.4)') + ';overflow:hidden;cursor:pointer;flex-shrink:0;transition:border .2s" id="thumb_' + i + '">' +
+        '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover">' +
+      '</div>';
+    }).join('');
+  } else {
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+    thumbs.innerHTML      = '';
+  }
 }
 
-function filterCat(cat,btn){
+function setDetailPhoto(idx) {
+  if (!detailPhotos.length) return;
+  detailPhotoIdx = Math.max(0, Math.min(idx, detailPhotos.length - 1));
+  document.getElementById('detailMainImg').src = detailPhotos[detailPhotoIdx];
+  // Update thumb borders
+  detailPhotos.forEach(function(_, i) {
+    var th = document.getElementById('thumb_' + i);
+    if (th) th.style.borderColor = i===detailPhotoIdx?'var(--white)':'rgba(255,255,255,.4)';
+  });
+}
+
+function prevPhoto() { setDetailPhoto(detailPhotoIdx - 1); }
+function nextPhoto() { setDetailPhoto(detailPhotoIdx + 1); }
+
+
+function searchProducts(q){
+  filterCat(curCat||'All', null, q);
+}
+function liveSearch(q){
+  if(!q.trim()){
+    filterCat(curCat||'All', null, '');
+    return;
+  }
+  // Scroll to products section
+  var el = document.getElementById('productsSection');
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  filterCat(curCat||'All', null, q);
+}
+
+function filterCat(cat,btn,searchQ){
+  curCat=cat;
   document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('active');});
   if(btn)btn.classList.add('active');
   document.getElementById('productsTitle').textContent=cat==='All'?'All Products':cat;
   var filtered=cat==='All'?products:products.filter(function(p){return p.cat===cat;});
+  if(searchQ&&searchQ.trim()){
+    var q=searchQ.toLowerCase().trim();
+    filtered=filtered.filter(function(p){
+      return (p.name||'').toLowerCase().indexOf(q)>-1||
+             (p.cat||'').toLowerCase().indexOf(q)>-1||
+             (p.desc||'').toLowerCase().indexOf(q)>-1;
+    });
+  }
   renderProducts(filtered);
 }
 
@@ -1206,7 +1297,8 @@ function renderProducts(prods){
         '<div class="product-name">'+p.name+'</div>'+
         '<div style="display:flex;align-items:center">'+priceHtml+'</div>'+
       '</div>'+
-      '<button class="add-mini" onclick="quickAdd(event,'+p.id+')">+</button>';
+      (p.stock<=0?'<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center"><span style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Out of Stock</span></div>':
+      '<button class="add-mini" onclick="quickAdd(event,'+p.id+')">+</button>');
     grid.appendChild(card);
   });
 }
@@ -1248,10 +1340,23 @@ function addToCart(){
   if(!selSize){showToast('Please select a size!');return;}
   if(!selColor){showToast('Please select a color!');return;}
   if(!curProduct)return;
+  // Stock validation
+  if(curProduct.stock !== undefined && curProduct.stock <= 0){
+    showToast('Sorry, this item is out of stock!');return;
+  }
   var existing=cart.find(function(i){return i.id===curProduct.id&&i.size===selSize&&i.color===selColor;});
-  if(existing)existing.qty++;
-  else cart.push({id:curProduct.id,name:curProduct.name,price:curProduct._effPrice||curProduct.price,origPrice:curProduct.price,img:curProduct.img,size:selSize,color:selColor,qty:1});
-  saveData();updateCartCount();showToast('Added to cart!');goScreen('s-home');
+  if(existing){
+    // Check if adding more exceeds stock
+    if(curProduct.stock !== undefined && existing.qty >= curProduct.stock){
+      showToast('Only ' + curProduct.stock + ' left in stock!');return;
+    }
+    existing.qty++;
+  } else {
+    cart.push({id:curProduct.id,name:curProduct.name,price:curProduct._effPrice||curProduct.price,
+      origPrice:curProduct.price,img:curProduct.img,size:selSize,color:selColor,qty:1,
+      cat:curProduct.cat,stock:curProduct.stock});
+  }
+  saveData();updateCartCount();showToast('Added to cart! 🛍');
 }
 
 function quickAdd(e,id){
@@ -1325,7 +1430,22 @@ function placeOrder(){
     savePromoCodes(codes);
     appliedPromo=null;promoDiscount=0;
   }
-  goScreen('s-success');showToast('Order placed!');
+  goScreen('s-success');showToast('Order placed! 🎉');
+
+  // Send customer confirmation email via Apps Script
+  var customerEmail = curUser ? curUser.email : '';
+  if (customerEmail) {
+    logToSheets({
+      type:        'ORDER_EMAIL',
+      email:       customerEmail,
+      name:        document.getElementById('coName').value||'',
+      orderId:     document.getElementById('successOrderNum').textContent,
+      total:       document.getElementById('coTotal').textContent,
+      payment:     curPayment,
+      delivery:    curDelivery,
+      items:       JSON.stringify(cart.map(function(i){ return i.qty + 'x ' + i.name; }))
+    });
+  }
 }
 
 function shareProduct(p){
