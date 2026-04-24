@@ -2218,6 +2218,257 @@ var curCat = 'All';
 function saveFlashSale() { saveFlashSale2(); }
 
 
+
+// ══════════════════════════════════════════
+// VARIANT SYSTEM (Shopee-style Design + Size)
+// ══════════════════════════════════════════
+
+var selDesign   = null; // { name, photo, price, stock:{size:qty} }
+var selSize     = null;
+var selColor    = null;
+
+// Parse variants from product
+function getProductVariants(p) {
+  if (!p.variants) return null;
+  try {
+    var v = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
+    return Array.isArray(v) && v.length ? v : null;
+  } catch(e) { return null; }
+}
+
+// Get sizes from product
+function getProductSizes(p) {
+  if (p.sizes && p.sizes.length) return p.sizes;
+  return [];
+}
+
+// Open product with variant support
+function openProduct(p) {
+  curProduct = p;
+  selDesign  = null;
+  selSize    = null;
+  selColor   = null;
+
+  document.getElementById('detailCat').textContent  = p.cat || '';
+  document.getElementById('detailName').textContent = p.name || '';
+  document.getElementById('detailDesc').textContent = p.desc || 'Adorable outfit for your little one.';
+
+  var variants = getProductVariants(p);
+  var sizes    = getProductSizes(p);
+
+  if (variants && variants.length) {
+    // VARIANT MODE: Design + Size
+    document.getElementById('designSection').style.display = 'block';
+    document.getElementById('sizeSection').style.display   = 'block';
+    document.getElementById('colorSection').style.display  = 'none';
+
+    renderDesignChips(variants);
+    renderSizeChips(sizes, null); // no design selected yet, all sizes shown
+
+    // Show price range
+    var prices  = variants.map(function(v){ return parseFloat(v.price)||0; }).filter(Boolean);
+    var minP    = Math.min.apply(null, prices);
+    var maxP    = Math.max.apply(null, prices);
+    var priceHtml = minP === maxP
+      ? '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + minP.toLocaleString() + '</span>'
+      : '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + minP.toLocaleString() + ' – ₱' + maxP.toLocaleString() + '</span>';
+    document.getElementById('detailPrice').innerHTML = priceHtml;
+
+  } else {
+    // LEGACY MODE: Color + Size
+    document.getElementById('designSection').style.display = 'none';
+    document.getElementById('sizeSection').style.display   = sizes.length ? 'block' : 'none';
+    document.getElementById('colorSection').style.display  = p.colors && p.colors.length ? 'block' : 'none';
+
+    // Legacy size chips
+    var sizeRow = document.getElementById('sizeRow');
+    sizeRow.innerHTML = sizes.map(function(s) {
+      return '<div class="size-chip" onclick="selectSize(\'' + s + '\',this)">' + s + '</div>';
+    }).join('');
+
+    // Legacy colors
+    var colorRow = document.getElementById('colorRow');
+    if (colorRow && p.colors) {
+      colorRow.innerHTML = p.colors.map(function(c) {
+        var hex = COLOR_MAP[c] || '#CCCCCC';
+        return '<div class="color-swatch" title="' + c + '" style="background:' + hex + '" onclick="selectColor(\'' + c + '\',this)"></div>';
+      }).join('');
+    }
+
+    // Price
+    var flashDisc = getFlashDiscount ? getFlashDiscount(p.price) : 0;
+    var effPrice  = p.salePrice || (flashDisc > 0 ? p.price - flashDisc : p.price);
+    p._effPrice   = effPrice;
+    var priceHtml = effPrice < p.price
+      ? '<span style="text-decoration:line-through;color:var(--text-muted);font-size:.9rem;margin-right:8px">₱' + p.price + '</span><span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:700;color:var(--red)">₱' + effPrice + '</span>'
+      : '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + p.price + '</span>';
+    document.getElementById('detailPrice').innerHTML = priceHtml;
+  }
+
+  // Photos
+  initProductPhotos(p);
+
+  // Add to cart button state
+  var btn = document.getElementById('addToCartBtn');
+  if (btn) {
+    btn.textContent    = 'Add to Cart';
+    btn.disabled       = false;
+    btn.style.background = '';
+    btn.style.cursor     = '';
+  }
+
+  goScreen('s-product');
+}
+
+function renderDesignChips(variants) {
+  var grid = document.getElementById('designGrid');
+  if (!grid) return;
+  grid.innerHTML = variants.map(function(v, i) {
+    var totalStock = 0;
+    if (v.stock && typeof v.stock === 'object') {
+      totalStock = Object.values(v.stock).reduce(function(s,n){ return s+(parseInt(n)||0); }, 0);
+    } else {
+      totalStock = parseInt(v.stock) || 99;
+    }
+    var isOut = totalStock <= 0;
+    return '<div class="design-chip' + (isOut?' out-of-stock':'') + '" onclick="' + (isOut?'':'selectDesign('+i+',this)') + '" id="dchip_'+i+'">' +
+      (v.photo
+        ? '<img src="' + v.photo + '" alt="' + v.name + '" onerror="this.style.display=\'none\'">'
+        : '<div class="design-ph">🎨</div>') +
+      '<span>' + v.name + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function selectDesign(idx, el) {
+  var variants = getProductVariants(curProduct);
+  if (!variants) return;
+  selDesign = variants[idx];
+  selSize   = null;
+
+  // Update active chip
+  document.querySelectorAll('.design-chip').forEach(function(c){ c.classList.remove('active'); });
+  if (el) el.classList.add('active');
+
+  // Update price for this design
+  var price = parseFloat(selDesign.price) || 0;
+  document.getElementById('detailPrice').innerHTML =
+    '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + price.toLocaleString() + '</span>';
+
+  // Update photo
+  if (selDesign.photo) {
+    var img = document.getElementById('detailMainImg');
+    if (img) { img.src = selDesign.photo; img.style.display = 'block'; }
+    document.getElementById('detailEmojiPh').style.display = 'none';
+  }
+
+  // Update sizes with stock info
+  renderSizeChips(getProductSizes(curProduct), selDesign);
+  document.getElementById('stockHint').textContent = '';
+}
+
+function renderSizeChips(sizes, design) {
+  var row = document.getElementById('sizeRow');
+  if (!row || !sizes.length) return;
+  row.innerHTML = sizes.map(function(s) {
+    var qty = 0;
+    if (design && design.stock) {
+      qty = parseInt(design.stock[s] || design.stock[String(s)] || 0);
+    } else {
+      qty = 99; // no design selected yet
+    }
+    var isOut = design && qty <= 0;
+    return '<div class="size-chip' + (isOut?' out':'') + '" onclick="' + (isOut?'':'selectSizeVariant(\''+s+'\',this,'+qty+')') + '">' +
+      s + '</div>';
+  }).join('');
+}
+
+function selectSizeVariant(size, el, qty) {
+  selSize = size;
+  document.querySelectorAll('.size-chip').forEach(function(c){ c.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  var hint = document.getElementById('stockHint');
+  if (hint) {
+    hint.textContent = qty <= 5 && qty > 0 ? 'Only ' + qty + ' left!' : '';
+    hint.style.color = 'var(--red)';
+  }
+}
+
+function selectSize(s, el) {
+  selSize = s;
+  document.querySelectorAll('.size-chip').forEach(function(c){ c.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+
+function selectColor(c, el) {
+  selColor = c;
+  document.querySelectorAll('.color-swatch').forEach(function(s){ s.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+
+// Override addToCart for variant support
+function addToCart() {
+  var variants = getProductVariants(curProduct);
+
+  if (variants && variants.length) {
+    // Variant mode
+    if (!selDesign) { showToast('Please select a design!'); return; }
+    if (!selSize)   { showToast('Please select a size!');   return; }
+
+    // Stock check
+    var qty = selDesign.stock ? (parseInt(selDesign.stock[selSize])||0) : 99;
+    if (qty <= 0) { showToast('Out of stock for this combination!'); return; }
+
+    var key = curProduct.id + '_' + selDesign.name + '_' + selSize;
+    var existing = cart.find(function(i){ return i._key === key; });
+    if (existing) {
+      if (existing.qty >= qty) { showToast('Only ' + qty + ' left in stock!'); return; }
+      existing.qty++;
+    } else {
+      cart.push({
+        _key:   key,
+        id:     curProduct.id,
+        name:   curProduct.name,
+        design: selDesign.name,
+        size:   selSize,
+        price:  parseFloat(selDesign.price) || curProduct.price,
+        img:    selDesign.photo || curProduct.img || '',
+        cat:    curProduct.cat,
+        qty:    1
+      });
+    }
+  } else {
+    // Legacy mode
+    if (!selSize && getProductSizes(curProduct).length)  { showToast('Please select a size!');  return; }
+    if (!selColor && curProduct.colors && curProduct.colors.length) { showToast('Please select a color!'); return; }
+    if (curProduct.stock !== undefined && curProduct.stock <= 0) { showToast('Out of stock!'); return; }
+
+    var key2 = curProduct.id + '_' + selSize + '_' + selColor;
+    var existing2 = cart.find(function(i){ return i._key === key2; });
+    if (existing2) {
+      existing2.qty++;
+    } else {
+      cart.push({
+        _key:   key2,
+        id:     curProduct.id,
+        name:   curProduct.name,
+        size:   selSize,
+        color:  selColor,
+        price:  curProduct._effPrice || curProduct.price,
+        img:    curProduct.img || '',
+        cat:    curProduct.cat,
+        qty:    1
+      });
+    }
+  }
+
+  saveData();
+  updateCartCount();
+  showToast('Added to cart! 🛍');
+}
+
+
+
 loadData();renderProducts(products);updateCartCount();renderCategoryBtns();startFlashTimer();
 </script>
 
