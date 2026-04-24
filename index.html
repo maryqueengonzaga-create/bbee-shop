@@ -363,6 +363,48 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .products-grid{grid-template-columns:repeat(2,1fr);gap:8px}
   .cat-grid{gap:8px}
 }
+
+/* ── ACCOUNT TABS ── */
+.acct-tab{flex:1;padding:14px 8px;font-family:'Jost',sans-serif;font-size:.78rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;white-space:nowrap}
+.acct-tab.active{color:var(--black);border-bottom-color:var(--black);font-weight:600}
+.acct-tab:hover{color:var(--black)}
+
+/* ── ORDER CARD (account) ── */
+.order-card-acct{background:var(--white);border:1px solid var(--border);margin-bottom:12px;overflow:hidden;cursor:pointer;transition:all .2s}
+.order-card-acct:hover{border-color:var(--black)}
+.order-card-top{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-light)}
+.order-card-body{padding:16px 20px}
+.order-card-items{font-size:.85rem;color:var(--text-muted);margin-bottom:10px;line-height:1.6}
+.order-card-footer{display:flex;justify-content:space-between;align-items:center}
+.order-status-pill{padding:4px 14px;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.pill-pending{background:#FFF8E1;color:#F59E0B}
+.pill-confirmed{background:#F0FDF4;color:#16A34A}
+.pill-shipped{background:#EFF6FF;color:#2563EB}
+.pill-delivered{background:#F5F3FF;color:#7C3AED}
+.pill-cancelled{background:#FEF2F2;color:#DC2626}
+
+/* ── TIMELINE ── */
+.timeline{display:flex;flex-direction:column;gap:0}
+.timeline-step{display:flex;gap:16px;padding-bottom:24px;position:relative}
+.timeline-step:last-child{padding-bottom:0}
+.timeline-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;margin-top:3px;position:relative;z-index:1}
+.timeline-dot.done{background:var(--black)}
+.timeline-dot.active{background:var(--honey);box-shadow:0 0 0 3px var(--honey-light)}
+.timeline-dot.pending{background:var(--border);border:2px solid var(--border)}
+.timeline-line{position:absolute;left:6px;top:17px;bottom:0;width:2px;background:var(--border);z-index:0}
+.timeline-line.done{background:var(--black)}
+.timeline-content{}
+.timeline-title{font-size:.88rem;font-weight:600;color:var(--black);margin-bottom:2px}
+.timeline-title.pending-txt{color:var(--text-light);font-weight:400}
+.timeline-date{font-size:.72rem;color:var(--text-muted)}
+
+@media(max-width:768px){
+  .acct-tab{font-size:.7rem;padding:12px 6px;letter-spacing:.03em}
+  #myOrdersWrap{padding:16px 20px 48px}
+  .order-card-acct .order-card-top,.order-card-acct .order-card-body{padding:14px 16px}
+  .detail-info-side,.success-wrap,.auth-wrap,.account-wrap{padding-left:20px;padding-right:20px}
+}
+
 </style>
 </head>
 <body>
@@ -631,19 +673,92 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   </div>
 </div>
 
-<!-- ACCOUNT -->
+<!-- ACCOUNT — Shopee-style -->
 <div class="screen" id="s-account" style="padding-top:var(--nav-h)">
-  <div class="account-wrap">
-    <div class="account-hdr">
-      <div class="account-avatar" id="accountAvatar">👤</div>
-      <div>
-        <div class="account-name" id="accountName">Guest</div>
-        <div class="account-email" id="accountEmail"></div>
+
+  <!-- Profile Header -->
+  <div style="background:var(--black);padding:28px 48px 24px;color:var(--white)">
+    <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;gap:20px">
+      <div id="accountAvatar" style="width:64px;height:64px;border-radius:50%;background:var(--honey);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;overflow:hidden">👤</div>
+      <div style="flex:1">
+        <div id="accountName" style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600;color:var(--white);margin-bottom:2px">Guest</div>
+        <div id="accountEmail" style="font-size:.78rem;color:rgba(255,255,255,.5)"></div>
       </div>
-      <button class="btn-outline" style="margin-left:auto" onclick="signOut()">Sign Out</button>
+      <button onclick="signOut()" style="padding:8px 18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-family:Jost,sans-serif;font-size:.75rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s">Sign Out</button>
     </div>
-    <div class="admin-section-title">Your Orders</div>
+  </div>
+
+  <!-- Order Status Tabs -->
+  <div style="background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:var(--nav-h);z-index:100">
+    <div style="max-width:900px;margin:0 auto;display:flex">
+      <button class="acct-tab active" id="tab-all" onclick="switchOrderTab('all')">All Orders</button>
+      <button class="acct-tab" id="tab-topay" onclick="switchOrderTab('topay')">To Pay</button>
+      <button class="acct-tab" id="tab-toship" onclick="switchOrderTab('toship')">To Ship</button>
+      <button class="acct-tab" id="tab-shipped" onclick="switchOrderTab('shipped')">Shipped</button>
+      <button class="acct-tab" id="tab-delivered" onclick="switchOrderTab('delivered')">Delivered</button>
+    </div>
+  </div>
+
+  <!-- Orders List -->
+  <div style="max-width:900px;margin:0 auto;padding:24px 48px 64px" id="myOrdersWrap">
     <div id="myOrdersList"></div>
+  </div>
+</div>
+
+<!-- ORDER DETAIL — Shopee-style tracking -->
+<div class="screen" id="s-order-detail" style="padding-top:var(--nav-h)">
+  <div style="max-width:740px;margin:0 auto;padding:32px 48px 64px">
+    <button class="detail-back" onclick="goScreen('s-account');loadMyOrders()">← Back to My Orders</button>
+
+    <!-- Order Header -->
+    <div style="background:var(--white);border:1px solid var(--border);padding:24px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:.68rem;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Order ID</div>
+          <div style="font-family:Cormorant Garamond,serif;font-size:1.2rem;font-weight:600" id="odOrderId">--</div>
+        </div>
+        <div id="odStatusBadge" style="padding:6px 14px;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--warm-gray);color:var(--text-muted)">PENDING</div>
+      </div>
+      <div style="font-size:.78rem;color:var(--text-muted)" id="odDate">--</div>
+    </div>
+
+    <!-- Tracking Timeline -->
+    <div style="background:var(--white);border:1px solid var(--border);padding:24px;margin-bottom:16px">
+      <div style="font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:20px">Order Timeline</div>
+      <div id="odTimeline"></div>
+
+      <!-- Tracking Number + Link -->
+      <div id="odTrackingWrap" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+        <div style="font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Tracking Number</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="font-size:1rem;font-weight:700;font-family:Cormorant Garamond,serif;color:var(--black)" id="odTrackingNum">--</div>
+          <a id="odTrackingLink" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--honey);color:var(--white);text-decoration:none;font-family:Jost,sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;transition:background .2s">Track Package →</a>
+        </div>
+        <div style="font-size:.72rem;color:var(--text-muted);margin-top:6px" id="odCourier"></div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div style="background:var(--white);border:1px solid var(--border);padding:24px;margin-bottom:16px">
+      <div style="font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px">Items Ordered</div>
+      <div id="odItems"></div>
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:.82rem;color:var(--text-muted)">Order Total</div>
+        <div style="font-family:Cormorant Garamond,serif;font-size:1.3rem;font-weight:600" id="odTotal">₱0</div>
+      </div>
+    </div>
+
+    <!-- Delivery Info -->
+    <div style="background:var(--white);border:1px solid var(--border);padding:24px">
+      <div style="font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px">Delivery Information</div>
+      <div style="display:grid;gap:10px;font-size:.85rem">
+        <div style="display:flex;gap:16px"><span style="color:var(--text-muted);width:100px;flex-shrink:0">Name</span><span id="odName" style="font-weight:500">--</span></div>
+        <div style="display:flex;gap:16px"><span style="color:var(--text-muted);width:100px;flex-shrink:0">Phone</span><span id="odPhone">--</span></div>
+        <div style="display:flex;gap:16px"><span style="color:var(--text-muted);width:100px;flex-shrink:0">Address</span><span id="odAddress">--</span></div>
+        <div style="display:flex;gap:16px"><span style="color:var(--text-muted);width:100px;flex-shrink:0">Payment</span><span id="odPayment">--</span></div>
+        <div style="display:flex;gap:16px"><span style="color:var(--text-muted);width:100px;flex-shrink:0">Delivery</span><span id="odDelivery">--</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -753,6 +868,250 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 </div>
 
 <script>
+
+// ══════════════════════════════════════════
+// SHOPEE-STYLE ACCOUNT & ORDER TRACKING
+// ══════════════════════════════════════════
+
+var currentOrderTab = 'all';
+var curOrderDetail  = null;
+
+// Status config
+var ORDER_STATUS_CONFIG = {
+  'PENDING':   { label:'To Pay',    pill:'pill-pending',   step:0 },
+  'CONFIRMED': { label:'To Ship',   pill:'pill-confirmed', step:1 },
+  'SHIPPED':   { label:'Shipped',   pill:'pill-shipped',   step:2 },
+  'DELIVERED': { label:'Delivered', pill:'pill-delivered', step:3 },
+  'CANCELLED': { label:'Cancelled', pill:'pill-cancelled', step:-1 }
+};
+
+var ORDER_TIMELINE_STEPS = [
+  { key:'PENDING',   label:'Order Placed',       icon:'📋' },
+  { key:'CONFIRMED', label:'Order Confirmed',     icon:'✅' },
+  { key:'SHIPPED',   label:'Parcel Picked Up',    icon:'📦' },
+  { key:'DELIVERED', label:'Parcel Delivered',    icon:'🎉' }
+];
+
+// Courier tracking URLs
+var COURIER_URLS = {
+  'J&T':  'https://www.jtexpress.ph/index/query/gzquery.html?bills=',
+  'LBC':  'https://www.lbcexpress.com/track/?tracking_no=',
+  'JRS':  'https://jrs-express.com/tracking/?number=',
+  'Grab': 'https://food.grab.com/'
+};
+
+function switchOrderTab(tab) {
+  currentOrderTab = tab;
+  ['all','topay','toship','shipped','delivered'].forEach(function(t){
+    var el = document.getElementById('tab-'+t);
+    if (el) el.classList.toggle('active', t === tab);
+  });
+  loadMyOrders();
+}
+
+function loadMyOrders() {
+  var wrap = document.getElementById('myOrdersList');
+  if (!wrap) return;
+
+  // Get logged in user email
+  var email = currentUser ? currentUser.email : '';
+  if (!email) {
+    wrap.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text-muted);font-size:.9rem">Please sign in to view your orders.</div>';
+    return;
+  }
+
+  wrap.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:.85rem">Loading orders...</div>';
+
+  var url = APPS_SCRIPT_URL + '?type=GET_ORDERS&email=' + encodeURIComponent(email);
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (!data.orders || !data.orders.length) {
+        wrap.innerHTML = '<div style="text-align:center;padding:48px">' +
+          '<div style="font-size:3rem;opacity:.15;margin-bottom:12px">📦</div>' +
+          '<div style="font-family:Cormorant Garamond,serif;font-size:1.2rem;color:var(--text-muted)">No orders yet</div>' +
+          '<button class="btn-primary" style="margin-top:20px" onclick="goScreen('s-home')">Start Shopping</button>' +
+          '</div>';
+        return;
+      }
+
+      // Filter by tab
+      var filtered = data.orders.filter(function(o) {
+        if (currentOrderTab === 'all')       return true;
+        if (currentOrderTab === 'topay')     return o.status === 'PENDING';
+        if (currentOrderTab === 'toship')    return o.status === 'CONFIRMED';
+        if (currentOrderTab === 'shipped')   return o.status === 'SHIPPED';
+        if (currentOrderTab === 'delivered') return o.status === 'DELIVERED';
+        return true;
+      });
+
+      if (!filtered.length) {
+        wrap.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:.85rem">No orders in this category.</div>';
+        return;
+      }
+
+      renderOrderCards(filtered, wrap);
+    })
+    .catch(function(e) {
+      wrap.innerHTML = '<div style="text-align:center;padding:32px;color:var(--red);font-size:.85rem">Failed to load orders. Please try again.</div>';
+    });
+}
+
+function renderOrderCards(orders, container) {
+  var html = '';
+  orders.forEach(function(order) {
+    var cfg   = ORDER_STATUS_CONFIG[order.status] || ORDER_STATUS_CONFIG['PENDING'];
+    var total = '₱' + parseFloat(order.total||0).toLocaleString();
+    var items = String(order.items || '').split(',').slice(0,2).join(', ');
+    if (String(order.items||'').split(',').length > 2) items += '...';
+
+    html += '<div class="order-card-acct" onclick="openOrderDetail('' + order.id + '')">';
+    html += '<div class="order-card-top">';
+    html += '<div>';
+    html += '<div style="font-size:.68rem;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">Order ID</div>';
+    html += '<div style="font-family:Cormorant Garamond,serif;font-size:.95rem;font-weight:600">' + order.id + '</div>';
+    html += '</div>';
+    html += '<span class="order-status-pill ' + cfg.pill + '">' + cfg.label + '</span>';
+    html += '</div>';
+    html += '<div class="order-card-body">';
+    html += '<div class="order-card-items">' + (items || 'Items') + '</div>';
+    html += '<div class="order-card-footer">';
+    html += '<div style="font-size:.75rem;color:var(--text-muted)">' + (order.date||'') + '</div>';
+    html += '<div style="font-family:Cormorant Garamond,serif;font-size:1rem;font-weight:600">' + total + '</div>';
+    html += '</div>';
+    // Show tracking badge if shipped
+    if (order.status === 'SHIPPED' && order.trackingNum) {
+      html += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light);display:flex;align-items:center;gap:8px">';
+      html += '<span style="font-size:.68rem;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase">Tracking:</span>';
+      html += '<span style="font-size:.82rem;font-weight:600;color:var(--black)">' + order.trackingNum + '</span>';
+      html += '<span style="font-size:.7rem;color:var(--honey);font-weight:600">→ View</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+  // Store orders for detail view
+  window._myOrders = orders;
+}
+
+function openOrderDetail(orderId) {
+  var order = (window._myOrders || []).find(function(o){ return o.id === orderId; });
+  if (!order) return;
+  curOrderDetail = order;
+
+  // Order ID + date
+  document.getElementById('odOrderId').textContent = order.id;
+  document.getElementById('odDate').textContent = order.date || '';
+
+  // Status badge
+  var cfg = ORDER_STATUS_CONFIG[order.status] || ORDER_STATUS_CONFIG['PENDING'];
+  var badge = document.getElementById('odStatusBadge');
+  badge.textContent = order.status;
+  badge.className   = '';
+  badge.style.cssText = 'padding:6px 14px;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase';
+  var pillColors = {
+    'PENDING':   'background:#FFF8E1;color:#F59E0B',
+    'CONFIRMED': 'background:#F0FDF4;color:#16A34A',
+    'SHIPPED':   'background:#EFF6FF;color:#2563EB',
+    'DELIVERED': 'background:#F5F3FF;color:#7C3AED',
+    'CANCELLED': 'background:#FEF2F2;color:#DC2626'
+  };
+  badge.style.cssText += ';' + (pillColors[order.status] || '');
+
+  // Timeline
+  renderOrderTimeline(order);
+
+  // Tracking
+  var trackWrap = document.getElementById('odTrackingWrap');
+  if (order.status === 'SHIPPED' || order.status === 'DELIVERED') {
+    var trackNum = order.trackingNum || order.notes || '';
+    var courier  = order.courier || detectCourier(order.notes);
+    if (trackNum) {
+      trackWrap.style.display = 'block';
+      document.getElementById('odTrackingNum').textContent = trackNum;
+      var courierUrl = COURIER_URLS[courier] || COURIER_URLS['J&T'];
+      document.getElementById('odTrackingLink').href = courierUrl + trackNum;
+      document.getElementById('odCourier').textContent = 'Courier: ' + (courier || 'J&T Express');
+    } else {
+      trackWrap.style.display = 'none';
+    }
+  } else {
+    trackWrap.style.display = 'none';
+  }
+
+  // Items
+  var itemsHtml = '';
+  var itemsList = String(order.items||'').split(',');
+  itemsList.forEach(function(item) {
+    if (!item.trim()) return;
+    itemsHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-light)">';
+    itemsHtml += '<div style="font-size:.88rem;color:var(--text-main)">' + item.trim() + '</div>';
+    itemsHtml += '</div>';
+  });
+  document.getElementById('odItems').innerHTML = itemsHtml;
+  document.getElementById('odTotal').textContent = '₱' + parseFloat(order.total||0).toLocaleString();
+
+  // Delivery info
+  document.getElementById('odName').textContent    = order.name    || '--';
+  document.getElementById('odPhone').textContent   = order.phone   || '--';
+  document.getElementById('odAddress').textContent = order.address || '--';
+  document.getElementById('odPayment').textContent = order.payment || '--';
+  document.getElementById('odDelivery').textContent= order.delivery|| '--';
+
+  goScreen('s-order-detail');
+}
+
+function renderOrderTimeline(order) {
+  var currentStep = ORDER_STATUS_CONFIG[order.status] ?
+    ORDER_STATUS_CONFIG[order.status].step : 0;
+  if (order.status === 'CANCELLED') {
+    document.getElementById('odTimeline').innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;padding:12px 0">' +
+      '<div style="width:14px;height:14px;border-radius:50%;background:var(--red);flex-shrink:0"></div>' +
+      '<div><div style="font-weight:600;color:var(--red)">Order Cancelled</div>' +
+      '<div style="font-size:.72rem;color:var(--text-muted)">' + (order.date||'') + '</div></div></div>';
+    return;
+  }
+
+  var html = '<div class="timeline">';
+  ORDER_TIMELINE_STEPS.forEach(function(step, idx) {
+    var isDone    = idx < currentStep;
+    var isActive  = idx === currentStep;
+    var isPending = idx > currentStep;
+    var isLast    = idx === ORDER_TIMELINE_STEPS.length - 1;
+
+    html += '<div class="timeline-step">';
+    if (!isLast) {
+      html += '<div class="timeline-line' + (isDone?' done':'') + '"></div>';
+    }
+    html += '<div class="timeline-dot ' + (isDone?'done':isActive?'active':'pending') + '"></div>';
+    html += '<div class="timeline-content">';
+    html += '<div class="timeline-title' + (isPending?' pending-txt':'') + '">' + step.icon + ' ' + step.label + '</div>';
+    if (isActive) {
+      html += '<div class="timeline-date" style="color:var(--honey)">In Progress</div>';
+    } else if (isDone) {
+      html += '<div class="timeline-date">Completed</div>';
+    } else {
+      html += '<div class="timeline-date">Waiting</div>';
+    }
+    html += '</div></div>';
+  });
+  html += '</div>';
+  document.getElementById('odTimeline').innerHTML = html;
+}
+
+function detectCourier(notes) {
+  if (!notes) return 'J&T';
+  var n = String(notes).toUpperCase();
+  if (n.indexOf('LBC') > -1)   return 'LBC';
+  if (n.indexOf('JRS') > -1)   return 'JRS';
+  if (n.indexOf('GRAB') > -1)  return 'Grab';
+  return 'J&T';
+}
+
+
 var SHOP_PW='Bbeeco2026!',CLOUD_NAME='djchrmzgk',UPLOAD_PRESET='bbee_unsigned';
 var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxqmUdpjlvNNBqK7_FSWHl9biSUJpnoAMVGIVkiKB3I4Ik-DUkXVLpid6MvtE2m9qyV-w/exec';
 var COLOR_MAP={'Pink':'#FFB6C1','Blue':'#87CEEB','Yellow':'#FFE066','White':'#F5F5F5','Red':'#FF6B6B','Green':'#90EE90','Purple':'#DDA0DD','Orange':'#FFA07A','Black':'#1a1a1a','Gray':'#C0C0C0','Beige':'#F5DEB3','Navy':'#1A1A2E'};
