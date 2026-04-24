@@ -132,8 +132,8 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 .product-card{cursor:pointer;position:relative;background:var(--white);transition:all .25s;border:1px solid transparent}
 .product-card:hover{box-shadow:var(--sh-md);border-color:var(--border)}
 .product-card:hover .pc-img{transform:scale(1.03)}
-.pc-img-wrap{overflow:hidden;aspect-ratio:3/4;background:#F5F5F5;position:relative}
-.pc-img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.25,.46,.45,.94)}
+.pc-img-wrap{overflow:hidden;aspect-ratio:3/4;background:#F5F5F5;position:relative;width:100%}
+.pc-img{width:100%;height:100%;object-fit:cover;object-position:top center;transition:transform .5s cubic-bezier(.25,.46,.45,.94)}
 .pc-emoji{font-size:3rem;opacity:.2;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
 .pc-badge{position:absolute;top:12px;left:12px;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px}
 .pc-badge-new{background:var(--black);color:var(--white)}
@@ -148,7 +148,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 
 /* ── PRODUCT DETAIL ── */
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;min-height:100dvh}
-.detail-img-side{position:sticky;top:var(--nav-h);height:calc(100dvh - var(--nav-h));overflow:hidden;background:#F2F2F2}
+.detail-img-side{position:sticky;top:var(--nav-h);height:calc(100dvh - var(--nav-h));overflow:hidden;background:#F2F2F2;max-height:600px}
 .detail-img-side img{width:100%;height:100%;object-fit:cover}
 .detail-emoji-ph{font-size:8rem;opacity:.15;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
 .detail-info-side{padding:64px 56px;overflow-y:auto}
@@ -346,10 +346,10 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .cat-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .filter-bar{padding:12px 20px;overflow-x:auto;top:var(--nav-h-mobile)}
   .products-section{padding:0 20px 48px;overflow:visible}
-  .products-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .products-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .pc-quick-add{transform:translateY(0);opacity:.85}
   .detail-grid{grid-template-columns:1fr}
-  .detail-img-side{position:relative;height:55vw;min-height:280px}
+  .detail-img-side{position:relative;height:0;padding-bottom:100%;min-height:0}
   .detail-info-side{padding:28px 20px 48px}
   .checkout-wrap{grid-template-columns:1fr}
   .checkout-form-side{padding:32px 20px}
@@ -776,7 +776,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   <div class="detail-grid">
     <div class="detail-img-side" id="detailImgSide" style="position:relative">
       <!-- Main photo -->
-      <img id="detailMainImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none">
+      <img id="detailMainImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:none;position:absolute;top:0;left:0">
       <span class="detail-emoji-ph" id="detailEmojiPh">🧒</span>
       <!-- Thumbnail strip -->
       <div id="detailThumbs" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:10"></div>

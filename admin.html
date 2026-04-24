@@ -796,6 +796,16 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
         </div>
       </div>
 
+      <!-- DESIGN VARIANTS BUILDER -->
+      <div style="padding:20px 24px;border-top:1px solid var(--border)">
+        <div style="font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Design Variants</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:12px">Each design has its own photo and price. Sizes above apply to ALL designs.</div>
+        <div id="variantsList"></div>
+        <button onclick="addVariantRow()" style="margin-top:8px;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px dashed var(--border);background:none;font-family:Jost,sans-serif;font-size:.78rem;cursor:pointer;color:var(--muted);width:100%;justify-content:center;transition:all .2s">
+          + Add Design Variant
+        </button>
+      </div>
+
     </div>
     <div class="modal-footer" style="position:sticky;bottom:0;background:var(--white)">
       <button class="topbar-btn" onclick="closeModal('productModal')">Cancel</button>
