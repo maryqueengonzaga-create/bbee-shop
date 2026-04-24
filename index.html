@@ -118,7 +118,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 .cat-emoji-placeholder{font-size:3rem;opacity:.25}
 
 /* ── FILTER BAR ── */
-.filter-bar{padding:16px 48px;background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0;position:sticky;top:calc(var(--nav-h) + 40px);z-index:100}
+/* filter-bar replaced by shopee-bar */
 .filter-btn{padding:10px 20px;font-family:'Jost',sans-serif;font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;white-space:nowrap}
 .filter-btn.active{color:var(--black);border-bottom-color:var(--black);font-weight:600}
 .filter-btn:hover{color:var(--black)}
@@ -459,7 +459,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   border-bottom:1px solid var(--border);
   padding:12px 48px 0;
   position:sticky;
-  top:var(--nav-h);
+  top:calc(var(--nav-h) + 40px);
   z-index:100;
   box-shadow:0 2px 8px rgba(0,0,0,.04);
 }
@@ -476,7 +476,8 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   box-shadow:0 0 0 3px rgba(17,17,17,.06);
 }
 .shopee-search-icon{
-  position:absolute;left:14px;color:var(--text-muted);flex-shrink:0;pointer-events:none;
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  color:var(--text-muted);flex-shrink:0;pointer-events:none;z-index:1;
 }
 .shopee-search-inp{
   flex:1;padding:10px 36px 10px 40px;border:none;background:transparent;
@@ -511,14 +512,28 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 }
 
 /* Adjust products section top */
-.products-section{padding-top:16px}
+.products-section{padding-top:0}
 
 @media(max-width:768px){
-  .shopee-bar{padding:10px 16px 0}
+  .shopee-bar{
+    padding:10px 16px 0;
+    top:calc(var(--nav-h-mobile) + 40px);
+    position:sticky;
+  }
   .shopee-cats{margin:0 -16px;padding:0 16px}
-  .shopee-search-wrap{max-width:100%}
-  .shopee-search-inp{font-size:.85rem}
+  .shopee-search-wrap{max-width:100%;touch-action:manipulation}
+  .shopee-search-inp{
+    font-size:16px; /* prevent iOS zoom */
+    -webkit-appearance:none;
+    touch-action:manipulation;
+  }
   .shopee-count{display:none}
+  .shopee-cat{
+    padding:8px 14px;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .shopee-clear-btn{touch-action:manipulation}
 }
 
 </style>
