@@ -786,7 +786,7 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
         <div class="form-section-title" style="border:none;padding:0;margin-bottom:12px">Variants</div>
         <div class="form-group" style="margin-bottom:12px">
           <label class="form-label">Sizes <span style="font-weight:400;text-transform:none;letter-spacing:0">(comma separated)</span></label>
-          <input type="text" class="form-inp" id="pmSizes" placeholder="2T, 3T, 4T, 5T, 6T, 7T">
+          <input type="text" class="form-inp" id="pmSizes" placeholder="2T, 3T, 4T, 5T, 6T, 7T" oninput="onSizesChange()">
           <div class="form-hint">Common: 2T 3T 4T 5T 6T 7T 8T XS S M L XL</div>
         </div>
         <div class="form-group">
@@ -796,14 +796,25 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
         </div>
       </div>
 
-      <!-- DESIGN VARIANTS BUILDER -->
+      <!-- DESIGN × SIZE STOCK MATRIX (Shopee-style) -->
       <div style="padding:20px 24px;border-top:1px solid var(--border)">
-        <div style="font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Design Variants</div>
-        <div style="font-size:.75rem;color:var(--muted);margin-bottom:12px">Each design has its own photo and price. Sizes above apply to ALL designs.</div>
-        <div id="variantsList"></div>
-        <button onclick="addVariantRow()" style="margin-top:8px;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px dashed var(--border);background:none;font-family:Jost,sans-serif;font-size:.78rem;cursor:pointer;color:var(--muted);width:100%;justify-content:center;transition:all .2s">
-          + Add Design Variant
+        <div style="font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Design Variants & Stock</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:14px">
+          Add each design below. Stock is tracked per Design × Size combination.
+          <strong>Fill in sizes above first</strong> — the table columns will update automatically.
+        </div>
+        <!-- Stock Matrix Table -->
+        <div style="overflow-x:auto;margin-bottom:10px">
+          <table id="variantMatrix" style="border-collapse:collapse;min-width:100%;font-size:.8rem">
+            <thead id="variantMatrixHead"></thead>
+            <tbody id="variantMatrixBody"></tbody>
+          </table>
+        </div>
+        <button onclick="addVariantRow()" style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1.5px dashed var(--border);background:none;font-family:Jost,sans-serif;font-size:.78rem;cursor:pointer;color:var(--muted);transition:all .2s;margin-top:4px">
+          + Add Design
         </button>
+        <!-- Hidden legacy field -->
+        <div id="variantsList" style="display:none"></div>
       </div>
 
     </div>
@@ -1211,34 +1222,89 @@ function filterProductsByCat(cat) {
 
 // ── PRODUCT MANAGEMENT ──
 var pmPhotos   = [];
-var pmVariants = []; // [{name, photo, price, stock:{}}]
+var pmVariants = []; // [{name, photo, price, stock:{size:qty}}]
+
+// ── VARIANT MATRIX (Shopee-style) ──
+
+function getMatrixSizes() {
+  var sizesInp = document.getElementById('pmSizes');
+  if (!sizesInp || !sizesInp.value.trim()) return [];
+  return sizesInp.value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+}
+
+function renderVariantMatrix() {
+  var sizes  = getMatrixSizes();
+  var head   = document.getElementById('variantMatrixHead');
+  var body   = document.getElementById('variantMatrixBody');
+  if (!head || !body) return;
+
+  // Header row
+  var headHtml = '<tr style="background:var(--off)">' +
+    '<th style="padding:8px 10px;border:1px solid var(--border);text-align:left;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;min-width:160px">Design</th>' +
+    '<th style="padding:8px 10px;border:1px solid var(--border);text-align:center;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-width:70px">Price (₱)</th>';
+  sizes.forEach(function(s) {
+    headHtml += '<th style="padding:8px 10px;border:1px solid var(--border);text-align:center;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-width:58px">Size ' + s + '</th>';
+  });
+  headHtml += '<th style="padding:8px 10px;border:1px solid var(--border);min-width:36px"></th></tr>';
+  head.innerHTML = headHtml;
+
+  // Body rows
+  if (!pmVariants.length) {
+    body.innerHTML = '<tr><td colspan="' + (sizes.length+3) + '" style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;border:1px solid var(--border)">Click "+ Add Design" to start</td></tr>';
+    return;
+  }
+
+  body.innerHTML = pmVariants.map(function(v, i) {
+    var row = '<tr id="vrow_'+i+'">' +
+      // Design col: photo + name
+      '<td style="padding:8px;border:1px solid var(--border)">' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<div onclick="uploadVariantPhoto('+i+')" style="width:40px;height:40px;background:var(--off);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;overflow:hidden" id="vphotodiv_'+i+'">' +
+            (v.photo ? '<img src="'+v.photo+'" style="width:40px;height:40px;object-fit:cover">' : '<span style="font-size:1rem">📷</span>') +
+          '</div>' +
+          '<input id="vname_'+i+'" value="'+(v.name||'')+'" placeholder="e.g. MICKEY" ' +
+            'style="flex:1;padding:6px 8px;border:1.5px solid var(--border);font-family:Jost,sans-serif;font-size:.82rem;outline:none;text-transform:uppercase;min-width:80px" ' +
+            'oninput="pmVariants['+i+'].name=this.value.toUpperCase()">' +
+        '</div>' +
+      '</td>' +
+      // Price col
+      '<td style="padding:8px;border:1px solid var(--border)">' +
+        '<input id="vprice_'+i+'" type="number" value="'+(v.price||'')+'" placeholder="299" min="0" ' +
+          'style="width:70px;padding:6px 8px;border:1.5px solid var(--border);font-family:Jost,sans-serif;font-size:.82rem;outline:none;text-align:center" ' +
+          'oninput="pmVariants['+i+'].price=parseFloat(this.value)||0">' +
+      '</td>';
+
+    // Stock cells per size
+    sizes.forEach(function(s) {
+      var qty = (v.stock && v.stock[s] !== undefined) ? v.stock[s] : '';
+      row += '<td style="padding:8px;border:1px solid var(--border)">' +
+        '<input type="number" value="'+qty+'" min="0" placeholder="0" ' +
+          'style="width:52px;padding:6px;border:1.5px solid var(--border);font-family:Jost,sans-serif;font-size:.82rem;outline:none;text-align:center" ' +
+          'oninput="setVariantStock('+i+',&quot;'+s+'&quot;,this.value)">' +
+      '</td>';
+    });
+
+    // Delete col
+    row += '<td style="padding:8px;border:1px solid var(--border);text-align:center">' +
+      '<button onclick="removeVariantRow('+i+')" style="background:var(--red-lt);color:var(--red);border:none;width:28px;height:28px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center">✕</button>' +
+    '</td></tr>';
+    return row;
+  }).join('');
+}
+
+function setVariantStock(varIdx, size, val) {
+  if (!pmVariants[varIdx].stock) pmVariants[varIdx].stock = {};
+  pmVariants[varIdx].stock[size] = parseInt(val) || 0;
+}
 
 function addVariantRow(v) {
-  var idx = pmVariants.length;
   pmVariants.push(v || { name:'', photo:'', price:'', stock:{} });
-  renderVariantsList();
+  renderVariantMatrix();
 }
 
 function removeVariantRow(idx) {
   pmVariants.splice(idx, 1);
-  renderVariantsList();
-}
-
-function renderVariantsList() {
-  var list = document.getElementById('variantsList');
-  if (!list) return;
-  list.innerHTML = pmVariants.map(function(v, i) {
-    return '<div class="variant-row" id="vrow_'+i+'">' +
-      '<div class="variant-ph" onclick="uploadVariantPhoto('+i+')" title="Click to upload photo">' +
-        (v.photo ? '<img src="'+v.photo+'" style="width:44px;height:44px;object-fit:cover">' : '📷') +
-      '</div>' +
-      '<input type="hidden" id="vpho_'+i+'" value="'+(v.photo||''+'">' ) +
-      '<input class="variant-name-inp" id="vname_'+i+'" placeholder="Design name (e.g. MICKEY)" value="'+(v.name||'')+'">' +
-      '<span style="font-size:.75rem;color:var(--muted);white-space:nowrap">₱</span>' +
-      '<input class="variant-price-inp" id="vprice_'+i+'" placeholder="299" type="number" value="'+(v.price||'')+'">' +
-      '<button onclick="removeVariantRow('+i+')" style="background:var(--red-lt);color:var(--red);border:none;padding:6px 10px;cursor:pointer;font-size:.8rem;flex-shrink:0">✕</button>' +
-    '</div>';
-  }).join('');
+  renderVariantMatrix();
 }
 
 function uploadVariantPhoto(idx) {
@@ -1250,12 +1316,13 @@ function uploadVariantPhoto(idx) {
     var fd = new FormData();
     fd.append('file', file);
     fd.append('upload_preset', UPLOAD_PRESET);
-    toast('Uploading variant photo...');
+    toast('Uploading...');
     fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method:'POST', body:fd })
       .then(function(r){ return r.json(); })
       .then(function(d) {
         pmVariants[idx].photo = d.secure_url;
-        renderVariantsList();
+        var div = document.getElementById('vphotodiv_'+idx);
+        if (div) div.innerHTML = '<img src="'+d.secure_url+'" style="width:40px;height:40px;object-fit:cover">';
         toast('Photo uploaded!');
       });
   };
@@ -1263,24 +1330,21 @@ function uploadVariantPhoto(idx) {
 }
 
 function collectVariants() {
-  // Collect variants from form inputs
-  var collected = [];
+  // Sync latest name/price values from inputs before collecting
   pmVariants.forEach(function(v, i) {
     var nameEl  = document.getElementById('vname_'+i);
     var priceEl = document.getElementById('vprice_'+i);
-    var phoEl   = document.getElementById('vpho_'+i);
-    if (!nameEl) return;
-    var name = nameEl.value.trim().toUpperCase();
-    if (!name) return;
-    collected.push({
-      name:  name,
-      photo: v.photo || '',
-      price: parseFloat(priceEl ? priceEl.value : 0) || 0,
-      stock: v.stock || {}
-    });
+    if (nameEl)  v.name  = nameEl.value.trim().toUpperCase();
+    if (priceEl) v.price = parseFloat(priceEl.value) || 0;
   });
-  return collected;
+  return pmVariants.filter(function(v){ return v.name; });
 }
+
+// Re-render matrix when sizes input changes
+function onSizesChange() {
+  renderVariantMatrix();
+}
+
 
 var COLOR_MAP = {
   'Pink':'#FFB6C1','Blue':'#87CEEB','Yellow':'#FFE066','White':'#F5F5F5',
@@ -1340,7 +1404,7 @@ function openProductModal(id) {
       pmVariants = Array.isArray(vv) ? vv : [];
     } catch(e) { pmVariants = []; }
   }
-  renderVariantsList();
+  renderVariantMatrix();
   document.getElementById('productModal').classList.add('on');
 }
 
