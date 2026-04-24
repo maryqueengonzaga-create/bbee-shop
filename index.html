@@ -1,3 +1,5 @@
+<!-- BBEE CO SHOP — index.html -->
+<!-- Last updated: 2026-04-25 12:30 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -132,8 +134,8 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 .product-card{cursor:pointer;position:relative;background:var(--white);transition:all .25s;border:1px solid transparent}
 .product-card:hover{box-shadow:var(--sh-md);border-color:var(--border)}
 .product-card:hover .pc-img{transform:scale(1.03)}
-.pc-img-wrap{overflow:hidden;aspect-ratio:3/4;background:#F5F5F5;position:relative;width:100%}
-.pc-img{width:100%;height:100%;object-fit:cover;object-position:top center;transition:transform .5s cubic-bezier(.25,.46,.45,.94)}
+.pc-img-wrap{overflow:hidden;aspect-ratio:4/5;background:#F0F0F0;position:relative;width:100%}
+.pc-img{width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .5s cubic-bezier(.25,.46,.45,.94);display:block}
 .pc-emoji{font-size:3rem;opacity:.2;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
 .pc-badge{position:absolute;top:12px;left:12px;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px}
 .pc-badge-new{background:var(--black);color:var(--white)}
@@ -317,6 +319,9 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 .flash-seg{background:rgba(0,0,0,.25);padding:3px 8px;font-weight:800;font-size:.85rem;font-family:'Jost',sans-serif}
 
 /* ── RESPONSIVE ── */
+@media(max-width:768px) and (min-width:481px){
+  .products-grid{grid-template-columns:repeat(3,1fr);gap:10px}
+}
 @media(max-width:1024px){
   .products-grid{grid-template-columns:repeat(3,1fr)}
   .cat-grid{grid-template-columns:repeat(2,1fr)}
@@ -346,10 +351,10 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .cat-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .filter-bar{padding:12px 20px;overflow-x:auto;top:var(--nav-h-mobile)}
   .products-section{padding:0 20px 48px;overflow:visible}
-  .products-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .products-grid{grid-template-columns:repeat(2,1fr);gap:8px}
   .pc-quick-add{transform:translateY(0);opacity:.85}
   .detail-grid{grid-template-columns:1fr}
-  .detail-img-side{position:relative;height:0;padding-bottom:100%;min-height:0}
+  .detail-img-side{position:relative;height:0;padding-bottom:125%;min-height:0}
   .detail-info-side{padding:28px 20px 48px}
   .checkout-wrap{grid-template-columns:1fr}
   .checkout-form-side{padding:32px 20px}
@@ -587,13 +592,65 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
 .variant-price-inp{width:90px;padding:7px 10px;border:1.5px solid var(--border);font-family:'Jost',sans-serif;font-size:.85rem;outline:none}
 .variant-price-inp:focus{border-color:var(--black)}
 
+
+/* ── PRODUCT CARD ENHANCEMENTS ── */
+.pc-badge-wrap{position:absolute;top:8px;left:8px;display:flex;flex-direction:column;gap:4px;z-index:2}
+.pc-badge{display:inline-block;padding:3px 8px;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.pc-badge-new{background:var(--black);color:var(--white)}
+.pc-badge-sale{background:#E53E3E;color:var(--white)}
+.pc-badge-low{background:#DD6B20;color:var(--white)}
+.pc-sold-out{position:absolute;inset:0;background:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;z-index:3}
+.pc-sold-out span{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);background:var(--white);padding:6px 12px;border:1px solid var(--border)}
+.pc-price-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
+.pc-price-orig{font-size:.75rem;color:var(--text-light);text-decoration:line-through}
+.pc-price-sale{font-size:.92rem;font-weight:700;color:#E53E3E;font-family:'Cormorant Garamond',serif}
+.pc-price-reg{font-family:'Cormorant Garamond',serif;font-size:.92rem;font-weight:600;color:var(--black)}
+.pc-price-range{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-weight:600;color:var(--black)}
+
+/* ── SKELETON LOADING ── */
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-card{background:var(--white);border-radius:0}
+.skeleton-img{aspect-ratio:4/5;width:100%}
+.skeleton-line{height:12px;margin:8px 12px;border-radius:2px}
+.skeleton-line-short{width:60%}
+
+/* ── SCROLL TO TOP ── */
+.scroll-top-btn{position:fixed;bottom:80px;right:16px;width:40px;height:40px;background:var(--black);color:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;z-index:200;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;box-shadow:var(--sh-md)}
+.scroll-top-btn.visible{opacity:1;transform:translateY(0);pointer-events:all}
+.scroll-top-btn:hover{background:var(--honey)}
+
+/* ── EMPTY STATE ── */
+.empty-state{grid-column:1/-1;text-align:center;padding:64px 24px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty-state-icon{font-size:3rem;opacity:.15}
+.empty-state-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--text-muted)}
+.empty-state-sub{font-size:.82rem;color:var(--text-light)}
+
+/* ── SIZE GUIDE MODAL ── */
+.size-guide-btn{background:none;border:none;font-family:'Jost',sans-serif;font-size:.72rem;color:var(--text-muted);cursor:pointer;text-decoration:underline;padding:0;margin-left:8px;transition:color .2s}
+.size-guide-btn:hover{color:var(--black)}
+
+/* ── SHARE BUTTON ── */
+.share-btn{display:flex;align-items:center;gap:6px;background:none;border:1.5px solid var(--border);padding:8px 14px;font-family:'Jost',sans-serif;font-size:.75rem;font-weight:500;cursor:pointer;color:var(--text-muted);transition:all .2s;margin-top:12px}
+.share-btn:hover{border-color:var(--black);color:var(--black)}
+
+/* ── ANNOUNCEMENT BAR ── */
+.announce-bar{background:var(--black);padding:10px 20px;text-align:center;font-size:.72rem;font-weight:400;letter-spacing:.08em;color:rgba(255,255,255,.8);position:fixed;top:var(--nav-h);left:0;right:0;z-index:499;display:flex;align-items:center;justify-content:center;gap:8px}
+.announce-close{background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:.9rem;padding:0 4px;line-height:1;flex-shrink:0}
+.announce-close:hover{color:var(--white)}
+
+@media(max-width:768px){
+  .scroll-top-btn{bottom:72px;right:12px;width:36px;height:36px}
+}
+
 </style>
 </head>
 <body>
 
 <!-- ANNOUNCEMENT BAR -->
 <div class="announce-bar" id="announcebar">
-  Free Shipping on orders ₱2,500+ &nbsp;·&nbsp; <a href="#" onclick="filterCat('Dresses',null)">Shop New Arrivals →</a>
+  <span>Free Shipping on orders ₱2,500+ &nbsp;·&nbsp; <a href="#" onclick="shopeeFilterCat('Dresses',null)" style="color:var(--accent);text-decoration:none;font-weight:600">Shop New Arrivals →</a></span>
+  <button class="announce-close" onclick="dismissAnnounce()" title="Dismiss">×</button>
 </div>
 
 <!-- NAVIGATION -->
@@ -655,6 +712,9 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
     <button class="place-order-btn" onclick="closeCart();goScreen('s-checkout');renderCheckoutSummary()" style="margin-top:16px">Checkout →</button>
   </div>
 </div>
+
+<!-- SCROLL TO TOP -->
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -815,6 +875,10 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
       <div class="detail-divider"></div>
       <div class="detail-desc" id="detailDesc" style="margin-bottom:20px"></div>
       <button class="add-to-cart-btn" id="addToCartBtn" onclick="addToCart()">Add to Cart</button>
+      <button class="share-btn" onclick="shareProduct()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share
+      </button>
     </div>
   </div>
 </div>
@@ -1363,10 +1427,10 @@ function loadProductsFromSheet(){
       renderProducts(products);
       updateCartCount();
     } else {
-      if (grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted);font-size:.88rem">Loading products...</div>';
+      showSkeletonProducts(8);
     }
   } catch(e) {
-    if (grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted);font-size:.88rem">Loading products...</div>';
+    showSkeletonProducts(8);
   }
 
   // Fetch fresh from products.json (fast - static file)
@@ -1636,46 +1700,115 @@ function filterCat(cat,btn,searchQ){
   renderProducts(filtered);
 }
 
-function renderProducts(prods){
-  var grid=document.getElementById('productsGrid');
-  var countEl=document.getElementById('productsCount');
-  grid.innerHTML='';
-  countEl.textContent=prods.length+' items';
-  if(!prods.length){
-    grid.style.gridTemplateColumns='1fr';
-    grid.innerHTML='<div style="padding:40px;text-align:center;color:var(--gray5);font-size:.85rem">No products found.</div>';
+function renderProducts(prods) {
+  var grid    = document.getElementById('productsGrid');
+  var countEl = document.getElementById('productsCount');
+  if (!grid) return;
+
+  // Update count
+  if (countEl) countEl.textContent = prods.length + ' item' + (prods.length !== 1 ? 's' : '');
+
+  // Empty state
+  if (!prods.length) {
+    grid.innerHTML = '<div class="empty-state">' +
+      '<div class="empty-state-icon">🔍</div>' +
+      '<div class="empty-state-title">No products found</div>' +
+      '<div class="empty-state-sub">Try a different category or search term</div>' +
+      '<button class="btn-outline" style="margin-top:8px" onclick="shopeeFilterCat(&quot;All&quot;,null)">View All Products</button>' +
+    '</div>';
     return;
   }
-  grid.style.gridTemplateColumns='1fr 1fr';
-  prods.forEach(function(p){
-    var card=document.createElement('div');
-    card.className='product-card';
-    card.onclick=function(){openProduct(p);};
-    var imgContent=p.img
-      ?'<img src="'+p.img+'" alt="'+p.name+'">'
-      :'<div style="width:100%;height:100%;background:var(--gray1);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gray3)">'+p.cat+'</div>';
-    var flashDisc = getFlashDiscount(p.price);
-    var effPrice = p.salePrice || (flashDisc>0 ? p.price-flashDisc : p.price);
-    var onSale = effPrice < p.price;
-    var pctOff = onSale ? Math.round((1-effPrice/p.price)*100) : 0;
-    var priceHtml = onSale
-      ? '<span class="original-price">P'+p.price+'</span><span class="sale-price">P'+effPrice+'</span>'
-      : '<span style="font-family:Playfair Display,serif;font-weight:700;font-size:1rem">P'+p.price+'</span>';
-    card.innerHTML=
-      '<div class="product-img-wrap">'+imgContent+'</div>'+
-      (p.isNew&&!onSale?'<div class="product-badge new-badge">New</div>':'')+
-      (onSale?'<div class="sale-badge">-'+pctOff+'%</div>':'')+
-      (p.stock<=3&&p.stock>0&&!onSale?'<div class="product-badge">Low Stock</div>':'')+
-      '<div class="product-info">'+
-        '<div class="product-cat-lbl">'+p.cat+'</div>'+
-        '<div class="product-name">'+p.name+'</div>'+
-        '<div style="display:flex;align-items:center">'+priceHtml+'</div>'+
-      '</div>'+
-      (p.stock<=0?'<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center"><span style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Out of Stock</span></div>':
-      '<button class="add-mini" onclick="quickAdd(event,'+p.id+')">+</button>');
-    grid.appendChild(card);
-  });
+
+  grid.innerHTML = prods.map(function(p) {
+    // Get card image
+    var cardImg = p.img || '';
+    if (!cardImg && p.variants) {
+      try {
+        var vd = typeof p.variants==='string'?JSON.parse(p.variants):p.variants;
+        if (vd && vd.designs) {
+          var fd = vd.designs.find(function(d){ return d.photo; });
+          if (fd) cardImg = fd.photo;
+        }
+      } catch(e) {}
+    }
+
+    // Pricing
+    var flashDisc = getFlashDiscount ? getFlashDiscount(p.price) : 0;
+    var effPrice  = p.salePrice || (flashDisc > 0 ? p.price - flashDisc : p.price);
+    var onSale    = effPrice < p.price;
+    var pctOff    = onSale ? Math.round((1 - effPrice/p.price)*100) : 0;
+
+    // Price range for variants
+    var priceHtml = '';
+    if (p.variants) {
+      try {
+        var vd2 = typeof p.variants==='string'?JSON.parse(p.variants):p.variants;
+        if (vd2 && vd2.designs && vd2.designs.length) {
+          var allPrices = [];
+          vd2.designs.forEach(function(d) {
+            if (d.price && typeof d.price === 'object') {
+              Object.values(d.price).forEach(function(v){ if(v) allPrices.push(parseFloat(v)); });
+            }
+          });
+          if (allPrices.length) {
+            var minP = Math.min.apply(null, allPrices);
+            var maxP = Math.max.apply(null, allPrices);
+            priceHtml = minP === maxP
+              ? '<span class="pc-price-reg">₱' + minP.toLocaleString() + '</span>'
+              : '<span class="pc-price-range">₱' + minP.toLocaleString() + ' – ₱' + maxP.toLocaleString() + '</span>';
+          }
+        }
+      } catch(e) {}
+    }
+    if (!priceHtml) {
+      priceHtml = onSale
+        ? '<span class="pc-price-orig">₱' + p.price.toLocaleString() + '</span><span class="pc-price-sale">₱' + effPrice.toLocaleString() + '</span>'
+        : '<span class="pc-price-reg">₱' + (p.price||0).toLocaleString() + '</span>';
+    }
+
+    var isOut   = p.stock !== undefined && p.stock <= 0;
+    var isLow   = p.stock > 0 && p.stock <= (p.lowStock || 5);
+
+    return '<div class="product-card" onclick="openProduct(' + JSON.stringify(p).replace(/"/g,'&quot;') + ')">' +
+      '<div class="pc-img-wrap">' +
+        (cardImg
+          ? '<img class="pc-img" src="' + cardImg + '" alt="' + p.name + '" loading="lazy">'
+          : '<div class="pc-img" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2.5rem;opacity:.2">' + getCatEmoji(p.cat) + '</div>') +
+        // Badges
+        '<div class="pc-badge-wrap">' +
+          (p.isNew && !onSale ? '<span class="pc-badge pc-badge-new">New</span>' : '') +
+          (onSale ? '<span class="pc-badge pc-badge-sale">-' + pctOff + '%</span>' : '') +
+          (isLow && !isOut ? '<span class="pc-badge pc-badge-low">Low Stock</span>' : '') +
+        '</div>' +
+        // Quick add button
+        (!isOut ? '<button class="pc-quick-add" onclick="quickAdd(event,\'' + p.id + '\')" >Add to Cart</button>' : '') +
+        // Sold out overlay
+        (isOut ? '<div class="pc-sold-out"><span>Sold Out</span></div>' : '') +
+      '</div>' +
+      '<div class="pc-info">' +
+        '<div class="pc-cat">' + p.cat + '</div>' +
+        '<div class="pc-name">' + p.name + '</div>' +
+        '<div class="pc-price-wrap">' + priceHtml + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
+
+function showSkeletonProducts(count) {
+  var grid = document.getElementById('productsGrid');
+  if (!grid) return;
+  grid.innerHTML = Array(count || 8).fill(0).map(function() {
+    return '<div class="skeleton-card">' +
+      '<div class="skeleton skeleton-img"></div>' +
+      '<div style="padding:10px 12px 14px">' +
+        '<div class="skeleton skeleton-line" style="width:40%;height:10px;margin:0 0 6px 0"></div>' +
+        '<div class="skeleton skeleton-line" style="width:80%;height:13px;margin:0 0 8px 0"></div>' +
+        '<div class="skeleton skeleton-line" style="width:50%;height:12px;margin:0"></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
 
 function openProduct(p){
   curProduct=p;selSize='';selColor='';
@@ -2299,6 +2432,94 @@ var curCat = 'All';
 // Override saveFlashSale to use correct function name
 function saveFlashSale() { saveFlashSale2(); }
 
+
+
+
+// ── SCROLL TO TOP ──
+window.addEventListener('scroll', function() {
+  var btn = document.getElementById('scrollTopBtn');
+  if (btn) btn.classList.toggle('visible', window.scrollY > 400);
+});
+
+// ── DISMISS ANNOUNCEMENT ──
+function dismissAnnounce() {
+  var bar = document.getElementById('announcebar');
+  if (bar) {
+    bar.style.display = 'none';
+    // Adjust page padding
+    var home = document.getElementById('s-home');
+    if (home) home.style.paddingTop = 'var(--nav-h)';
+    var shopeeBar = document.querySelector('.shopee-bar');
+    if (shopeeBar) shopeeBar.style.top = 'var(--nav-h)';
+  }
+  try { localStorage.setItem('bbee_announce_dismissed', '1'); } catch(e) {}
+}
+
+// Check if dismissed
+(function() {
+  try {
+    if (localStorage.getItem('bbee_announce_dismissed') === '1') {
+      setTimeout(function() { dismissAnnounce(); }, 100);
+    }
+  } catch(e) {}
+})();
+
+// ── SHARE PRODUCT ──
+function shareProduct() {
+  if (!curProduct) return;
+  var url  = window.location.href.split('?')[0] + '?product=' + curProduct.id;
+  var text = curProduct.name + ' — Bbee.Co Kids Clothing';
+  if (navigator.share) {
+    navigator.share({ title: text, url: url });
+  } else {
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(url).then(function() {
+      showToast('Link copied! 📋');
+    }).catch(function() {
+      showToast('Share: ' + url);
+    });
+  }
+}
+
+// ── SIZE GUIDE ──
+function closeSizeGuide(el) {
+  var modal = document.getElementById('sizeGuideModal');
+  if (modal) modal.remove();
+  else if (el) el.closest('#sizeGuideModal') && el.closest('#sizeGuideModal').remove();
+}
+
+function openSizeGuide() {
+  var html = '<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px" onclick="this.remove()">' +
+    '<div style="background:var(--white);max-width:480px;width:100%;padding:28px;max-height:80vh;overflow-y:auto" onclick="event.stopPropagation()">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">' +
+      '<div style="font-family:Cormorant Garamond,serif;font-size:1.3rem;font-weight:600">Size Guide</div>' +
+      '<button onclick="closeSizeGuide(this)" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted)">×</button>' +
+    '</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:.82rem">' +
+      '<tr style="background:var(--black);color:var(--white)">' +
+        '<th style="padding:8px 12px;text-align:left">Size</th>' +
+        '<th style="padding:8px 12px;text-align:left">Age</th>' +
+        '<th style="padding:8px 12px;text-align:left">Height</th>' +
+        '<th style="padding:8px 12px;text-align:left">Weight</th>' +
+      '</tr>' +
+      ['1|1 yr|70-80cm|8-11kg','2|2 yrs|80-90cm|11-14kg','3|3 yrs|90-100cm|14-16kg',
+       '4|4 yrs|100-110cm|16-18kg','5|5 yrs|110-115cm|18-20kg','6|6 yrs|115-120cm|20-22kg',
+       '7|7 yrs|120-125cm|22-25kg','8|8 yrs|125-130cm|25-28kg'].map(function(r,i) {
+        var parts = r.split('|');
+        return '<tr style="background:' + (i%2?'var(--off-white)':'var(--white)') + '">' +
+          parts.map(function(p){ return '<td style="padding:8px 12px;border-bottom:1px solid var(--border)">' + p + '</td>'; }).join('') +
+        '</tr>';
+      }).join('') +
+    '</table>' +
+    '<div style="font-size:.72rem;color:var(--text-muted);margin-top:12px;line-height:1.7">💡 When in doubt, size up! Our clothes are designed for comfort and movement.</div>' +
+    '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+// ── LOADING SKELETON ──
+function showLoadingSkeleton() {
+  showSkeletonProducts(8);
+}
 
 
 // ══════════════════════════════════════════
