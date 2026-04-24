@@ -726,7 +726,7 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
 <div class="toast" id="toast"></div>
 
 <script>
-var APPS_SCRIPT_URL =  + APPS_URL + ;
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqmUdpjlvNNBqK7_FSWHl9biSUJpnoAMVGIVkiKB3I4Ik-DUkXVLpid6MvtE2m9qyV-w/exec';
 var ADMIN_PW        = 'Bbeeco2026!';
 var CLOUD_NAME      = 'djchrmzgk';
 var UPLOAD_PRESET   = 'bbee_unsigned';
@@ -893,7 +893,7 @@ function renderDashboard(orders) {
       '<td>' + (o.payment||'') + '</td>' +
       '<td><span class="pill pill-' + (o.status||'pending').toLowerCase() + '">' + (o.status||'PENDING') + '</span></td>' +
       '<td style="font-size:.78rem;color:var(--muted)">' + (o.date||'').split(',')[0] + '</td>' +
-      '<td><button class="act-btn act-btn-primary" onclick="openOrderModal('' + o.id + '')">Edit</button></td>' +
+      '<td><button class="act-btn act-btn-primary" onclick=\"openOrderModal(\'" + o.id + "\')">Edit</button></td>' +
     '</tr>';
   }).join('');
 }
@@ -955,7 +955,7 @@ function renderLowStock(products) {
       '<div style="flex:1;font-size:.85rem;font-weight:500">' + p.name + '</div>' +
       '<div style="font-size:.78rem;color:var(--muted)">' + p.cat + '</div>' +
       '<span class="pill pill-' + level + '">' + (p.stock===0?'Out of Stock':p.stock + ' left') + '</span>' +
-      '<button class="act-btn act-btn-outline" onclick="showPage('inventory')">Update</button>' +
+      '<button class="act-btn act-btn-outline" onclick="showPage(\'inventory\')">Update</button>' +
     '</div>';
   }).join('');
 }
@@ -987,7 +987,7 @@ function renderOrdersTable(orders) {
       '<td><span style="font-size:.78rem">' + (o.delivery||'') + '</span></td>' +
       '<td><span class="pill pill-' + (o.status||'PENDING').toLowerCase() + '">' + (o.status||'PENDING') + '</span></td>' +
       '<td style="font-size:.78rem;font-weight:600;white-space:nowrap">' + (o.trackingNum||'—') + '</td>' +
-      '<td style="white-space:nowrap"><button class="act-btn act-btn-primary" style="margin-right:4px" onclick="openOrderModal('' + o.id + '')">Edit</button></td>' +
+      '<td style="white-space:nowrap"><button class="act-btn act-btn-primary" style="margin-right:4px" onclick=\"openOrderModal(\'" + o.id + "\')">Edit</button></td>' +
     '</tr>';
   }).join('');
 }
@@ -1084,8 +1084,8 @@ function renderProductsTable(products) {
       '</td>' +
       '<td><span class="pill ' + stockCls + '">' + stockLbl + '</span></td>' +
       '<td style="white-space:nowrap">' +
-        '<button class="act-btn act-btn-outline" style="margin-right:4px" onclick="openProductModal('' + p.id + '')">Edit</button>' +
-        '<button class="act-btn act-btn-danger" onclick="deleteProduct('' + p.id + '')">Delete</button>' +
+        '<button class="act-btn act-btn-outline" style="margin-right:4px" onclick="openProductModal(\'' + p.id + '\')">Edit</button>' +
+        '<button class="act-btn act-btn-danger" onclick="deleteProduct(\'' + p.id + '\')">Delete</button>' +
       '</td>' +
     '</tr>';
   }).join('');
@@ -1186,7 +1186,7 @@ function renderInventoryTable(products) {
       '<td>' +
         '<div style="display:flex;align-items:center;gap:6px">' +
           '<input type="number" class="form-inp" min="0" value="' + p.stock + '" id="stock_' + p.id + '" style="width:80px;padding:6px 8px">' +
-          '<button class="act-btn act-btn-success" onclick="updateOneStock('' + p.id + '')">Save</button>' +
+          '<button class="act-btn act-btn-success" onclick="updateOneStock(\'' + p.id + '\')">Save</button>' +
         '</div>' +
       '</td>' +
     '</tr>';
@@ -1359,7 +1359,7 @@ function loadPromoCodes() {
       return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-lt)">' +
         '<div style="flex:1"><div style="font-weight:700;font-size:.88rem">' + p.code + '</div>' +
         '<div style="font-size:.72rem;color:var(--muted)">' + p.discount + (p.type==="pct"?"% off":"₱ off") + (p.minOrder>0?' · Min ₱'+p.minOrder:'') + '</div></div>' +
-        '<button class="act-btn act-btn-danger" onclick="deletePromo('' + p.code + '')">Delete</button>' +
+        '<button class="act-btn act-btn-danger" onclick="deletePromo(\'' + p.code + '\')">Delete</button>' +
       '</div>';
     }).join('') || '<div style="font-size:.8rem;color:var(--muted);padding:8px 0">No promo codes yet.</div>';
   });
