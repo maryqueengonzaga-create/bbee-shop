@@ -405,6 +405,19 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .detail-info-side,.success-wrap,.auth-wrap,.account-wrap{padding-left:20px;padding-right:20px}
 }
 
+
+/* ── EXPANDABLE SEARCH ── */
+.nav-search-wrap{position:relative;display:flex;align-items:center}
+.nav-search-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:6px;display:flex;align-items:center;justify-content:center;transition:color .2s;font-size:1rem}
+.nav-search-btn:hover{color:var(--black)}
+.nav-search-inp{width:0;padding:0;border:none;border-bottom:1.5px solid transparent;background:transparent;font-family:'Jost',sans-serif;font-size:.85rem;color:var(--black);outline:none;transition:all .35s cubic-bezier(.25,.46,.45,.94);opacity:0;pointer-events:none}
+.nav-search-inp::placeholder{color:var(--text-light)}
+.nav-search-inp.open{width:180px;padding:4px 8px;border-bottom-color:var(--black);opacity:1;pointer-events:all}
+.nav-search-inp.open::placeholder{color:var(--text-muted)}
+@media(max-width:768px){
+  .nav-search-inp.open{width:130px}
+}
+
 </style>
 </head>
 <body>
@@ -429,6 +442,16 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
     <span class="nav-link" onclick="filterCat('Accessories',null);goScreen('s-home')">Accessories</span>
   </div>
   <div class="nav-actions">
+    <!-- Expandable Search -->
+    <div class="nav-search-wrap">
+      <input type="text" class="nav-search-inp" id="navSearchInp"
+        placeholder="Search products..."
+        oninput="liveSearch(this.value)"
+        onkeydown="if(event.key==='Escape')closeNavSearch()">
+      <button class="nav-search-btn" id="navSearchBtn" onclick="toggleNavSearch()" title="Search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </div>
     <button class="nav-icon-btn" onclick="curUser?goScreen('s-account'):goScreen('s-login');if(curUser)renderAccount();">
       <span>👤</span><span>Account</span>
     </button>
@@ -1161,6 +1184,43 @@ function goScreen(id){
   if(id==='s-checkout'){prefillCheckout();}
 }
 function setNav(id){document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById(id).classList.add('active');}
+
+
+
+// ── EXPANDABLE SEARCH ──
+var searchOpen = false;
+function toggleNavSearch() {
+  var inp = document.getElementById('navSearchInp');
+  if (!inp) return;
+  searchOpen = !searchOpen;
+  inp.classList.toggle('open', searchOpen);
+  if (searchOpen) {
+    setTimeout(function(){ inp.focus(); }, 350);
+    // Scroll to products
+    var el = document.getElementById('productsSection');
+    if (el && window.scrollY > 0) el.scrollIntoView({behavior:'smooth', block:'start'});
+  } else {
+    inp.value = '';
+    liveSearch('');
+  }
+}
+
+function closeNavSearch() {
+  var inp = document.getElementById('navSearchInp');
+  if (!inp) return;
+  searchOpen = false;
+  inp.classList.remove('open');
+  inp.value = '';
+  liveSearch('');
+}
+
+// Close search on outside click
+document.addEventListener('click', function(e) {
+  var wrap = document.querySelector('.nav-search-wrap');
+  if (wrap && !wrap.contains(e.target) && searchOpen) {
+    closeNavSearch();
+  }
+});
 
 
 // ── PHOTO CAROUSEL ──
