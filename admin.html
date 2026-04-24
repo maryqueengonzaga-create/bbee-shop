@@ -546,13 +546,30 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
 
     <!-- ════════ CATEGORIES ════════ -->
     <div class="page" id="page-categories">
-      <div id="categoriesContent" style="max-width:600px">
+      <div style="max-width:600px">
+        <div style="background:#FFF8E1;border:1px solid #FDE68A;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#92400E;line-height:1.6">
+          🔒 <strong>Protected:</strong> Categories with existing products cannot be deleted. Move or reassign products first before removing a category.
+        </div>
         <div class="form-section">
-          <div class="form-section-title">Manage Categories</div>
-          <div id="catsList"></div>
-          <div style="display:flex;gap:8px;margin-top:14px">
-            <input type="text" class="form-inp" id="newCatInp" placeholder="New category name" style="flex:1">
+          <div class="form-section-title">Add New Category</div>
+          <div style="display:flex;gap:8px">
+            <input type="text" class="form-inp" id="newCatInp" placeholder="e.g. Sleepwear" style="flex:1">
+            <input type="text" class="form-inp" id="newCatDesc" placeholder="Description (optional)" style="flex:1">
             <button class="topbar-btn primary" onclick="addCategory()">Add</button>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-hdr-title">Categories</div>
+            <div style="font-size:.75rem;color:var(--muted)" id="catsTotalCount"></div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="tbl" id="catsTable">
+              <thead><tr>
+                <th>Category</th><th>Products</th><th>Status</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="catsBody"></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -665,57 +682,119 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
   </div>
 </div>
 
-<!-- PRODUCT MODAL -->
-<div class="modal-ov" id="productModal">
-  <div class="modal">
+<!-- PRODUCT MODAL — Full Form -->
+<div class="modal-ov" id="productModal" style="align-items:flex-start;padding:0">
+  <div class="modal" style="max-width:720px;width:100%;max-height:100dvh;border-radius:0;margin:0 auto">
     <div class="modal-hdr">
       <div class="modal-title" id="productModalTitle">Add Product</div>
       <button class="modal-close" onclick="closeModal('productModal')">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="img-upload" onclick="document.getElementById('pmImg').click()" id="pmImgArea">
-        <div style="font-size:1.8rem;margin-bottom:8px;opacity:.3">📷</div>
-        <div style="font-size:.82rem;color:var(--muted)">Click to upload product image</div>
+    <div class="modal-body" style="padding:0">
+
+      <!-- PHOTOS -->
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
+        <div class="form-section-title" style="border:none;padding:0;margin-bottom:12px">Product Photos</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap" id="pmPhotoGrid">
+          <!-- Photos will render here -->
+        </div>
+        <div class="img-upload" onclick="document.getElementById('pmImgFiles').click()" style="margin-top:10px;padding:14px">
+          <div style="font-size:1.3rem;margin-bottom:4px;opacity:.3">📷</div>
+          <div style="font-size:.78rem;color:var(--muted)">Add photos (up to 5) · First photo = main</div>
+        </div>
+        <input type="file" id="pmImgFiles" accept="image/*" multiple style="display:none" onchange="handlePmPhotos(event)">
+        <div style="font-size:.7rem;color:var(--muted);margin-top:6px">Drag to reorder · First photo is the main display photo</div>
       </div>
-      <input type="file" id="pmImg" accept="image/*" style="display:none" onchange="handlePmImg(event)">
-      <input type="hidden" id="pmId">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Product Name</label>
-          <input type="text" class="form-inp" id="pmName" placeholder="Floral Summer Dress">
+
+      <!-- BASIC INFO -->
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
+        <div class="form-section-title" style="border:none;padding:0;margin-bottom:12px">Basic Information</div>
+        <input type="hidden" id="pmId">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Product Name *</label>
+            <input type="text" class="form-inp" id="pmName" placeholder="e.g. Floral Summer Dress">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select class="form-select" id="pmCat"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">SKU</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" class="form-inp" id="pmSku" placeholder="Auto-generated" style="flex:1">
+              <button onclick="generateSku()" style="padding:8px 12px;background:var(--off);border:1.5px solid var(--border);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap">Auto</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <div style="display:flex;align-items:center;gap:10px;padding-top:8px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.88rem">
+                <input type="checkbox" id="pmActive" checked style="width:16px;height:16px;accent-color:var(--black)">
+                Active (visible in shop)
+              </label>
+            </div>
+          </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Category</label>
-          <select class="form-select" id="pmCat">
-            <option>Dresses</option><option>Tops</option><option>Bottoms</option>
-            <option>Sets</option><option>Accessories</option>
-          </select>
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="pmDesc" placeholder="Describe the product — material, fit, occasion..." style="min-height:70px"></textarea>
         </div>
       </div>
-      <div class="form-row">
+
+      <!-- PRICING -->
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
+        <div class="form-section-title" style="border:none;padding:0;margin-bottom:12px">Pricing</div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Regular Price (₱) *</label>
+            <input type="number" class="form-inp" id="pmPrice" placeholder="299" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sale Price (₱)</label>
+            <input type="number" class="form-inp" id="pmSalePrice" placeholder="Optional" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cost Price (₱)</label>
+            <input type="number" class="form-inp" id="pmCostPrice" placeholder="For margin tracking" min="0">
+            <div class="form-hint" id="pmMarginHint"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVENTORY -->
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
+        <div class="form-section-title" style="border:none;padding:0;margin-bottom:12px">Inventory</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Stock Count</label>
+            <input type="number" class="form-inp" id="pmStock" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Low Stock Alert (≤ ? pcs)</label>
+            <input type="number" class="form-inp" id="pmLowStock" placeholder="5" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- VARIANTS -->
+      <div style="padding:20px 24px">
+        <div class="form-section-title" style="border:none;padding:0;margin-bottom:12px">Variants</div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Sizes <span style="font-weight:400;text-transform:none;letter-spacing:0">(comma separated)</span></label>
+          <input type="text" class="form-inp" id="pmSizes" placeholder="2T, 3T, 4T, 5T, 6T, 7T">
+          <div class="form-hint">Common: 2T 3T 4T 5T 6T 7T 8T XS S M L XL</div>
+        </div>
         <div class="form-group">
-          <label class="form-label">Price (₱)</label>
-          <input type="number" class="form-inp" id="pmPrice" placeholder="299">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Stock</label>
-          <input type="number" class="form-inp" id="pmStock" placeholder="10">
+          <label class="form-label">Colors <span style="font-weight:400;text-transform:none;letter-spacing:0">(comma separated)</span></label>
+          <input type="text" class="form-inp" id="pmColors" placeholder="Pink, Blue, Yellow, White">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px" id="pmColorPreview"></div>
         </div>
       </div>
-      <div class="form-group" style="margin-bottom:12px">
-        <label class="form-label">Sizes (comma separated)</label>
-        <input type="text" class="form-inp" id="pmSizes" placeholder="2T, 3T, 4T, 5T, 6T">
-      </div>
-      <div class="form-group" style="margin-bottom:12px">
-        <label class="form-label">Colors (comma separated)</label>
-        <input type="text" class="form-inp" id="pmColors" placeholder="Pink, Blue, Yellow">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-textarea" id="pmDesc" placeholder="Cute and comfy outfit for your little one!"></textarea>
-      </div>
+
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="position:sticky;bottom:0;background:var(--white)">
       <button class="topbar-btn" onclick="closeModal('productModal')">Cancel</button>
       <button class="topbar-btn primary" onclick="saveProduct()">Save Product</button>
     </div>
@@ -792,7 +871,7 @@ function showPage(page) {
   if (page === 'inventory') loadInventory();
   if (page === 'customers') loadCustomers();
   if (page === 'analytics') loadAnalytics();
-  if (page === 'categories')loadCategories();
+  if (page === 'categories') { loadProducts(); loadCategories(); }
   if (page === 'settings')  loadSettings();
 }
 
@@ -1066,6 +1145,14 @@ function loadProducts() {
   });
 }
 
+function loadProductsAndCats() {
+  api({ type:'GET_PRODUCTS', adminView:'true' }).then(function(data) {
+    allProducts = data.products || [];
+    renderProductsTable(allProducts);
+    loadCategories(); // refresh category counts
+  });
+}
+
 function renderProductsTable(products) {
   var tbody = document.getElementById('productsBody');
   tbody.innerHTML = products.map(function(p){
@@ -1099,61 +1186,139 @@ function filterProductsByCat(cat) {
   renderProductsTable(cat ? allProducts.filter(function(p){ return p.cat===cat; }) : allProducts);
 }
 
-var pmImgUrl = '';
+// ── PRODUCT MANAGEMENT ──
+var pmPhotos = [];
+var COLOR_MAP = {
+  'Pink':'#FFB6C1','Blue':'#87CEEB','Yellow':'#FFE066','White':'#F5F5F5',
+  'Red':'#FF6B6B','Green':'#90EE90','Purple':'#DDA0DD','Orange':'#FFA07A',
+  'Black':'#1a1a1a','Gray':'#C0C0C0','Beige':'#F5DEB3','Navy':'#1A1A2E',
+  'Mint':'#B5EAD7','Lavender':'#C9B1FF','Coral':'#FF9AA2','Peach':'#FFDAC1'
+};
+
+function getCategories() {
+  return JSON.parse(localStorage.getItem('bbee_cats') || '["Dresses","Tops","Bottoms","Sets","Accessories"]');
+}
+
+function populateCatDropdown(selectedCat) {
+  var sel = document.getElementById('pmCat');
+  if (!sel) return;
+  var cats = getCategories();
+  sel.innerHTML = cats.map(function(c){
+    return '<option value="' + c + '"' + (c===selectedCat?' selected':'') + '>' + c + '</option>';
+  }).join('');
+}
+
+function generateSku() {
+  var cat  = document.getElementById('pmCat').value || 'GEN';
+  var abbr = cat.substring(0,2).toUpperCase();
+  var ts   = Date.now().toString().slice(-4);
+  document.getElementById('pmSku').value = 'BBEE-' + abbr + '-' + ts;
+}
+
 function openProductModal(id) {
-  pmImgUrl = '';
+  pmPhotos = [];
   var p = id ? allProducts.find(function(x){ return x.id===id; }) : null;
   document.getElementById('productModalTitle').textContent = p ? 'Edit Product' : 'Add Product';
-  document.getElementById('pmId').value    = p ? p.id    : '';
-  document.getElementById('pmName').value  = p ? p.name  : '';
-  document.getElementById('pmCat').value   = p ? p.cat   : 'Dresses';
-  document.getElementById('pmPrice').value = p ? p.price : '';
-  document.getElementById('pmStock').value = p ? p.stock : '';
-  document.getElementById('pmSizes').value = p ? (p.sizes||[]).join(', ') : '';
-  document.getElementById('pmColors').value= p ? (p.colors||[]).join(', ') : '';
-  document.getElementById('pmDesc').value  = p ? p.desc  : '';
-  if (p && p.img) {
-    pmImgUrl = p.img;
-    document.getElementById('pmImgArea').innerHTML = '<img src="' + p.img + '" style="width:100%;height:140px;object-fit:cover">';
+  document.getElementById('pmId').value        = p ? p.id : '';
+  document.getElementById('pmName').value      = p ? p.name : '';
+  document.getElementById('pmSku').value       = p ? (p.sku||'') : '';
+  document.getElementById('pmPrice').value     = p ? p.price : '';
+  document.getElementById('pmSalePrice').value = p ? (p.salePrice||'') : '';
+  document.getElementById('pmCostPrice').value = p ? (p.costPrice||'') : '';
+  document.getElementById('pmStock').value     = p ? p.stock : '';
+  document.getElementById('pmLowStock').value  = p ? (p.lowStock||5) : 5;
+  document.getElementById('pmSizes').value     = p ? (p.sizes||[]).join(', ') : '';
+  document.getElementById('pmColors').value    = p ? (p.colors||[]).join(', ') : '';
+  document.getElementById('pmDesc').value      = p ? (p.desc||'') : '';
+  document.getElementById('pmActive').checked  = p ? p.active!==false : true;
+  populateCatDropdown(p ? p.cat : null);
+  if (p && p.photos) {
+    try { pmPhotos = JSON.parse(p.photos); } catch(e) { pmPhotos = []; }
+  } else if (p && p.img) {
+    pmPhotos = [{ url: p.img, isMain: true }];
   }
+  renderPhotoGrid();
   document.getElementById('productModal').classList.add('on');
 }
 
-function handlePmImg(event) {
-  var file = event.target.files[0];
-  if (!file) return;
-  var fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', UPLOAD_PRESET);
-  document.getElementById('pmImgArea').innerHTML = '<div style="text-align:center;padding:20px;font-size:.8rem;color:var(--muted)">Uploading...</div>';
-  fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method:'POST', body:fd })
-    .then(function(r){ return r.json(); })
-    .then(function(d) {
-      pmImgUrl = d.secure_url;
-      document.getElementById('pmImgArea').innerHTML = '<img src="' + pmImgUrl + '" style="width:100%;height:140px;object-fit:cover">';
-      toast('Image uploaded!');
-    });
+function renderPhotoGrid() {
+  var grid = document.getElementById('pmPhotoGrid');
+  if (!grid) return;
+  grid.innerHTML = pmPhotos.map(function(ph, i) {
+    return '<div style="position:relative;width:80px;height:80px;flex-shrink:0">' +
+      '<img src="' + ph.url + '" style="width:80px;height:80px;object-fit:cover;border:2px solid ' + (ph.isMain?'var(--black)':'var(--border)') + '">' +
+      (ph.isMain?'<div style="position:absolute;bottom:0;left:0;right:0;background:var(--black);color:var(--white);font-size:.55rem;font-weight:700;text-align:center;padding:2px">MAIN</div>':'') +
+      '<button onclick="setMainPhoto(' + i + ')" style="position:absolute;top:2px;left:2px;background:rgba(0,0,0,.6);border:none;color:white;font-size:.6rem;padding:2px 4px;cursor:pointer">' + (ph.isMain?'★':'☆') + '</button>' +
+      '<button onclick="removePhoto(' + i + ')" style="position:absolute;top:2px;right:2px;background:rgba(200,0,0,.8);border:none;color:white;font-size:.75rem;width:18px;height:18px;cursor:pointer">×</button>' +
+    '</div>';
+  }).join('');
+}
+
+function setMainPhoto(idx) {
+  pmPhotos.forEach(function(p, i){ p.isMain = (i===idx); });
+  renderPhotoGrid();
+}
+
+function removePhoto(idx) {
+  pmPhotos.splice(idx, 1);
+  if (pmPhotos.length && !pmPhotos.find(function(p){ return p.isMain; })) pmPhotos[0].isMain = true;
+  renderPhotoGrid();
+}
+
+function handlePmPhotos(event) {
+  var files = Array.from(event.target.files).slice(0, 5 - pmPhotos.length);
+  if (!files.length) { toast('Max 5 photos only!'); return; }
+  toast('Uploading ' + files.length + ' photo(s)...');
+  Promise.all(files.map(function(file) {
+    var fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', UPLOAD_PRESET);
+    return fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method:'POST', body:fd })
+      .then(function(r){ return r.json(); }).then(function(d){ return d.secure_url; });
+  })).then(function(urls) {
+    urls.forEach(function(url, i){ pmPhotos.push({ url:url, isMain: pmPhotos.length===0 && i===0 }); });
+    renderPhotoGrid();
+    toast(urls.length + ' photo(s) uploaded!');
+  });
+  event.target.value = '';
 }
 
 function saveProduct() {
   var id    = document.getElementById('pmId').value;
   var name  = document.getElementById('pmName').value.trim();
   var price = document.getElementById('pmPrice').value;
-  if (!name || !price) { toast('Name and price required!'); return; }
-  api({ type:'SAVE_PRODUCT', id:id||'', name:name, cat:document.getElementById('pmCat').value,
-    price:price, stock:document.getElementById('pmStock').value||0,
-    sizes:document.getElementById('pmSizes').value, colors:document.getElementById('pmColors').value,
-    desc:document.getElementById('pmDesc').value, img:pmImgUrl, active:'true' })
-  .then(function(data) {
+  if (!name)  { toast('Product name is required!'); return; }
+  if (!price) { toast('Price is required!'); return; }
+  var mainPhoto = pmPhotos.find(function(p){ return p.isMain; });
+  var mainUrl   = mainPhoto ? mainPhoto.url : (pmPhotos[0] ? pmPhotos[0].url : '');
+  api({
+    type:'SAVE_PRODUCT', id:id||'', name:name,
+    sku:document.getElementById('pmSku').value.trim(),
+    cat:document.getElementById('pmCat').value,
+    price:price,
+    salePrice:document.getElementById('pmSalePrice').value||'',
+    costPrice:document.getElementById('pmCostPrice').value||'',
+    stock:document.getElementById('pmStock').value||0,
+    lowStock:document.getElementById('pmLowStock').value||5,
+    sizes:document.getElementById('pmSizes').value,
+    colors:document.getElementById('pmColors').value,
+    desc:document.getElementById('pmDesc').value,
+    img:mainUrl, photos:JSON.stringify(pmPhotos),
+    active:document.getElementById('pmActive').checked?'true':'false'
+  }).then(function(data) {
     if (data.status==='ok') { toast(id?'Product updated!':'Product added!'); closeModal('productModal'); loadProducts(); }
     else toast('Error: ' + (data.message||''));
   });
 }
 
 function deleteProduct(id) {
-  if (!confirm('Delete this product?')) return;
+  // Check if safe to delete
+  var prod = allProducts.find(function(p){ return p.id===id; });
+  var name = prod ? prod.name : id;
+  if (!confirm('Delete "' + name + '"?\n\nThis will mark it as inactive (soft delete).')) return;
   api({ type:'DELETE_PRODUCT', id:id }).then(function(d){
     if (d.status==='ok') { toast('Product deleted!'); loadProducts(); }
+    else toast('Error: ' + (d.message||''));
   });
 }
 
@@ -1311,31 +1476,57 @@ function renderBestSellers(orders) {
 
 // ── CATEGORIES ──
 function loadCategories() {
-  var cats = JSON.parse(localStorage.getItem('bbee_cats')||'["Dresses","Tops","Bottoms","Sets","Accessories"]');
-  document.getElementById('catsList').innerHTML = cats.map(function(c,i){
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-lt)">' +
-      '<div style="flex:1;font-size:.9rem;font-weight:500">' + c + '</div>' +
-      '<button class="act-btn act-btn-danger" onclick="deleteCat(' + i + ')">Remove</button>' +
-    '</div>';
+  var cats = getCategories();
+  document.getElementById('catsTotalCount').textContent = cats.length + ' categories';
+  // Count products per category
+  var prodCounts = {};
+  allProducts.forEach(function(p){ if(p.active) prodCounts[p.cat] = (prodCounts[p.cat]||0)+1; });
+  var tbody = document.getElementById('catsBody');
+  tbody.innerHTML = cats.map(function(c, i) {
+    var count    = prodCounts[c] || 0;
+    var hasProds = count > 0;
+    return '<tr>' +
+      '<td style="font-weight:600">' + c + '</td>' +
+      '<td>' + (count > 0 ? '<span style="font-weight:600;color:var(--black)">' + count + ' products</span>' : '<span style="color:var(--muted)">No products</span>') + '</td>' +
+      '<td><span class="pill ' + (hasProds?'pill-confirmed':'pill-out') + '">' + (hasProds?'In use':'Empty') + '</span></td>' +
+      '<td>' +
+        (!hasProds ?
+          '<button class="act-btn act-btn-danger" onclick="deleteCat(' + i + ')">Delete</button>' :
+          '<span style="font-size:.72rem;color:var(--muted)">🔒 Has products</span>') +
+      '</td>' +
+    '</tr>';
   }).join('');
 }
 
 function addCategory() {
   var name = document.getElementById('newCatInp').value.trim();
-  if (!name) return;
-  var cats = JSON.parse(localStorage.getItem('bbee_cats')||'["Dresses","Tops","Bottoms","Sets","Accessories"]');
+  if (!name) { toast('Enter category name!'); return; }
+  var cats = getCategories();
+  // Check duplicate
+  if (cats.find(function(c){ return c.toLowerCase()===name.toLowerCase(); })) {
+    toast('Category already exists!'); return;
+  }
   cats.push(name);
   localStorage.setItem('bbee_cats', JSON.stringify(cats));
   document.getElementById('newCatInp').value = '';
+  document.getElementById('newCatDesc').value = '';
   loadCategories();
-  toast('Category added!');
+  toast('Category "' + name + '" added!');
 }
 
 function deleteCat(idx) {
-  var cats = JSON.parse(localStorage.getItem('bbee_cats')||'["Dresses","Tops","Bottoms","Sets","Accessories"]');
+  var cats      = getCategories();
+  var catName   = cats[idx];
+  var prodCount = allProducts.filter(function(p){ return p.cat===catName && p.active; }).length;
+  if (prodCount > 0) {
+    toast('Cannot delete! Move ' + prodCount + ' products first.');
+    return;
+  }
+  if (!confirm('Delete category "' + catName + '"?')) return;
   cats.splice(idx, 1);
   localStorage.setItem('bbee_cats', JSON.stringify(cats));
   loadCategories();
+  toast('Category deleted!');
 }
 
 // ── PROMOS ──
