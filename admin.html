@@ -728,7 +728,7 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
     <div class="modal-body" style="padding:0;overflow-y:auto;max-height:calc(100dvh - 120px)">
 
       <!-- 1. PHOTOS -->
-      <div class="pm-section">
+      <div class="pm-section" id="pmPhotoSection">
         <div class="pm-section-title">Product Photos</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="pmPhotoGrid"></div>
         <div class="img-upload" onclick="document.getElementById('pmImgFiles').click()" style="padding:12px">
@@ -846,6 +846,9 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
 
         <!-- Design add button (shown for design type) -->
         <div id="pmDesignSection" style="display:none;margin-bottom:14px">
+          <div style="font-size:.75rem;color:var(--honey-dark);background:var(--honey-light);padding:8px 12px;margin-bottom:10px;border-left:3px solid var(--honey)">
+            📷 First design photo = product cover photo automatically
+          </div>
           <button onclick="addVariantRow()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px dashed var(--border);background:none;font-family:Jost,sans-serif;font-size:.78rem;cursor:pointer;color:var(--muted)">
             + Add Design
           </button>
@@ -1088,14 +1091,16 @@ function doLogout() {
 }
 
 // Check if already logged in
-if (localStorage.getItem('bbee_admin_auth') === 'true') {
-  document.getElementById('loginWrap').style.display = 'none';
-  document.getElementById('adminApp').style.display  = 'flex';
-  loadSettings && loadSettings();
-  setTimeout(function(){ loadDashboard(); }, 100);
-}
-
-document.getElementById('loginPw').focus();
+document.addEventListener('DOMContentLoaded', function() {
+  if (localStorage.getItem('bbee_admin_auth') === 'true') {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('adminApp').style.display  = 'flex';
+    loadSettings();
+    setTimeout(function(){ loadDashboard(); }, 100);
+  }
+  var pwInp = document.getElementById('loginPw');
+  if (pwInp) pwInp.focus();
+});
 
 // ── NAVIGATION ──
 function showPage(page) {
@@ -1447,6 +1452,29 @@ function filterProductsByCat(cat) {
 }
 
 // ── PRODUCT MANAGEMENT ──
+
+// ── MISSING UTILITY FUNCTIONS ──
+function generateSku() {
+  var cat  = document.getElementById('pmCat');
+  var abbr = cat ? cat.value.substring(0,2).toUpperCase() : 'GN';
+  var ts   = Date.now().toString().slice(-4);
+  var inp  = document.getElementById('pmSku');
+  if (inp) inp.value = 'BBEE-' + abbr + '-' + ts;
+}
+
+function getCategories() {
+  return JSON.parse(localStorage.getItem('bbee_cats') || '["Dresses","Tops","Bottoms","Sets","Accessories"]');
+}
+
+function populateCatDropdown(selectedCat) {
+  var sel = document.getElementById('pmCat');
+  if (!sel) return;
+  var cats = getCategories();
+  sel.innerHTML = cats.map(function(c){
+    return '<option value="' + c + '"' + (c===selectedCat?' selected':'') + '>' + c + '</option>';
+  }).join('');
+}
+
 // ══════════════════════════════════════════
 // PRODUCT FORM v2 — Full variant system
 // ══════════════════════════════════════════
@@ -1591,8 +1619,17 @@ function setVariantType(type) {
   });
   var colorSec  = document.getElementById('pmColorSection');
   var designSec = document.getElementById('pmDesignSection');
+  var photoSec  = document.getElementById('pmPhotoSection');
   if (colorSec)  colorSec.style.display  = type === 'color'  ? 'block' : 'none';
   if (designSec) designSec.style.display = type === 'design' ? 'block' : 'none';
+  // Hide cover photos if design type - first design photo auto-becomes cover
+  if (photoSec) {
+    if (type === 'design') {
+      photoSec.style.display = 'none';
+    } else {
+      photoSec.style.display = 'block';
+    }
+  }
   renderVariantMatrix();
 }
 
@@ -1809,8 +1846,14 @@ function saveProduct() {
   });
   var minPrice = prices.length ? Math.min.apply(null, prices) : 0;
 
-  var mainPhoto = pmPhotos.find(function(p){ return p.isMain; });
-  var mainUrl   = mainPhoto ? mainPhoto.url : (pmPhotos[0] ? pmPhotos[0].url : '');
+  // For design type: use first design's photo as cover
+  var mainUrl = '';
+  if (pmVarType === 'design' && pmVariants.length) {
+    mainUrl = pmVariants[0].photo || '';
+  } else {
+    var mainPhoto = pmPhotos.find(function(p){ return p.isMain; });
+    mainUrl = mainPhoto ? mainPhoto.url : (pmPhotos[0] ? pmPhotos[0].url : '');
+  }
 
   api({
     type:       'SAVE_PRODUCT',
@@ -2162,13 +2205,15 @@ setTimeout(function() {
   if (localStorage.getItem('bbee_admin_auth') === 'true') {
     loadPromoCodes();
   }
-}, 500);
+}, 600);
 
 // Mobile menu toggle
-if (window.innerWidth <= 768) {
-  var toggle = document.getElementById('menuToggle');
-  if (toggle) toggle.style.display = 'flex';
-}
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.innerWidth <= 768) {
+    var toggle = document.getElementById('menuToggle');
+    if (toggle) toggle.style.display = 'flex';
+  }
+});
 </script>
 </body>
 </html>

@@ -1486,11 +1486,37 @@ function initProductPhotos(p) {
   detailPhotos   = [];
   detailPhotoIdx = 0;
 
-  // Build photos array from product data
-  if (p.photos) {
+  // For design products - photos come from design chips, not separate gallery
+  var varType = getVariantType(p);
+  if (varType === 'design') {
+    // Get first design's photo as initial display
     try {
+      var vdata = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
+      if (vdata && vdata.designs && vdata.designs.length) {
+        var firstDesign = vdata.designs.find(function(d){ return d.photo; });
+        if (firstDesign) {
+          var img = document.getElementById('detailMainImg');
+          if (img) { img.src = firstDesign.photo; img.style.display = 'block'; }
+          var ph = document.getElementById('detailEmojiPh');
+          if (ph) ph.style.display = 'none';
+        }
+      }
+    } catch(e) {}
+    // Hide carousel arrows for design products
+    var prev = document.getElementById('detailPrev');
+    var next = document.getElementById('detailNext');
+    var thumbs = document.getElementById('detailThumbs');
+    if (prev) prev.style.display = 'none';
+    if (next) next.style.display = 'none';
+    if (thumbs) thumbs.innerHTML = '';
+    return;
+  }
+
+  // Non-design products: use photos array
+  if (p.photos) {
+    try { 
       var parsed = JSON.parse(p.photos);
-      detailPhotos = parsed.map(function(ph){ return ph.url; });
+      detailPhotos = parsed.map(function(ph){ return ph.url; }).filter(Boolean);
     } catch(e) {}
   }
   if (!detailPhotos.length && p.img) detailPhotos = [p.img];
@@ -1502,34 +1528,35 @@ function initProductPhotos(p) {
   var nextBtn  = document.getElementById('detailNext');
 
   if (detailPhotos.length) {
-    mainImg.src          = detailPhotos[0];
-    mainImg.style.display= 'block';
-    emojiPh.style.display= 'none';
+    mainImg.src           = detailPhotos[0];
+    mainImg.style.display = 'block';
+    emojiPh.style.display = 'none';
   } else {
-    mainImg.style.display= 'none';
-    emojiPh.style.display= 'flex';
-    thumbs.innerHTML     = '';
-    prevBtn.style.display= 'none';
-    nextBtn.style.display= 'none';
+    mainImg.style.display = 'none';
+    emojiPh.style.display = 'flex';
+    if (thumbs) thumbs.innerHTML = '';
+    if (prevBtn) prevBtn.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'none';
     return;
   }
 
-  // Show arrows if multiple photos
   if (detailPhotos.length > 1) {
-    prevBtn.style.display = 'flex';
-    nextBtn.style.display = 'flex';
-    // Thumbnails
-    thumbs.innerHTML = detailPhotos.map(function(url, i) {
-      return '<div onclick="setDetailPhoto(' + i + ')" style="width:40px;height:40px;border:2px solid ' + (i===0?'var(--white)':'rgba(255,255,255,.4)') + ';overflow:hidden;cursor:pointer;flex-shrink:0;transition:border .2s" id="thumb_' + i + '">' +
-        '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover">' +
-      '</div>';
-    }).join('');
+    if (prevBtn) prevBtn.style.display = 'flex';
+    if (nextBtn) nextBtn.style.display = 'flex';
+    if (thumbs) {
+      thumbs.innerHTML = detailPhotos.map(function(url, i) {
+        return '<div onclick="setDetailPhoto(' + i + ')" style="width:40px;height:40px;border:2px solid ' + (i===0?'var(--white)':'rgba(255,255,255,.4)') + ';overflow:hidden;cursor:pointer;flex-shrink:0;transition:border .2s" id="thumb_' + i + '">' +
+          '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover">' +
+        '</div>';
+      }).join('');
+    }
   } else {
-    prevBtn.style.display = 'none';
-    nextBtn.style.display = 'none';
-    thumbs.innerHTML      = '';
+    if (prevBtn) prevBtn.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'none';
+    if (thumbs) thumbs.innerHTML = '';
   }
 }
+
 
 function setDetailPhoto(idx) {
   if (!detailPhotos.length) return;
@@ -2260,14 +2287,34 @@ function getProductVariants(p) {
   if (!p.variants) return null;
   try {
     var v = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
+    // New format: {type, sizes, designs, colors}
+    if (v && v.type) {
+      if (v.type === 'design' && v.designs && v.designs.length) return v.designs;
+      if (v.type === 'color'  && v.colors  && v.colors.length)  return v.colors;
+      return null; // size only - no variant chips
+    }
+    // Legacy format: array of designs
     return Array.isArray(v) && v.length ? v : null;
   } catch(e) { return null; }
 }
 
+// Get variant type
+function getVariantType(p) {
+  if (!p.variants) return 'size';
+  try {
+    var v = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
+    return v && v.type ? v.type : 'size';
+  } catch(e) { return 'size'; }
+}
+
 // Get sizes from product
 function getProductSizes(p) {
-  if (p.sizes && p.sizes.length) return p.sizes;
-  return [];
+  if (!p.variants) return p.sizes || [];
+  try {
+    var v = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
+    if (v && v.sizes) return v.sizes;
+  } catch(e) {}
+  return p.sizes || [];
 }
 
 // Open product with variant support
@@ -2284,14 +2331,15 @@ function openProduct(p) {
   var variants = getProductVariants(p);
   var sizes    = getProductSizes(p);
 
-  if (variants && variants.length) {
-    // VARIANT MODE: Design + Size
+  var varType = getVariantType(p);
+  if (variants && variants.length && (varType === 'design' || varType === 'color')) {
+    // VARIANT MODE: Design + Size OR Color + Size
     document.getElementById('designSection').style.display = 'block';
     document.getElementById('sizeSection').style.display   = 'block';
     document.getElementById('colorSection').style.display  = 'none';
 
-    renderDesignChips(variants);
-    renderSizeChips(sizes, null); // no design selected yet, all sizes shown
+    renderDesignChips(variants, varType);
+    renderSizeChips(sizes, null); // no design selected yet
 
     // Show price range
     var prices  = variants.map(function(v){ return parseFloat(v.price)||0; }).filter(Boolean);
@@ -2369,30 +2417,63 @@ function renderDesignChips(variants) {
 }
 
 function selectDesign(idx, el) {
-  var variants = getProductVariants(curProduct);
-  if (!variants) return;
-  selDesign = variants[idx];
+  var varData = curProduct.variants ? 
+    (typeof curProduct.variants === 'string' ? JSON.parse(curProduct.variants) : curProduct.variants) : null;
+  if (!varData) return;
+  
+  var designs = varData.designs || varData;
+  if (!Array.isArray(designs)) return;
+  selDesign = designs[idx];
   selSize   = null;
 
   // Update active chip
   document.querySelectorAll('.design-chip').forEach(function(c){ c.classList.remove('active'); });
   if (el) el.classList.add('active');
 
-  // Update price for this design
-  var price = parseFloat(selDesign.price) || 0;
-  document.getElementById('detailPrice').innerHTML =
-    '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + price.toLocaleString() + '</span>';
-
-  // Update photo
+  // Update photo to this design's photo
+  var img     = document.getElementById('detailMainImg');
+  var emojiPh = document.getElementById('detailEmojiPh');
   if (selDesign.photo) {
-    var img = document.getElementById('detailMainImg');
     if (img) { img.src = selDesign.photo; img.style.display = 'block'; }
-    document.getElementById('detailEmojiPh').style.display = 'none';
+    if (emojiPh) emojiPh.style.display = 'none';
   }
 
-  // Update sizes with stock info
-  renderSizeChips(getProductSizes(curProduct), selDesign);
+  // Update thumbnails - highlight this design's photo
+  var thumbs = document.getElementById('detailThumbs');
+  if (thumbs) thumbs.innerHTML = '';
+
+  // Show price range for this design across sizes
+  var sizes  = varData.sizes || [];
+  var prices = sizes.map(function(s){ return parseFloat((selDesign.price||{})[s])||0; }).filter(Boolean);
+  var minP   = prices.length ? Math.min.apply(null,prices) : 0;
+  var maxP   = prices.length ? Math.max.apply(null,prices) : 0;
+  var priceHtml = '';
+  if (minP && maxP && minP !== maxP) {
+    priceHtml = '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + 
+      minP.toLocaleString() + ' – ₱' + maxP.toLocaleString() + '</span>';
+  } else if (minP) {
+    priceHtml = '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + minP.toLocaleString() + '</span>';
+  }
+  document.getElementById('detailPrice').innerHTML = priceHtml;
+
+  // Update sizes with stock info for this design
+  renderSizeChips(sizes, selDesign);
   document.getElementById('stockHint').textContent = '';
+
+  // Update add to cart button
+  var btn = document.getElementById('addToCartBtn');
+  if (btn) {
+    var totalStock = Object.values(selDesign.stock||{}).reduce(function(s,n){ return s+(parseInt(n)||0); },0);
+    if (totalStock <= 0) {
+      btn.textContent = 'Out of Stock';
+      btn.disabled    = true;
+      btn.style.opacity = '.5';
+    } else {
+      btn.textContent   = 'Add to Cart';
+      btn.disabled      = false;
+      btn.style.opacity = '';
+    }
+  }
 }
 
 function renderSizeChips(sizes, design) {
@@ -2411,14 +2492,21 @@ function renderSizeChips(sizes, design) {
   }).join('');
 }
 
-function selectSizeVariant(size, el, qty) {
+function selectSizeVariant(size, el, qty, price) {
   selSize = size;
   document.querySelectorAll('.size-chip').forEach(function(c){ c.classList.remove('active'); });
   if (el) el.classList.add('active');
+  
+  // Update price display if price is per size
+  if (price) {
+    document.getElementById('detailPrice').innerHTML =
+      '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + parseFloat(price).toLocaleString() + '</span>';
+  }
+  
   var hint = document.getElementById('stockHint');
   if (hint) {
-    hint.textContent = qty <= 5 && qty > 0 ? 'Only ' + qty + ' left!' : '';
-    hint.style.color = 'var(--red)';
+    hint.textContent = qty <= 5 && qty > 0 ? 'Only ' + qty + ' left!' : qty === 0 ? 'Out of stock' : '';
+    hint.style.color = qty <= 5 ? 'var(--red)' : 'var(--muted)';
   }
 }
 
