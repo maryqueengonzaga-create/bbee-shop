@@ -189,6 +189,39 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
   .topbar{padding:0 16px}
   .form-row,.form-row-3{grid-template-columns:1fr}
 }
+
+/* ── PRODUCT MODAL v2 ── */
+.pm-section{padding:20px 24px;border-bottom:1px solid var(--border)}
+.pm-section:last-child{border-bottom:none}
+.pm-section-title{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-lt)}
+.pm-vtype-btn{padding:9px 18px;background:var(--white);border:none;border-right:1.5px solid var(--border);font-family:'Jost',sans-serif;font-size:.78rem;font-weight:500;cursor:pointer;color:var(--muted);transition:all .2s;white-space:nowrap}
+.pm-vtype-btn:last-child{border-right:none}
+.pm-vtype-btn.active{background:var(--black);color:var(--white);font-weight:600}
+.pm-vtype-btn:hover:not(.active){background:var(--off)}
+
+/* Size preset chips */
+.size-preset-chip{padding:6px 12px;border:1.5px solid var(--border);background:var(--white);font-family:'Jost',sans-serif;font-size:.78rem;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s;border-radius:2px}
+.size-preset-chip:hover{border-color:var(--black);color:var(--black)}
+.size-preset-chip.selected{background:var(--black);border-color:var(--black);color:var(--white);font-weight:600}
+
+/* Matrix table */
+.matrix-th{padding:8px 6px;border:1px solid var(--border);background:var(--off);text-align:center;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.matrix-td{padding:6px;border:1px solid var(--border);vertical-align:middle}
+.matrix-inp{width:60px;padding:5px 6px;border:1.5px solid var(--border);font-family:'Jost',sans-serif;font-size:.8rem;text-align:center;outline:none;transition:border .15s}
+.matrix-inp:focus{border-color:var(--black)}
+.matrix-inp.price{border-color:var(--honey-light);background:var(--honey-light)}
+.matrix-inp.price:focus{border-color:var(--honey)}
+.matrix-inp.cost{border-color:#E8F5E9}
+.matrix-inp.cost:focus{border-color:var(--green)}
+.matrix-inp.stock{border-color:#EFF6FF}
+.matrix-inp.stock:focus{border-color:var(--blue)}
+.matrix-design-col{min-width:180px;padding:8px;border:1px solid var(--border)}
+.matrix-design-wrap{display:flex;align-items:center;gap:8px}
+.matrix-photo-btn{width:40px;height:40px;background:var(--off);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;overflow:hidden;font-size:1rem}
+.matrix-name-inp{flex:1;padding:6px 8px;border:1.5px solid var(--border);font-family:'Jost',sans-serif;font-size:.82rem;outline:none;text-transform:uppercase;min-width:80px}
+.matrix-name-inp:focus{border-color:var(--black)}
+.matrix-del-btn{background:var(--red-lt);color:var(--red);border:none;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+
 </style>
 </head>
 <body>
@@ -667,6 +700,199 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
 
   </div><!-- end main-content -->
 </div><!-- end adminApp -->
+
+<!-- ORDER EDIT MODAL -->
+<div class="modal-ov" id="orderModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="orderModalTitle">Edit Order</div>
+      <button class="modal-close" onclick="closeModal('orderModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="orderModalContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="topbar-btn" onclick="closeModal('orderModal')">Cancel</button>
+      <button class="topbar-btn primary" onclick="saveOrderChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL — Full Form v2 -->
+<div class="modal-ov" id="productModal" style="align-items:flex-start;padding:0">
+  <div class="modal" style="max-width:800px;width:100%;max-height:100dvh;border-radius:0;margin:0 auto">
+    <div class="modal-hdr">
+      <div class="modal-title" id="productModalTitle">Add Product</div>
+      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0;overflow-y:auto;max-height:calc(100dvh - 120px)">
+
+      <!-- 1. PHOTOS -->
+      <div class="pm-section">
+        <div class="pm-section-title">Product Photos</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="pmPhotoGrid"></div>
+        <div class="img-upload" onclick="document.getElementById('pmImgFiles').click()" style="padding:12px">
+          <div style="font-size:1.2rem;opacity:.3;margin-bottom:4px">📷</div>
+          <div style="font-size:.75rem;color:var(--muted)">Add photos (up to 5) · First = main</div>
+        </div>
+        <input type="file" id="pmImgFiles" accept="image/*" multiple style="display:none" onchange="handlePmPhotos(event)">
+      </div>
+
+      <!-- 2. BASIC INFO -->
+      <div class="pm-section">
+        <div class="pm-section-title">Basic Information</div>
+        <input type="hidden" id="pmId">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Product Name *</label>
+            <input type="text" class="form-inp" id="pmName" placeholder="e.g. Premium Dress Set">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select class="form-select" id="pmCat"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">SKU</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" class="form-inp" id="pmSku" placeholder="Auto-generated" style="flex:1">
+              <button onclick="generateSku()" style="padding:8px 12px;background:var(--off);border:1.5px solid var(--border);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Jost,sans-serif">Auto</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-textarea" id="pmDesc" placeholder="Material, fit, occasion..." style="min-height:60px"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. STATUS + SETTINGS -->
+      <div class="pm-section">
+        <div class="pm-section-title">Settings</div>
+        <div style="display:flex;gap:24px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.88rem">
+            <input type="checkbox" id="pmActive" checked style="width:16px;height:16px;accent-color:var(--black)">
+            <span><strong>Active</strong> — visible in shop</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.88rem">
+            <input type="checkbox" id="pmFeatured" style="width:16px;height:16px;accent-color:var(--honey)">
+            <span><strong>Featured</strong> — show on homepage</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.88rem">
+            <input type="checkbox" id="pmDraft" style="width:16px;height:16px;accent-color:var(--muted)">
+            <span><strong>Draft</strong> — save but hide from shop</span>
+          </label>
+        </div>
+        <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
+          <label class="form-label" style="margin:0;white-space:nowrap">Sort Order</label>
+          <input type="number" class="form-inp" id="pmSort" placeholder="0" min="0" style="width:80px">
+          <span style="font-size:.72rem;color:var(--muted)">Lower = appears first</span>
+        </div>
+      </div>
+
+      <!-- 4. SIZES -->
+      <div class="pm-section">
+        <div class="pm-section-title">Sizes</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:10px">Click to toggle. Selected sizes will appear in the shop and in the variant matrix below.</div>
+        <!-- Preset size groups -->
+        <div style="margin-bottom:8px">
+          <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Numbers</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="pmSizePresetNum">
+            <!-- rendered by JS -->
+          </div>
+        </div>
+        <div style="margin-bottom:8px">
+          <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Kids (T)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="pmSizePresetT">
+            <!-- rendered by JS -->
+          </div>
+        </div>
+        <div style="margin-bottom:8px">
+          <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Letter Sizes</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="pmSizePresetLetter">
+            <!-- rendered by JS -->
+          </div>
+        </div>
+        <!-- Custom size add -->
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+          <input type="text" class="form-inp" id="pmCustomSize" placeholder="Custom size (e.g. 18M)" style="width:160px">
+          <button onclick="addCustomSize()" style="padding:8px 14px;border:1.5px solid var(--border);background:none;font-family:Jost,sans-serif;font-size:.78rem;cursor:pointer">+ Add</button>
+        </div>
+        <!-- Selected sizes display -->
+        <div style="margin-top:10px;padding:10px 12px;background:var(--off);border:1px solid var(--border);font-size:.8rem;min-height:36px" id="pmSelectedSizes">
+          <span style="color:var(--muted)">No sizes selected</span>
+        </div>
+      </div>
+
+      <!-- 5. VARIANT TYPE -->
+      <div class="pm-section">
+        <div class="pm-section-title">Variant Type</div>
+        <div style="display:flex;gap:0;border:1.5px solid var(--border);width:fit-content;margin-bottom:16px">
+          <button class="pm-vtype-btn active" id="vtype-size" onclick="setVariantType('size')">Size Only</button>
+          <button class="pm-vtype-btn" id="vtype-color" onclick="setVariantType('color')">Color + Size</button>
+          <button class="pm-vtype-btn" id="vtype-design" onclick="setVariantType('design')">Design + Size</button>
+        </div>
+
+        <!-- Color input (shown for color type) -->
+        <div id="pmColorSection" style="display:none;margin-bottom:14px">
+          <label class="form-label">Colors</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px" id="pmColorChips"></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" class="form-inp" id="pmColorInp" placeholder="e.g. Pink, Blue, Yellow" style="flex:1">
+            <button onclick="addColors()" style="padding:8px 14px;border:1.5px solid var(--border);background:none;font-family:Jost,sans-serif;font-size:.78rem;cursor:pointer">Add</button>
+          </div>
+        </div>
+
+        <!-- Design add button (shown for design type) -->
+        <div id="pmDesignSection" style="display:none;margin-bottom:14px">
+          <button onclick="addVariantRow()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px dashed var(--border);background:none;font-family:Jost,sans-serif;font-size:.78rem;cursor:pointer;color:var(--muted)">
+            + Add Design
+          </button>
+        </div>
+      </div>
+
+      <!-- 6. MATRIX -->
+      <div class="pm-section" id="pmMatrixSection">
+        <div class="pm-section-title">
+          Price, Stock & Cost
+          <span style="font-size:.7rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)"> — per variant combination</span>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:10px">
+          💡 Price = selling price &nbsp;·&nbsp; Stock = quantity available &nbsp;·&nbsp; Cost = your cost (for margin tracking, not shown to customers)
+        </div>
+        <div style="overflow-x:auto">
+          <table id="variantMatrix" style="border-collapse:collapse;min-width:100%;font-size:.8rem">
+            <thead id="variantMatrixHead"></thead>
+            <tbody id="variantMatrixBody"></tbody>
+          </table>
+        </div>
+        <div id="variantsList" style="display:none"></div>
+      </div>
+
+      <!-- 7. LOW STOCK THRESHOLD -->
+      <div class="pm-section">
+        <div class="pm-section-title">Alerts</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="form-group" style="flex:0 0 auto">
+            <label class="form-label">Low Stock Alert (≤ ? pcs)</label>
+            <input type="number" class="form-inp" id="pmLowStock" placeholder="5" min="0" style="width:100px">
+          </div>
+          <div style="font-size:.75rem;color:var(--muted);padding-top:18px">
+            You'll see a warning on the Dashboard when any variant drops to this level.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end modal-body -->
+
+    <div class="modal-footer" style="position:sticky;bottom:0;background:var(--white)">
+      <button class="topbar-btn" onclick="closeModal('productModal')">Cancel</button>
+      <button class="topbar-btn" onclick="saveDraft()" style="border-color:var(--muted);color:var(--muted)">Save Draft</button>
+      <button class="topbar-btn primary" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
 
 <!-- ORDER EDIT MODAL -->
 <div class="modal-ov" id="orderModal">
@@ -1221,84 +1447,188 @@ function filterProductsByCat(cat) {
 }
 
 // ── PRODUCT MANAGEMENT ──
-var pmPhotos   = [];
-var pmVariants = []; // [{name, photo, price, stock:{size:qty}}]
+// ══════════════════════════════════════════
+// PRODUCT FORM v2 — Full variant system
+// ══════════════════════════════════════════
 
-// ── VARIANT MATRIX (Shopee-style) ──
+var pmPhotos    = [];
+var pmVariants  = []; // [{name, photo, price:{size:val}, stock:{size:val}, cost:{size:val}}]
+var pmSelSizes  = []; // selected sizes
+var pmColors    = []; // for color type
+var pmVarType   = 'size'; // 'size' | 'color' | 'design'
 
-function getMatrixSizes() {
-  var sizesInp = document.getElementById('pmSizes');
-  if (!sizesInp || !sizesInp.value.trim()) return [];
-  return sizesInp.value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-}
+var SIZE_PRESETS = {
+  num:    ['1','2','3','4','5','6','7','8','9','10','11','12'],
+  t:      ['2T','3T','4T','5T','6T','7T','8T','9T','10T'],
+  letter: ['XS','S','M','L','XL','XXL']
+};
 
-function renderVariantMatrix() {
-  var sizes  = getMatrixSizes();
-  var head   = document.getElementById('variantMatrixHead');
-  var body   = document.getElementById('variantMatrixBody');
-  if (!head || !body) return;
+var COLOR_MAP_ADMIN = {
+  'Pink':'#FFB6C1','Blue':'#87CEEB','Yellow':'#FFE066','White':'#F5F5F5',
+  'Red':'#FF6B6B','Green':'#90EE90','Purple':'#DDA0DD','Orange':'#FFA07A',
+  'Black':'#1a1a1a','Gray':'#C0C0C0','Beige':'#F5DEB3','Navy':'#1A1A2E',
+  'Mint':'#B5EAD7','Lavender':'#C9B1FF','Coral':'#FF9AA2','Peach':'#FFDAC1'
+};
 
-  // Header row
-  var headHtml = '<tr style="background:var(--off)">' +
-    '<th style="padding:8px 10px;border:1px solid var(--border);text-align:left;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;min-width:160px">Design</th>' +
-    '<th style="padding:8px 10px;border:1px solid var(--border);text-align:center;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-width:70px">Price (₱)</th>';
-  sizes.forEach(function(s) {
-    headHtml += '<th style="padding:8px 10px;border:1px solid var(--border);text-align:center;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-width:58px">Size ' + s + '</th>';
-  });
-  headHtml += '<th style="padding:8px 10px;border:1px solid var(--border);min-width:36px"></th></tr>';
-  head.innerHTML = headHtml;
+// ── INIT ──
+function initProductForm(p) {
+  pmPhotos   = [];
+  pmVariants = [];
+  pmSelSizes = [];
+  pmColors   = [];
+  pmVarType  = 'size';
 
-  // Body rows
-  if (!pmVariants.length) {
-    body.innerHTML = '<tr><td colspan="' + (sizes.length+3) + '" style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;border:1px solid var(--border)">Click "+ Add Design" to start</td></tr>';
-    return;
+  // Basic fields
+  document.getElementById('pmId').value        = p ? p.id    : '';
+  document.getElementById('pmName').value      = p ? p.name  : '';
+  document.getElementById('pmSku').value       = p ? (p.sku||'') : '';
+  document.getElementById('pmDesc').value      = p ? (p.desc||'') : '';
+  document.getElementById('pmActive').checked  = p ? p.active !== false : true;
+  document.getElementById('pmFeatured').checked= p ? (p.featured||false) : false;
+  document.getElementById('pmDraft').checked   = p ? (p.draft||false) : false;
+  document.getElementById('pmSort').value      = p ? (p.sortOrder||0) : 0;
+  document.getElementById('pmLowStock').value  = p ? (p.lowStock||5) : 5;
+  populateCatDropdown(p ? p.cat : null);
+
+  // Load photos
+  if (p && p.photos) {
+    try { pmPhotos = JSON.parse(p.photos); } catch(e) { pmPhotos = []; }
+  } else if (p && p.img) {
+    pmPhotos = [{ url: p.img, isMain: true }];
+  }
+  renderPhotoGrid();
+
+  // Load variant data
+  if (p && p.variants) {
+    try {
+      var vdata = JSON.parse(p.variants);
+      if (vdata && vdata.type) {
+        pmVarType  = vdata.type;
+        pmSelSizes = vdata.sizes  || [];
+        pmVariants = vdata.designs|| [];
+        pmColors   = vdata.colors || [];
+      }
+    } catch(e) {}
+  } else if (p) {
+    // Legacy migration
+    if (p.sizes && p.sizes.length) pmSelSizes = p.sizes;
+    if (p.colors && p.colors.length) { pmColors = p.colors; pmVarType = 'color'; }
   }
 
-  body.innerHTML = pmVariants.map(function(v, i) {
-    var row = '<tr id="vrow_'+i+'">' +
-      // Design col: photo + name
-      '<td style="padding:8px;border:1px solid var(--border)">' +
-        '<div style="display:flex;align-items:center;gap:8px">' +
-          '<div onclick="uploadVariantPhoto('+i+')" style="width:40px;height:40px;background:var(--off);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;overflow:hidden" id="vphotodiv_'+i+'">' +
-            (v.photo ? '<img src="'+v.photo+'" style="width:40px;height:40px;object-fit:cover">' : '<span style="font-size:1rem">📷</span>') +
-          '</div>' +
-          '<input id="vname_'+i+'" value="'+(v.name||'')+'" placeholder="e.g. MICKEY" ' +
-            'style="flex:1;padding:6px 8px;border:1.5px solid var(--border);font-family:Jost,sans-serif;font-size:.82rem;outline:none;text-transform:uppercase;min-width:80px" ' +
-            'oninput="pmVariants['+i+'].name=this.value.toUpperCase()">' +
-        '</div>' +
-      '</td>' +
-      // Price col
-      '<td style="padding:8px;border:1px solid var(--border)">' +
-        '<input id="vprice_'+i+'" type="number" value="'+(v.price||'')+'" placeholder="299" min="0" ' +
-          'style="width:70px;padding:6px 8px;border:1.5px solid var(--border);font-family:Jost,sans-serif;font-size:.82rem;outline:none;text-align:center" ' +
-          'oninput="pmVariants['+i+'].price=parseFloat(this.value)||0">' +
-      '</td>';
+  renderSizePresets();
+  updateSelectedSizesDisplay();
+  setVariantType(pmVarType);
+}
 
-    // Stock cells per size
-    sizes.forEach(function(s) {
-      var qty = (v.stock && v.stock[s] !== undefined) ? v.stock[s] : '';
-      row += '<td style="padding:8px;border:1px solid var(--border)">' +
-        '<input type="number" value="'+qty+'" min="0" placeholder="0" ' +
-          'style="width:52px;padding:6px;border:1.5px solid var(--border);font-family:Jost,sans-serif;font-size:.82rem;outline:none;text-align:center" ' +
-          'oninput="setVariantStock('+i+',&quot;'+s+'&quot;,this.value)">' +
-      '</td>';
-    });
+// ── SIZES ──
+function renderSizePresets() {
+  ['num','t','letter'].forEach(function(group) {
+    var el = document.getElementById('pmSizePreset' + group.charAt(0).toUpperCase() + group.slice(1));
+    if (!el) return;
+    el.innerHTML = SIZE_PRESETS[group].map(function(s) {
+      var sel = pmSelSizes.indexOf(s) > -1;
+      return '<button class="size-preset-chip' + (sel?' selected':'') + '" onclick="toggleSize(\'' + s + '\',this)">' + s + '</button>';
+    }).join('');
+  });
+}
 
-    // Delete col
-    row += '<td style="padding:8px;border:1px solid var(--border);text-align:center">' +
-      '<button onclick="removeVariantRow('+i+')" style="background:var(--red-lt);color:var(--red);border:none;width:28px;height:28px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center">✕</button>' +
-    '</td></tr>';
-    return row;
+function toggleSize(s, btn) {
+  var idx = pmSelSizes.indexOf(s);
+  if (idx > -1) {
+    pmSelSizes.splice(idx, 1);
+    if (btn) btn.classList.remove('selected');
+  } else {
+    pmSelSizes.push(s);
+    if (btn) btn.classList.add('selected');
+  }
+  updateSelectedSizesDisplay();
+  renderVariantMatrix();
+}
+
+function addCustomSize() {
+  var inp = document.getElementById('pmCustomSize');
+  var val = inp.value.trim();
+  if (!val) return;
+  if (pmSelSizes.indexOf(val) === -1) {
+    pmSelSizes.push(val);
+    updateSelectedSizesDisplay();
+    renderVariantMatrix();
+  }
+  inp.value = '';
+}
+
+function updateSelectedSizesDisplay() {
+  var el = document.getElementById('pmSelectedSizes');
+  if (!el) return;
+  if (!pmSelSizes.length) {
+    el.innerHTML = '<span style="color:var(--muted)">No sizes selected</span>';
+    return;
+  }
+  el.innerHTML = '<strong style="font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:8px">Selected:</strong>' +
+    pmSelSizes.map(function(s) {
+      return '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--black);color:var(--white);padding:3px 8px;font-size:.75rem;font-weight:600;margin-right:4px">' +
+        s + '<span onclick="removeSize(\'' + s + '\')" style="cursor:pointer;opacity:.6;margin-left:2px">×</span>' +
+      '</span>';
+    }).join('');
+}
+
+function removeSize(s) {
+  var idx = pmSelSizes.indexOf(s);
+  if (idx > -1) {
+    pmSelSizes.splice(idx, 1);
+    renderSizePresets();
+    updateSelectedSizesDisplay();
+    renderVariantMatrix();
+  }
+}
+
+// ── VARIANT TYPE ──
+function setVariantType(type) {
+  pmVarType = type;
+  ['size','color','design'].forEach(function(t) {
+    var btn = document.getElementById('vtype-' + t);
+    if (btn) btn.classList.toggle('active', t === type);
+  });
+  var colorSec  = document.getElementById('pmColorSection');
+  var designSec = document.getElementById('pmDesignSection');
+  if (colorSec)  colorSec.style.display  = type === 'color'  ? 'block' : 'none';
+  if (designSec) designSec.style.display = type === 'design' ? 'block' : 'none';
+  renderVariantMatrix();
+}
+
+// ── COLORS ──
+function addColors() {
+  var inp  = document.getElementById('pmColorInp');
+  var vals = inp.value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  vals.forEach(function(c) {
+    if (pmColors.indexOf(c) === -1) pmColors.push(c);
+  });
+  inp.value = '';
+  renderColorChips();
+  renderVariantMatrix();
+}
+
+function renderColorChips() {
+  var el = document.getElementById('pmColorChips');
+  if (!el) return;
+  el.innerHTML = pmColors.map(function(c, i) {
+    var hex = COLOR_MAP_ADMIN[c] || '#CCCCCC';
+    return '<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--off);border:1px solid var(--border);font-size:.78rem">' +
+      '<span style="width:12px;height:12px;border-radius:50%;background:' + hex + ';border:1px solid var(--border)"></span>' +
+      c + '<span onclick="removeColor(' + i + ')" style="cursor:pointer;color:var(--red);font-size:.8rem">×</span>' +
+    '</span>';
   }).join('');
 }
 
-function setVariantStock(varIdx, size, val) {
-  if (!pmVariants[varIdx].stock) pmVariants[varIdx].stock = {};
-  pmVariants[varIdx].stock[size] = parseInt(val) || 0;
+function removeColor(idx) {
+  pmColors.splice(idx, 1);
+  renderColorChips();
+  renderVariantMatrix();
 }
 
+// ── DESIGN ROWS ──
 function addVariantRow(v) {
-  pmVariants.push(v || { name:'', photo:'', price:'', stock:{} });
+  pmVariants.push(v || { name:'', photo:'', price:{}, stock:{}, cost:{} });
   renderVariantMatrix();
 }
 
@@ -1316,180 +1646,200 @@ function uploadVariantPhoto(idx) {
     var fd = new FormData();
     fd.append('file', file);
     fd.append('upload_preset', UPLOAD_PRESET);
-    toast('Uploading...');
+    toast('Uploading photo...');
     fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method:'POST', body:fd })
       .then(function(r){ return r.json(); })
       .then(function(d) {
         pmVariants[idx].photo = d.secure_url;
-        var div = document.getElementById('vphotodiv_'+idx);
-        if (div) div.innerHTML = '<img src="'+d.secure_url+'" style="width:40px;height:40px;object-fit:cover">';
+        var btn = document.getElementById('vphotobtn_'+idx);
+        if (btn) btn.innerHTML = '<img src="'+d.secure_url+'" style="width:40px;height:40px;object-fit:cover">';
         toast('Photo uploaded!');
       });
   };
   input.click();
 }
 
-function collectVariants() {
-  // Sync latest name/price values from inputs before collecting
-  pmVariants.forEach(function(v, i) {
-    var nameEl  = document.getElementById('vname_'+i);
-    var priceEl = document.getElementById('vprice_'+i);
-    if (nameEl)  v.name  = nameEl.value.trim().toUpperCase();
-    if (priceEl) v.price = parseFloat(priceEl.value) || 0;
+// ── MATRIX RENDER ──
+function renderVariantMatrix() {
+  var sizes = pmSelSizes;
+  var head  = document.getElementById('variantMatrixHead');
+  var body  = document.getElementById('variantMatrixBody');
+  if (!head || !body) return;
+
+  if (!sizes.length) {
+    head.innerHTML = '';
+    body.innerHTML = '<tr><td style="padding:16px;color:var(--muted);font-size:.8rem;border:1px solid var(--border)">← Select sizes first</td></tr>';
+    return;
+  }
+
+  // Build rows depending on type
+  var rows = [];
+  if (pmVarType === 'size') {
+    rows = [{ name:'', photo:'', data: pmVariants[0] || { price:{}, stock:{}, cost:{} }, isSimple: true }];
+    if (!pmVariants.length) pmVariants.push({ name:'', photo:'', price:{}, stock:{}, cost:{} });
+  } else if (pmVarType === 'color') {
+    rows = pmColors.map(function(c, i) {
+      if (!pmVariants[i]) pmVariants.push({ name:c, photo:'', price:{}, stock:{}, cost:{} });
+      pmVariants[i].name = c;
+      return { name:c, color: COLOR_MAP_ADMIN[c]||'#CCC', data: pmVariants[i], idx: i };
+    });
+  } else {
+    rows = pmVariants.map(function(v, i) {
+      return { name: v.name||('Design '+(i+1)), photo: v.photo, data: v, idx: i, isDesign: true };
+    });
+  }
+
+  // Header
+  var headHtml = '<tr>';
+  if (pmVarType !== 'size') headHtml += '<th class="matrix-th" style="min-width:180px;text-align:left">' + (pmVarType==='design'?'Design':'Color') + '</th>';
+  sizes.forEach(function(s) {
+    headHtml += '<th class="matrix-th" colspan="3">Size ' + s + '</th>';
   });
-  return pmVariants.filter(function(v){ return v.name; });
-}
+  if (pmVarType === 'design') headHtml += '<th class="matrix-th" style="width:36px"></th>';
+  headHtml += '</tr>';
 
-// Re-render matrix when sizes input changes
-function onSizesChange() {
-  renderVariantMatrix();
-}
+  // Sub-header
+  headHtml += '<tr>';
+  if (pmVarType !== 'size') headHtml += '<th class="matrix-th" style="background:var(--white)"></th>';
+  sizes.forEach(function() {
+    headHtml += '<th class="matrix-th" style="font-size:.6rem;color:var(--honey-dark);background:var(--honey-light)">₱ Price</th>';
+    headHtml += '<th class="matrix-th" style="font-size:.6rem;color:var(--blue);background:#EFF6FF">Stock</th>';
+    headHtml += '<th class="matrix-th" style="font-size:.6rem;color:var(--green);background:#F0FDF4">Cost</th>';
+  });
+  if (pmVarType === 'design') headHtml += '<th class="matrix-th" style="background:var(--white)"></th>';
+  headHtml += '</tr>';
+  head.innerHTML = headHtml;
 
+  // Body
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="' + (sizes.length*3+2) + '" style="padding:16px;color:var(--muted);font-size:.8rem;border:1px solid var(--border);text-align:center">Click "+ Add Design" to add variants</td></tr>';
+    return;
+  }
 
-var COLOR_MAP = {
-  'Pink':'#FFB6C1','Blue':'#87CEEB','Yellow':'#FFE066','White':'#F5F5F5',
-  'Red':'#FF6B6B','Green':'#90EE90','Purple':'#DDA0DD','Orange':'#FFA07A',
-  'Black':'#1a1a1a','Gray':'#C0C0C0','Beige':'#F5DEB3','Navy':'#1A1A2E',
-  'Mint':'#B5EAD7','Lavender':'#C9B1FF','Coral':'#FF9AA2','Peach':'#FFDAC1'
-};
+  body.innerHTML = rows.map(function(row, ri) {
+    var vdata = row.data || { price:{}, stock:{}, cost:{} };
+    var tr = '<tr>';
 
-function getCategories() {
-  return JSON.parse(localStorage.getItem('bbee_cats') || '["Dresses","Tops","Bottoms","Sets","Accessories"]');
-}
+    // Row label
+    if (pmVarType === 'color') {
+      tr += '<td class="matrix-design-col"><div class="matrix-design-wrap">' +
+        '<span style="width:20px;height:20px;border-radius:50%;background:' + row.color + ';border:1px solid var(--border);flex-shrink:0"></span>' +
+        '<span style="font-weight:600;font-size:.85rem">' + row.name + '</span>' +
+      '</div></td>';
+    } else if (pmVarType === 'design') {
+      tr += '<td class="matrix-design-col"><div class="matrix-design-wrap">' +
+        '<div class="matrix-photo-btn" id="vphotobtn_'+row.idx+'" onclick="uploadVariantPhoto('+row.idx+')">' +
+          (vdata.photo ? '<img src="'+vdata.photo+'" style="width:40px;height:40px;object-fit:cover">' : '📷') +
+        '</div>' +
+        '<input class="matrix-name-inp" id="vname_'+row.idx+'" value="'+(vdata.name||'')+'" placeholder="DESIGN NAME" ' +
+          'oninput="pmVariants['+row.idx+'].name=this.value.toUpperCase()">' +
+      '</div></td>';
+    }
 
-function populateCatDropdown(selectedCat) {
-  var sel = document.getElementById('pmCat');
-  if (!sel) return;
-  var cats = getCategories();
-  sel.innerHTML = cats.map(function(c){
-    return '<option value="' + c + '"' + (c===selectedCat?' selected':'') + '>' + c + '</option>';
+    // Cells per size
+    sizes.forEach(function(s) {
+      var price = (vdata.price && vdata.price[s] !== undefined) ? vdata.price[s] : '';
+      var stock = (vdata.stock && vdata.stock[s] !== undefined) ? vdata.stock[s] : '';
+      var cost  = (vdata.cost  && vdata.cost[s]  !== undefined) ? vdata.cost[s]  : '';
+      tr += '<td class="matrix-td"><input type="number" class="matrix-inp price" value="'+price+'" placeholder="0" min="0" ' +
+        'oninput="setCell('+ri+',\'price\',\''+s+'\',this.value)"></td>';
+      tr += '<td class="matrix-td"><input type="number" class="matrix-inp stock" value="'+stock+'" placeholder="0" min="0" ' +
+        'oninput="setCell('+ri+',\'stock\',\''+s+'\',this.value)"></td>';
+      tr += '<td class="matrix-td"><input type="number" class="matrix-inp cost" value="'+cost+'" placeholder="0" min="0" ' +
+        'oninput="setCell('+ri+',\'cost\',\''+s+'\',this.value)"></td>';
+    });
+
+    if (pmVarType === 'design') {
+      tr += '<td class="matrix-td" style="text-align:center"><button class="matrix-del-btn" onclick="removeVariantRow('+row.idx+')">✕</button></td>';
+    }
+    tr += '</tr>';
+    return tr;
   }).join('');
 }
 
-function generateSku() {
-  var cat  = document.getElementById('pmCat').value || 'GEN';
-  var abbr = cat.substring(0,2).toUpperCase();
-  var ts   = Date.now().toString().slice(-4);
-  document.getElementById('pmSku').value = 'BBEE-' + abbr + '-' + ts;
+function setCell(rowIdx, field, size, val) {
+  if (!pmVariants[rowIdx]) return;
+  if (!pmVariants[rowIdx][field]) pmVariants[rowIdx][field] = {};
+  pmVariants[rowIdx][field][size] = parseFloat(val) || 0;
+}
+
+// ── COLLECT & SAVE ──
+function collectVariants() {
+  // Sync name inputs for design type
+  if (pmVarType === 'design') {
+    pmVariants.forEach(function(v, i) {
+      var nameEl = document.getElementById('vname_'+i);
+      if (nameEl) v.name = nameEl.value.trim().toUpperCase();
+    });
+  }
+  return {
+    type:    pmVarType,
+    sizes:   pmSelSizes,
+    designs: pmVariants,
+    colors:  pmColors
+  };
+}
+
+function saveDraft() {
+  document.getElementById('pmDraft').checked = true;
+  document.getElementById('pmActive').checked = false;
+  saveProduct();
 }
 
 function openProductModal(id) {
-  pmPhotos = [];
   var p = id ? allProducts.find(function(x){ return x.id===id; }) : null;
   document.getElementById('productModalTitle').textContent = p ? 'Edit Product' : 'Add Product';
-  document.getElementById('pmId').value        = p ? p.id : '';
-  document.getElementById('pmName').value      = p ? p.name : '';
-  document.getElementById('pmSku').value       = p ? (p.sku||'') : '';
-  document.getElementById('pmPrice').value     = p ? p.price : '';
-  document.getElementById('pmSalePrice').value = p ? (p.salePrice||'') : '';
-  document.getElementById('pmCostPrice').value = p ? (p.costPrice||'') : '';
-  document.getElementById('pmStock').value     = p ? p.stock : '';
-  document.getElementById('pmLowStock').value  = p ? (p.lowStock||5) : 5;
-  document.getElementById('pmSizes').value     = p ? (p.sizes||[]).join(', ') : '';
-  document.getElementById('pmColors').value    = p ? (p.colors||[]).join(', ') : '';
-  document.getElementById('pmDesc').value      = p ? (p.desc||'') : '';
-  document.getElementById('pmActive').checked  = p ? p.active!==false : true;
-  populateCatDropdown(p ? p.cat : null);
-  if (p && p.photos) {
-    try { pmPhotos = JSON.parse(p.photos); } catch(e) { pmPhotos = []; }
-  } else if (p && p.img) {
-    pmPhotos = [{ url: p.img, isMain: true }];
-  }
-  renderPhotoGrid();
-  // Load variants
-  pmVariants = [];
-  if (p && p.variants) {
-    try {
-      var vv = JSON.parse(p.variants);
-      pmVariants = Array.isArray(vv) ? vv : [];
-    } catch(e) { pmVariants = []; }
-  }
-  renderVariantMatrix();
+  initProductForm(p);
   document.getElementById('productModal').classList.add('on');
 }
 
-function renderPhotoGrid() {
-  var grid = document.getElementById('pmPhotoGrid');
-  if (!grid) return;
-  grid.innerHTML = pmPhotos.map(function(ph, i) {
-    return '<div style="position:relative;width:80px;height:80px;flex-shrink:0">' +
-      '<img src="' + ph.url + '" style="width:80px;height:80px;object-fit:cover;border:2px solid ' + (ph.isMain?'var(--black)':'var(--border)') + '">' +
-      (ph.isMain?'<div style="position:absolute;bottom:0;left:0;right:0;background:var(--black);color:var(--white);font-size:.55rem;font-weight:700;text-align:center;padding:2px">MAIN</div>':'') +
-      '<button onclick="setMainPhoto(' + i + ')" style="position:absolute;top:2px;left:2px;background:rgba(0,0,0,.6);border:none;color:white;font-size:.6rem;padding:2px 4px;cursor:pointer">' + (ph.isMain?'★':'☆') + '</button>' +
-      '<button onclick="removePhoto(' + i + ')" style="position:absolute;top:2px;right:2px;background:rgba(200,0,0,.8);border:none;color:white;font-size:.75rem;width:18px;height:18px;cursor:pointer">×</button>' +
-    '</div>';
-  }).join('');
-}
-
-function setMainPhoto(idx) {
-  pmPhotos.forEach(function(p, i){ p.isMain = (i===idx); });
-  renderPhotoGrid();
-}
-
-function removePhoto(idx) {
-  pmPhotos.splice(idx, 1);
-  if (pmPhotos.length && !pmPhotos.find(function(p){ return p.isMain; })) pmPhotos[0].isMain = true;
-  renderPhotoGrid();
-}
-
-function handlePmPhotos(event) {
-  var files = Array.from(event.target.files).slice(0, 5 - pmPhotos.length);
-  if (!files.length) { toast('Max 5 photos only!'); return; }
-  toast('Uploading ' + files.length + ' photo(s)...');
-  Promise.all(files.map(function(file) {
-    var fd = new FormData();
-    fd.append('file', file);
-    fd.append('upload_preset', UPLOAD_PRESET);
-    return fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method:'POST', body:fd })
-      .then(function(r){ return r.json(); }).then(function(d){ return d.secure_url; });
-  })).then(function(urls) {
-    urls.forEach(function(url, i){ pmPhotos.push({ url:url, isMain: pmPhotos.length===0 && i===0 }); });
-    renderPhotoGrid();
-    toast(urls.length + ' photo(s) uploaded!');
-  });
-  event.target.value = '';
-}
-
 function saveProduct() {
-  var id    = document.getElementById('pmId').value;
-  var name  = document.getElementById('pmName').value.trim();
-  var price = document.getElementById('pmPrice').value;
-  if (!name)  { toast('Product name is required!'); return; }
-  if (!price) { toast('Price is required!'); return; }
+  var id   = document.getElementById('pmId').value;
+  var name = document.getElementById('pmName').value.trim();
+  if (!name) { toast('Product name is required!'); return; }
+
+  var variantData = collectVariants();
+
+  // Compute total stock and price range for Sheet columns
+  var totalStock = 0;
+  var prices     = [];
+  variantData.designs.forEach(function(v) {
+    Object.values(v.stock||{}).forEach(function(q){ totalStock += parseInt(q)||0; });
+    Object.values(v.price||{}).forEach(function(p){ if(p) prices.push(parseFloat(p)); });
+  });
+  var minPrice = prices.length ? Math.min.apply(null, prices) : 0;
+
   var mainPhoto = pmPhotos.find(function(p){ return p.isMain; });
   var mainUrl   = mainPhoto ? mainPhoto.url : (pmPhotos[0] ? pmPhotos[0].url : '');
-  var collectedVariants = collectVariants();
+
   api({
-    type:'SAVE_PRODUCT', id:id||'', name:name,
-    sku:document.getElementById('pmSku').value.trim(),
-    cat:document.getElementById('pmCat').value,
-    price:price,
-    salePrice:document.getElementById('pmSalePrice').value||'',
-    costPrice:document.getElementById('pmCostPrice').value||'',
-    stock:document.getElementById('pmStock').value||0,
-    lowStock:document.getElementById('pmLowStock').value||5,
-    sizes:document.getElementById('pmSizes').value,
-    colors:document.getElementById('pmColors').value,
-    desc:document.getElementById('pmDesc').value,
-    img:mainUrl, photos:JSON.stringify(pmPhotos),
-    variants:JSON.stringify(collectedVariants),
-    active:document.getElementById('pmActive').checked?'true':'false'
+    type:       'SAVE_PRODUCT',
+    id:         id || '',
+    name:       name,
+    sku:        document.getElementById('pmSku').value.trim(),
+    cat:        document.getElementById('pmCat').value,
+    price:      minPrice || 0,
+    stock:      totalStock,
+    lowStock:   document.getElementById('pmLowStock').value || 5,
+    desc:       document.getElementById('pmDesc').value,
+    img:        mainUrl,
+    photos:     JSON.stringify(pmPhotos),
+    variants:   JSON.stringify(variantData),
+    featured:   document.getElementById('pmFeatured').checked ? 'true' : 'false',
+    draft:      document.getElementById('pmDraft').checked    ? 'true' : 'false',
+    sortOrder:  document.getElementById('pmSort').value || 0,
+    active:     document.getElementById('pmActive').checked   ? 'true' : 'false'
   }).then(function(data) {
-    if (data.status==='ok') { toast(id?'Product updated!':'Product added!'); closeModal('productModal'); loadProducts(); }
-    else toast('Error: ' + (data.message||''));
+    if (data.status === 'ok') {
+      toast(id ? 'Product updated!' : 'Product added!');
+      closeModal('productModal');
+      loadProducts();
+    } else {
+      toast('Error: ' + (data.message || 'Unknown error'));
+    }
   });
 }
 
-function deleteProduct(id) {
-  // Check if safe to delete
-  var prod = allProducts.find(function(p){ return p.id===id; });
-  var name = prod ? prod.name : id;
-  if (!confirm('Delete "' + name + '"?\n\nThis will mark it as inactive (soft delete).')) return;
-  api({ type:'DELETE_PRODUCT', id:id }).then(function(d){
-    if (d.status==='ok') { toast('Product deleted!'); loadProducts(); }
-    else toast('Error: ' + (d.message||''));
-  });
-}
 
 // ── INVENTORY ──
 function loadInventory() {
