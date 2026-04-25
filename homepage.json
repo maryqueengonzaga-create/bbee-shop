@@ -1,21 +1,6 @@
 {
-  "updated": "2026-04-25T01:16:23.576Z",
-  "settings": {
-    "heroActive": false,
-    "heroEyebrow": "New Collection 2026",
-    "heroTitle": "Cute fits for little ones",
-    "heroSubtitle": "Adorable, comfortable clothing for your little ones. Handpicked styles from Matina, Davao City. 🐝",
-    "heroBtn1Text": "Shop Now →",
-    "heroBtn1Cat": "scroll",
-    "heroBtn2Text": "View Dresses",
-    "heroBtn2Cat": "Dresses",
-    "announceText": "Free Shipping on orders ₱3,000+",
-    "announceLinkText": "Shop New Arrivals →",
-    "announceLinkCat": "",
-    "announceBg": "#111111",
-    "announceColor": "#ffffff",
-    "announceActive": false
-  },
+  "updated": "2026-04-25T01:17:16.083Z",
+  "settings": {},
   "banners": [],
   "carousel": {},
   "sections": {
