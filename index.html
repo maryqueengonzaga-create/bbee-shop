@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — index.html -->
-<!-- Last updated: 2026-04-25 1:45 AM PHT -->
+<!-- Last updated: 2026-04-25 2:10 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1566,6 +1566,7 @@ function loadData(){
 }
 
 var PRODUCTS_JSON_URL = 'https://maryqueengonzaga-create.github.io/bbee-shop/products.json';
+var HOMEPAGE_JSON_URL = 'https://maryqueengonzaga-create.github.io/bbee-shop/homepage.json';
 
 function loadProductsFromSheet(){
   var grid = document.getElementById('productsGrid');
@@ -2825,9 +2826,39 @@ function showLoadingSkeleton() {
 // ══════════════════════════════════════════
 
 function applyHomepageSettings() {
+  // Try to fetch from GitHub JSON first (works in all browsers/incognito)
+  fetch(HOMEPAGE_JSON_URL + '?v=' + Date.now())
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(data) {
+      if (data) {
+        // Cache locally
+        try {
+          if (data.settings) localStorage.setItem('bbee_homepage', JSON.stringify(data.settings));
+          if (data.banners)  localStorage.setItem('bbee_banners',  JSON.stringify(data.banners));
+          if (data.carousel) localStorage.setItem('bbee_carousel', JSON.stringify(data.carousel));
+          if (data.sections) localStorage.setItem('bbee_sections', JSON.stringify(data.sections));
+        } catch(e) {}
+        _applyHomepageData(data.settings || {}, data.sections || {}, data.banners || [], data.carousel || {});
+      } else {
+        // Fallback to localStorage
+        _applyFromLocalStorage();
+      }
+    })
+    .catch(function() { _applyFromLocalStorage(); });
+}
+
+function _applyFromLocalStorage() {
   try {
-    var s   = JSON.parse(localStorage.getItem('bbee_homepage') || '{}');
-    var vis = JSON.parse(localStorage.getItem('bbee_sections') || '{}');
+    var s       = JSON.parse(localStorage.getItem('bbee_homepage') || '{}');
+    var vis     = JSON.parse(localStorage.getItem('bbee_sections') || '{}');
+    var bnrs    = JSON.parse(localStorage.getItem('bbee_banners')  || '[]');
+    var carousel= JSON.parse(localStorage.getItem('bbee_carousel') || '{}');
+    _applyHomepageData(s, vis, bnrs, carousel);
+  } catch(e) {}
+}
+
+function _applyHomepageData(s, vis, bnrs, carouselSettings) {
+  try {
 
     // Announcement bar
     var bar = document.getElementById('announcebar');
@@ -2888,8 +2919,8 @@ function applyHomepageSettings() {
 
   } catch(e) { console.warn('Homepage settings error:', e); }
 
-  // Apply banners
-  applyBannerCarousel();
+  // Apply banners with provided data
+  _applyBannersData(bnrs, carouselSettings);
 }
 
 // ── BANNER CAROUSEL ──
@@ -2897,16 +2928,15 @@ var _bannerIdx      = 0;
 var _bannerTimer    = null;
 var _bannerItems    = [];
 
-function applyBannerCarousel() {
+function _applyBannersData(savedBanners, settings) {
   try {
     var vis     = JSON.parse(localStorage.getItem('bbee_sections') || '{}');
     var carousel= document.getElementById('bannerCarousel');
     if (!carousel) return;
 
     if (vis.banners === false) { carousel.style.display = 'none'; return; }
-
-    var savedBanners = JSON.parse(localStorage.getItem('bbee_banners') || '[]');
-    var settings     = JSON.parse(localStorage.getItem('bbee_carousel') || '{}');
+    if (!savedBanners) savedBanners = JSON.parse(localStorage.getItem('bbee_banners') || '[]');
+    if (!settings)     settings     = JSON.parse(localStorage.getItem('bbee_carousel') || '{}');
     var now          = new Date();
 
     // Filter active banners
@@ -2962,13 +2992,28 @@ function goBanner(idx) {
   });
 }
 
+function applyBannerCarousel() { _applyBannersData(null, null); }
 function prevBanner() { goBanner(_bannerIdx - 1 < 0 ? _bannerItems.length - 1 : _bannerIdx - 1); }
 function nextBanner() { goBanner((_bannerIdx + 1) % _bannerItems.length); }
 
-// Apply on load
-document.addEventListener('DOMContentLoaded', function() {
-  applyHomepageSettings();
+// Apply homepage settings after everything loads
+window.addEventListener('load', function() {
+  setTimeout(applyHomepageSettings, 100);
 });
+
+// Re-apply when tab becomes visible (user switched from admin tab)
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    setTimeout(applyHomepageSettings, 100);
+  }
+});
+
+// Also re-apply after products load
+var _origLoadProducts = loadProductsFromSheet;
+loadProductsFromSheet = function() {
+  _origLoadProducts.apply(this, arguments);
+  setTimeout(applyHomepageSettings, 500);
+};
 
 
 // ══════════════════════════════════════════
