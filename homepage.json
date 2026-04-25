@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-25T01:04:25.976Z",
+  "updated": "2026-04-25T01:06:39.471Z",
   "settings": {
     "heroActive": false,
     "heroEyebrow": "New Collection 2026",
@@ -21,7 +21,7 @@
   "sections": {
     "hero": false,
     "banners": false,
-    "announce": false,
-    "newsletter": false
+    "announce": true,
+    "newsletter": true
   }
 }
