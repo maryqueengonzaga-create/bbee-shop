@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — index.html -->
-<!-- Last updated: 2026-04-25 8:50 AM PHT -->
+<!-- Last updated: 2026-04-25 9:00 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -770,6 +770,14 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
      HOME SCREEN
 ══════════════════════════════════ -->
 <div class="screen on" id="s-home" style="padding-top:calc(var(--nav-h) + 40px)">
+
+  <!-- BANNER CAROUSEL -->
+  <div id="bannerCarousel" style="display:none;position:relative;overflow:hidden;width:100%">
+    <div id="bannerSlides" style="display:flex;transition:transform .5s ease"></div>
+    <button onclick="prevBanner()" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.85);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.2rem;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.15)">‹</button>
+    <button onclick="nextBanner()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.85);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.2rem;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.15)">›</button>
+    <div id="bannerDots" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2"></div>
+  </div>
 
   <div class="shopee-bar" id="filterBar">
       <!-- Search Row -->
@@ -2862,18 +2870,18 @@ function _applyFromLocalStorage() {
 
 function _applyHomepageData(s, vis, bnrs, carouselSettings) {
   try {
-
-    // Announcement bar
+    // ── ANNOUNCEMENT BAR ──
     var bar = document.getElementById('announcebar');
     if (bar) {
       if (vis.announce === false) {
         bar.style.display = 'none';
       } else {
+        bar.style.display = '';
         if (s.announceText) {
           var msgEl = bar.querySelector('span');
           if (msgEl) {
             var linkCat = s.announceLinkCat || '';
-            var linkTxt = s.announceLinkText || 'Shop Now →';
+            var linkTxt = s.announceLinkText || 'Shop New Arrivals →';
             msgEl.innerHTML = s.announceText +
               (linkCat ? ' &nbsp;·&nbsp; <a href="#" onclick="shopeeFilterCat(&quot;' + linkCat + '&quot;,null)" style="color:var(--accent);text-decoration:none;font-weight:600">' + linkTxt + '</a>' : '');
           }
@@ -2883,541 +2891,38 @@ function _applyHomepageData(s, vis, bnrs, carouselSettings) {
       }
     }
 
-    // Hero section
+    // ── HERO SECTION ──
     var hero = document.querySelector('.hero');
     if (hero) {
       if (vis.hero === false) {
-        hero.style.display = 'none';
-        hero.style.margin  = '0';
-        hero.style.padding = '0';
-        hero.style.height  = '0';
-        hero.style.overflow = 'hidden';
+        hero.style.cssText = 'display:none !important;margin:0;padding:0;height:0;overflow:hidden';
       } else {
-        hero.style.display  = '';
-        hero.style.height   = '';
-        hero.style.overflow = '';
-        if (s.heroEyebrow) {
-          var ey = hero.querySelector('.hero-eyebrow');
-          if (ey) ey.textContent = s.heroEyebrow;
-        }
-        if (s.heroTitle) {
-          var ht = hero.querySelector('.hero-title');
-          if (ht) ht.innerHTML = s.heroTitle;
-        }
-        if (s.heroSubtitle) {
-          var hs = hero.querySelector('.hero-subtitle');
-          if (hs) hs.textContent = s.heroSubtitle;
-        }
-        if (s.heroBtn1Text) {
-          var hb1 = hero.querySelector('.hero-btns .btn-primary');
-          if (hb1) hb1.textContent = s.heroBtn1Text;
-        }
-        if (s.heroBtn2Text) {
-          var hb2 = hero.querySelector('.hero-btns .btn-outline');
-          if (hb2) {
-            hb2.textContent = s.heroBtn2Text;
-            hb2.style.display = s.heroBtn2Cat ? '' : 'none';
-          }
+        hero.style.cssText = '';
+        if (s.heroEyebrow) { var ey = hero.querySelector('.hero-eyebrow'); if (ey) ey.textContent = s.heroEyebrow; }
+        if (s.heroTitle)   { var ht = hero.querySelector('.hero-title');   if (ht) ht.innerHTML  = s.heroTitle;   }
+        if (s.heroSubtitle){ var hs = hero.querySelector('.hero-subtitle');if (hs) hs.textContent = s.heroSubtitle;}
+        if (s.heroBtn1Text){ var b1 = hero.querySelector('.btn-primary');  if (b1) b1.textContent = s.heroBtn1Text;}
+        if (s.heroBtn2Text && s.heroBtn2Cat) {
+          var b2 = hero.querySelector('.btn-outline');
+          if (b2) { b2.textContent = s.heroBtn2Text; b2.style.display = ''; }
+        } else if (!s.heroBtn2Cat) {
+          var b2h = hero.querySelector('.btn-outline');
+          if (b2h) b2h.style.display = 'none';
         }
       }
     }
 
-    // Newsletter bar
+    // ── NEWSLETTER BAR ──
     if (vis.newsletter === false) {
       try { localStorage.setItem('bbee_nl_dismissed', '1'); } catch(e2) {}
+    } else {
+      try { localStorage.removeItem('bbee_nl_dismissed'); } catch(e2) {}
     }
 
   } catch(e) { console.warn('Homepage settings error:', e); }
 
-  // Apply banners with provided data
+  // ── BANNERS ──
   _applyBannersData(bnrs, carouselSettings);
 }
 
-// ── BANNER CAROUSEL ──
-var _bannerIdx      = 0;
-var _bannerTimer    = null;
-var _bannerItems    = [];
-
-function _applyBannersData(savedBanners, settings) {
-  try {
-    var vis     = JSON.parse(localStorage.getItem('bbee_sections') || '{}');
-    var carousel= document.getElementById('bannerCarousel');
-    if (!carousel) return;
-
-    if (vis.banners === false) { carousel.style.display = 'none'; return; }
-    if (!savedBanners) savedBanners = JSON.parse(localStorage.getItem('bbee_banners') || '[]');
-    if (!settings)     settings     = JSON.parse(localStorage.getItem('bbee_carousel') || '{}');
-    var now          = new Date();
-
-    // Filter active banners
-    _bannerItems = savedBanners.filter(function(b) {
-      if (!b.url) return false;
-      if (b.start && new Date(b.start) > now) return false;
-      if (b.end   && new Date(b.end)   < now) return false;
-      return true;
-    });
-
-    if (!_bannerItems.length) { carousel.style.display = 'none'; return; }
-
-    carousel.style.display = 'block';
-    var slides = document.getElementById('bannerSlides');
-    var dots   = document.getElementById('bannerDots');
-
-    // Render slides
-    slides.style.width = (_bannerItems.length * 100) + '%';
-    slides.innerHTML   = _bannerItems.map(function(b) {
-      return '<div style="flex:1;min-width:0;cursor:' + (b.cat?'pointer':'default') + '" onclick="' + (b.cat?'shopeeFilterCat(&quot;'+b.cat+'&quot;,null)':'') + '">' +
-        '<img src="' + b.url + '" style="width:100%;height:auto;max-height:400px;object-fit:cover;display:block">' +
-        (b.label ? '<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.5));padding:20px;color:white;font-family:Cormorant Garamond,serif;font-size:1.2rem;font-weight:600">' + b.label + '</div>' : '') +
-      '</div>';
-    }).join('');
-    carousel.style.position = 'relative';
-
-    // Dots
-    if (settings.dots !== false && _bannerItems.length > 1) {
-      dots.innerHTML = _bannerItems.map(function(_, i) {
-        return '<div onclick="goBanner(' + i + ')" style="width:8px;height:8px;border-radius:50%;background:' + (i===0?'var(--white)':'rgba(255,255,255,.5)') + ';cursor:pointer;transition:background .3s"></div>';
-      }).join('');
-      dots.style.display = 'flex';
-    }
-
-    // Auto-play
-    if (_bannerTimer) clearInterval(_bannerTimer);
-    var speed = settings.speed || 5000;
-    if (speed > 0 && _bannerItems.length > 1) {
-      _bannerTimer = setInterval(function(){ nextBanner(); }, speed);
-    }
-
-    goBanner(0);
-  } catch(e) { console.warn('Banner error:', e); }
-}
-
-function goBanner(idx) {
-  _bannerIdx = Math.max(0, Math.min(idx, _bannerItems.length - 1));
-  var slides = document.getElementById('bannerSlides');
-  if (slides) slides.style.transform = 'translateX(-' + (_bannerIdx * (100/_bannerItems.length)) + '%)';
-  // Update dots
-  document.querySelectorAll('#bannerDots div').forEach(function(d, i) {
-    d.style.background = i === _bannerIdx ? 'var(--white)' : 'rgba(255,255,255,.5)';
-  });
-}
-
-function applyBannerCarousel() { _applyBannersData(null, null); }
-function prevBanner() { goBanner(_bannerIdx - 1 < 0 ? _bannerItems.length - 1 : _bannerIdx - 1); }
-function nextBanner() { goBanner((_bannerIdx + 1) % _bannerItems.length); }
-
-// Apply homepage settings after everything loads
-window.addEventListener('load', function() {
-  setTimeout(applyHomepageSettings, 300);
-});
-
-// Re-apply when tab becomes visible (user switched from admin tab)
-document.addEventListener('visibilitychange', function() {
-  if (!document.hidden) {
-    setTimeout(applyHomepageSettings, 100);
-  }
-});
-
-// Also re-apply after products load
-var _origLoadProducts = loadProductsFromSheet;
-loadProductsFromSheet = function() {
-  _origLoadProducts.apply(this, arguments);
-  setTimeout(applyHomepageSettings, 500);
-};
-
-
-// ══════════════════════════════════════════
-// VARIANT SYSTEM (Shopee-style Design + Size)
-// ══════════════════════════════════════════
-
-var selDesign   = null; // { name, photo, price, stock:{size:qty} }
-var selSize     = null;
-var selColor    = null;
-
-// Parse variants from product
-function getProductVariants(p) {
-  if (!p.variants) return null;
-  try {
-    var v = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
-    // New format: {type, sizes, designs, colors}
-    if (v && v.type) {
-      if (v.type === 'design' && v.designs && v.designs.length) return v.designs;
-      if (v.type === 'color'  && v.colors  && v.colors.length)  return v.colors;
-      return null; // size only - no variant chips
-    }
-    // Legacy format: array of designs
-    return Array.isArray(v) && v.length ? v : null;
-  } catch(e) { return null; }
-}
-
-// Get variant type
-function getVariantType(p) {
-  if (!p.variants) return 'size';
-  try {
-    var v = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
-    return v && v.type ? v.type : 'size';
-  } catch(e) { return 'size'; }
-}
-
-// Get sizes from product
-function getProductSizes(p) {
-  if (!p.variants) return p.sizes || [];
-  try {
-    var v = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
-    if (v && v.sizes) return v.sizes;
-  } catch(e) {}
-  return p.sizes || [];
-}
-
-// Open product with variant support
-function openProduct(p) {
-  curProduct = p;
-  selDesign  = null;
-  selSize    = null;
-  selColor   = null;
-
-  document.getElementById('detailCat').textContent  = p.cat || '';
-  document.getElementById('detailName').textContent = p.name || '';
-  document.getElementById('detailDesc').textContent = p.desc || 'Adorable outfit for your little one.';
-
-  var variants = getProductVariants(p);
-  var sizes    = getProductSizes(p);
-
-  var varType = getVariantType(p);
-  if (variants && variants.length && (varType === 'design' || varType === 'color')) {
-    // VARIANT MODE: Design + Size OR Color + Size
-    document.getElementById('designSection').style.display = 'block';
-    document.getElementById('sizeSection').style.display   = 'block';
-    document.getElementById('colorSection').style.display  = 'none';
-
-    renderDesignChips(variants, varType);
-    renderSizeChips(sizes, null); // no design selected yet
-
-    // Show price range
-    var prices  = variants.map(function(v){ return parseFloat(v.price)||0; }).filter(Boolean);
-    var minP    = Math.min.apply(null, prices);
-    var maxP    = Math.max.apply(null, prices);
-    var priceHtml = minP === maxP
-      ? '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + minP.toLocaleString() + '</span>'
-      : '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + minP.toLocaleString() + ' – ₱' + maxP.toLocaleString() + '</span>';
-    document.getElementById('detailPrice').innerHTML = priceHtml;
-
-  } else {
-    // LEGACY MODE: Color + Size
-    document.getElementById('designSection').style.display = 'none';
-    document.getElementById('sizeSection').style.display   = sizes.length ? 'block' : 'none';
-    document.getElementById('colorSection').style.display  = p.colors && p.colors.length ? 'block' : 'none';
-
-    // Legacy size chips
-    var sizeRow = document.getElementById('sizeRow');
-    sizeRow.innerHTML = sizes.map(function(s) {
-      return '<div class="size-chip" onclick="selectSize(\'' + s + '\',this)">' + s + '</div>';
-    }).join('');
-
-    // Legacy colors
-    var colorRow = document.getElementById('colorRow');
-    if (colorRow && p.colors) {
-      colorRow.innerHTML = p.colors.map(function(c) {
-        var hex = COLOR_MAP[c] || '#CCCCCC';
-        return '<div class="color-swatch" title="' + c + '" style="background:' + hex + '" onclick="selectColor(\'' + c + '\',this)"></div>';
-      }).join('');
-    }
-
-    // Price
-    var flashDisc = getFlashDiscount ? getFlashDiscount(p.price) : 0;
-    var effPrice  = p.salePrice || (flashDisc > 0 ? p.price - flashDisc : p.price);
-    p._effPrice   = effPrice;
-    var priceHtml = effPrice < p.price
-      ? '<span style="text-decoration:line-through;color:var(--text-muted);font-size:.9rem;margin-right:8px">₱' + p.price + '</span><span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:700;color:var(--red)">₱' + effPrice + '</span>'
-      : '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + p.price + '</span>';
-    document.getElementById('detailPrice').innerHTML = priceHtml;
-  }
-
-  // Photos
-  initProductPhotos(p);
-
-  // Add to cart button state
-  var btn = document.getElementById('addToCartBtn');
-  if (btn) {
-    btn.textContent    = 'Add to Cart';
-    btn.disabled       = false;
-    btn.style.background = '';
-    btn.style.cursor     = '';
-  }
-
-  goScreen('s-product');
-}
-
-function renderDesignChips(variants) {
-  var grid = document.getElementById('designGrid');
-  if (!grid) return;
-  grid.innerHTML = variants.map(function(v, i) {
-    var totalStock = 0;
-    if (v.stock && typeof v.stock === 'object') {
-      totalStock = Object.values(v.stock).reduce(function(s,n){ return s+(parseInt(n)||0); }, 0);
-    } else {
-      totalStock = parseInt(v.stock) || 99;
-    }
-    var isOut = totalStock <= 0;
-    return '<div class="design-chip' + (isOut?' out-of-stock':'') + '" onclick="' + (isOut?'':'selectDesign('+i+',this)') + '" id="dchip_'+i+'">' +
-      (v.photo
-        ? '<img src="' + v.photo + '" alt="' + v.name + '" onerror="this.style.display=\'none\'">'
-        : '<div class="design-ph">🎨</div>') +
-      '<span>' + v.name + '</span>' +
-    '</div>';
-  }).join('');
-}
-
-function selectDesign(idx, el) {
-  var varData = curProduct.variants ? 
-    (typeof curProduct.variants === 'string' ? JSON.parse(curProduct.variants) : curProduct.variants) : null;
-  if (!varData) return;
-  
-  var designs = varData.designs || varData;
-  if (!Array.isArray(designs)) return;
-  selDesign = designs[idx];
-  selSize   = null;
-
-  // Update active chip
-  document.querySelectorAll('.design-chip').forEach(function(c){ c.classList.remove('active'); });
-  if (el) el.classList.add('active');
-
-  // Update photo to this design's photo
-  var img     = document.getElementById('detailMainImg');
-  var emojiPh = document.getElementById('detailEmojiPh');
-  if (selDesign.photo) {
-    if (img) { img.src = selDesign.photo; img.style.display = 'block'; }
-    if (emojiPh) emojiPh.style.display = 'none';
-  }
-
-  // Update thumbnails - highlight this design's photo
-  var thumbs = document.getElementById('detailThumbs');
-  if (thumbs) thumbs.innerHTML = '';
-
-  // Show price range for this design across sizes
-  var sizes  = varData.sizes || [];
-  var prices = sizes.map(function(s){ return parseFloat((selDesign.price||{})[s])||0; }).filter(Boolean);
-  var minP   = prices.length ? Math.min.apply(null,prices) : 0;
-  var maxP   = prices.length ? Math.max.apply(null,prices) : 0;
-  var priceHtml = '';
-  if (minP && maxP && minP !== maxP) {
-    priceHtml = '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + 
-      minP.toLocaleString() + ' – ₱' + maxP.toLocaleString() + '</span>';
-  } else if (minP) {
-    priceHtml = '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + minP.toLocaleString() + '</span>';
-  }
-  document.getElementById('detailPrice').innerHTML = priceHtml;
-
-  // Update sizes with stock info for this design
-  renderSizeChips(sizes, selDesign);
-  document.getElementById('stockHint').textContent = '';
-
-  // Update add to cart button
-  var btn = document.getElementById('addToCartBtn');
-  if (btn) {
-    var totalStock = Object.values(selDesign.stock||{}).reduce(function(s,n){ return s+(parseInt(n)||0); },0);
-    if (totalStock <= 0) {
-      btn.textContent = 'Out of Stock';
-      btn.disabled    = true;
-      btn.style.opacity = '.5';
-    } else {
-      btn.textContent   = 'Add to Cart';
-      btn.disabled      = false;
-      btn.style.opacity = '';
-    }
-  }
-}
-
-function renderSizeChips(sizes, design) {
-  var row = document.getElementById('sizeRow');
-  if (!row || !sizes.length) return;
-  row.innerHTML = sizes.map(function(s) {
-    var qty = 0;
-    if (design && design.stock) {
-      qty = parseInt(design.stock[s] || design.stock[String(s)] || 0);
-    } else {
-      qty = 99; // no design selected yet
-    }
-    var isOut = design && qty <= 0;
-    return '<div class="size-chip' + (isOut?' out':'') + '" onclick="' + (isOut?'':'selectSizeVariant(\''+s+'\',this,'+qty+')') + '">' +
-      s + '</div>';
-  }).join('');
-}
-
-function selectSizeVariant(size, el, qty, price) {
-  selSize = size;
-  document.querySelectorAll('.size-chip').forEach(function(c){ c.classList.remove('active'); });
-  if (el) el.classList.add('active');
-  
-  // Update price display if price is per size
-  if (price) {
-    document.getElementById('detailPrice').innerHTML =
-      '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600">₱' + parseFloat(price).toLocaleString() + '</span>';
-  }
-  
-  var hint = document.getElementById('stockHint');
-  if (hint) {
-    hint.textContent = qty <= 5 && qty > 0 ? 'Only ' + qty + ' left!' : qty === 0 ? 'Out of stock' : '';
-    hint.style.color = qty <= 5 ? 'var(--red)' : 'var(--muted)';
-  }
-}
-
-function selectSize(s, el) {
-  selSize = s;
-  document.querySelectorAll('.size-chip').forEach(function(c){ c.classList.remove('active'); });
-  if (el) el.classList.add('active');
-}
-
-function selectColor(c, el) {
-  selColor = c;
-  document.querySelectorAll('.color-swatch').forEach(function(s){ s.classList.remove('active'); });
-  if (el) el.classList.add('active');
-}
-
-// Override addToCart for variant support
-function addToCart() {
-  var variants = getProductVariants(curProduct);
-
-  if (variants && variants.length) {
-    // Variant mode
-    if (!selDesign) { showToast('Please select a design!'); return; }
-    if (!selSize)   { showToast('Please select a size!');   return; }
-
-    // Stock check
-    var qty = selDesign.stock ? (parseInt(selDesign.stock[selSize])||0) : 99;
-    if (qty <= 0) { showToast('Out of stock for this combination!'); return; }
-
-    var key = curProduct.id + '_' + selDesign.name + '_' + selSize;
-    var existing = cart.find(function(i){ return i._key === key; });
-    if (existing) {
-      if (existing.qty >= qty) { showToast('Only ' + qty + ' left in stock!'); return; }
-      existing.qty++;
-    } else {
-      cart.push({
-        _key:   key,
-        id:     curProduct.id,
-        name:   curProduct.name,
-        design: selDesign.name,
-        size:   selSize,
-        price:  parseFloat(selDesign.price) || curProduct.price,
-        img:    selDesign.photo || curProduct.img || '',
-        cat:    curProduct.cat,
-        qty:    1
-      });
-    }
-  } else {
-    // Legacy mode
-    if (!selSize && getProductSizes(curProduct).length)  { showToast('Please select a size!');  return; }
-    if (!selColor && curProduct.colors && curProduct.colors.length) { showToast('Please select a color!'); return; }
-    if (curProduct.stock !== undefined && curProduct.stock <= 0) { showToast('Out of stock!'); return; }
-
-    var key2 = curProduct.id + '_' + selSize + '_' + selColor;
-    var existing2 = cart.find(function(i){ return i._key === key2; });
-    if (existing2) {
-      existing2.qty++;
-    } else {
-      cart.push({
-        _key:   key2,
-        id:     curProduct.id,
-        name:   curProduct.name,
-        size:   selSize,
-        color:  selColor,
-        price:  curProduct._effPrice || curProduct.price,
-        img:    curProduct.img || '',
-        cat:    curProduct.cat,
-        qty:    1
-      });
-    }
-  }
-
-  saveData();
-  updateCartCount();
-  showToast('Added to cart! 🛍');
-}
-
-
-
-loadData();updateCartCount();startFlashTimer();
-</script>
-
-<script>
-// New UI helpers
-function openCart(){document.getElementById("cartOverlay").classList.add("on");document.getElementById("cartDrawer").classList.add("on");renderCartDrawer();}
-function closeCart(){document.getElementById("cartOverlay").classList.remove("on");document.getElementById("cartDrawer").classList.remove("on");}
-function openMobileMenu(){document.getElementById("mobileMenu").classList.add("on");}
-function closeMobileMenu(){document.getElementById("mobileMenu").classList.remove("on");}
-function renderCartDrawer(){
-  var scroll=document.getElementById("cartItemsScroll");
-  var footer=document.getElementById("cartDrawerFooter");
-  if(!cart.length){
-    scroll.innerHTML='<div class="cart-empty-state"><div class="cart-empty-icon">🛍</div><div class="cart-empty-txt">Your cart is empty</div></div>';
-    footer.style.display="none";return;
-  }
-  var html="";
-  cart.forEach(function(item,i){
-    html+='<div class="cart-item">';
-    if(item.img){html+='<img class="cart-item-img" src="'+item.img+'">';}
-    else{html+='<div class="cart-item-img-ph">'+getCatEmoji(item.cat)+'</div>';}
-    html+='<div class="cart-item-info">';
-    html+='<div class="cart-item-cat">'+item.cat+'</div>';
-    html+='<div class="cart-item-name">'+item.name+'</div>';
-    html+='<div class="cart-item-meta">'+[item.size,item.color].filter(Boolean).join(" · ")+'</div>';
-    html+='<div style="display:flex;align-items:center;gap:12px;margin-top:8px">';
-    html+='<div class="qty-row"><button class="qty-btn" onclick="updateCartQty('+i+',-1)">-</button><span class="qty-num">'+item.qty+'</span><button class="qty-btn" onclick="updateCartQty('+i+',1)">+</button></div>';
-    html+='<div class="cart-item-price">₱'+((item.price||0)*item.qty).toLocaleString()+'</div>';
-    html+='<button class="cart-remove" onclick="removeFromCart('+i+')">Remove</button>';
-    html+='</div></div></div>';
-  });
-  scroll.innerHTML=html;
-  var total=cart.reduce(function(s,i){return s+(i.price||0)*i.qty;},0);
-  document.getElementById("cartTotalAmt").textContent="₱"+total.toLocaleString();
-  footer.style.display="block";
-}
-function updateCartQty(idx,delta){
-  cart[idx].qty=Math.max(1,cart[idx].qty+delta);
-  saveCart();renderCartDrawer();updateCartCount();
-}
-function removeFromCart(idx){
-  cart.splice(idx,1);
-  saveCart();renderCartDrawer();updateCartCount();
-}
-function showAdminTab(tab){
-  ["orders","products","customers","promos","categories"].forEach(function(t){
-    document.getElementById("admin-"+t).style.display=t===tab?"block":"none";
-  });
-  document.querySelectorAll(".admin-sidebar-link").forEach(function(l,i){
-    var tabs=["orders","products","customers","promos","categories"];
-    l.classList.toggle("active",tabs[i]===tab);
-  });
-  if(tab==="orders")renderOrders();
-  if(tab==="products")renderAdminProducts();
-  if(tab==="customers")renderAdminCustomers();
-}
-function renderCheckoutSummary(){
-  var items=document.getElementById("checkoutSummaryItems");
-  var html="";
-  cart.forEach(function(item){
-    html+='<div class="order-summary-item">';
-    if(item.img){html+='<img class="order-item-img" src="'+item.img+'">';}
-    html+='<div><div class="order-item-name">'+item.name+'</div><div class="order-item-meta">'+[item.size,item.color].filter(Boolean).join(" · ")+' × '+item.qty+'</div></div>';
-    html+='<div class="order-item-price">₱'+((item.price||0)*item.qty).toLocaleString()+'</div></div>';
-  });
-  items.innerHTML=html;
-  var total=cart.reduce(function(s,i){return s+(i.price||0)*i.qty;},0);
-  document.getElementById("coSubtotal").textContent="₱"+total.toLocaleString();
-  document.getElementById("coTotal").textContent="₱"+total.toLocaleString();
-}
-function subscribeNewsletter(){
-  var email=document.getElementById("newsletterEmail").value;
-  if(!email){showToast("Enter your email!");return;}
-  showToast("Thank you! ₱200 off code sent to "+email);
-  document.getElementById("newsletterEmail").value="";
-}
-function showEmailLogin(){
-  var f=document.getElementById("emailLoginFields");
-  f.style.display=f.style.display==="none"?"flex":"none";
-}
-</script>
-
-</body>
-</html>
+>

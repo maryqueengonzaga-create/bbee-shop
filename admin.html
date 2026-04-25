@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — admin.html -->
-<!-- Last updated: 2026-04-25 8:50 AM PHT -->
+<!-- Last updated: 2026-04-25 9:00 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2232,7 +2232,7 @@ function saveAnnouncement() {
   s.announceColor    = document.getElementById('announceColor').value;
   s.announceActive   = document.getElementById('announceActive').checked;
   saveHomepage(s);
-  toast('Announcement saved! Refresh shop to see changes.');
+  toast('✅ Announcement saved!');
 }
 
 // ── HERO ──
@@ -2247,7 +2247,7 @@ function saveHero() {
   s.heroBtn2Text = document.getElementById('heroBtn2Text').value;
   s.heroBtn2Cat  = document.getElementById('heroBtn2Cat').value;
   saveHomepage(s);
-  toast('Hero section saved! Refresh shop to see changes.');
+  toast('✅ Hero section saved!');
 }
 
 // ── BANNERS ──
@@ -2346,6 +2346,7 @@ function saveBanners() {
     localStorage.setItem('bbee_banners', JSON.stringify(banners));
     localStorage.setItem('bbee_carousel', JSON.stringify({ speed: parseInt(speed), dots: dots === 'true' }));
   } catch(e) {}
+  toast('✅ Banners saved!');
   pushHomepageToGitHub();
 }
 
@@ -2358,6 +2359,9 @@ function saveSections() {
     newsletter: document.getElementById('secNewsletter').checked
   };
   try { localStorage.setItem('bbee_sections', JSON.stringify(vis)); } catch(e) {}
+  toast('✅ Visibility settings saved!');
+  // Also update homepageSettings so pushHomepageToGitHub has latest data
+  homepageSettings = homepageSettings || {};
   pushHomepageToGitHub();
 }
 
