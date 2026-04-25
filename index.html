@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — index.html -->
-<!-- Last updated: 2026-04-25 1:15 AM PHT -->
+<!-- Last updated: 2026-04-25 1:45 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2817,6 +2817,158 @@ function openSizeGuide() {
 function showLoadingSkeleton() {
   showSkeletonProducts(8);
 }
+
+
+
+// ══════════════════════════════════════════
+// HOMEPAGE SETTINGS (reads from admin config)
+// ══════════════════════════════════════════
+
+function applyHomepageSettings() {
+  try {
+    var s   = JSON.parse(localStorage.getItem('bbee_homepage') || '{}');
+    var vis = JSON.parse(localStorage.getItem('bbee_sections') || '{}');
+
+    // Announcement bar
+    var bar = document.getElementById('announcebar');
+    if (bar) {
+      if (vis.announce === false) {
+        bar.style.display = 'none';
+      } else {
+        if (s.announceText) {
+          var msgEl = bar.querySelector('span');
+          if (msgEl) {
+            var linkCat = s.announceLinkCat || '';
+            var linkTxt = s.announceLinkText || 'Shop Now →';
+            msgEl.innerHTML = s.announceText +
+              (linkCat ? ' &nbsp;·&nbsp; <a href="#" onclick="shopeeFilterCat(&quot;' + linkCat + '&quot;,null)" style="color:var(--accent);text-decoration:none;font-weight:600">' + linkTxt + '</a>' : '');
+          }
+        }
+        if (s.announceBg)    bar.style.background = s.announceBg;
+        if (s.announceColor) bar.style.color      = s.announceColor;
+      }
+    }
+
+    // Hero section
+    var hero = document.querySelector('.hero');
+    if (hero) {
+      if (vis.hero === false) {
+        hero.style.display = 'none';
+      } else {
+        if (s.heroEyebrow) {
+          var ey = hero.querySelector('.hero-eyebrow');
+          if (ey) ey.textContent = s.heroEyebrow;
+        }
+        if (s.heroTitle) {
+          var ht = hero.querySelector('.hero-title');
+          if (ht) ht.innerHTML = s.heroTitle;
+        }
+        if (s.heroSubtitle) {
+          var hs = hero.querySelector('.hero-subtitle');
+          if (hs) hs.textContent = s.heroSubtitle;
+        }
+        if (s.heroBtn1Text) {
+          var hb1 = hero.querySelector('.hero-btns .btn-primary');
+          if (hb1) hb1.textContent = s.heroBtn1Text;
+        }
+        if (s.heroBtn2Text) {
+          var hb2 = hero.querySelector('.hero-btns .btn-outline');
+          if (hb2) {
+            hb2.textContent = s.heroBtn2Text;
+            hb2.style.display = s.heroBtn2Cat ? '' : 'none';
+          }
+        }
+      }
+    }
+
+    // Newsletter bar
+    if (vis.newsletter === false) {
+      try { localStorage.setItem('bbee_nl_dismissed', '1'); } catch(e2) {}
+    }
+
+  } catch(e) { console.warn('Homepage settings error:', e); }
+
+  // Apply banners
+  applyBannerCarousel();
+}
+
+// ── BANNER CAROUSEL ──
+var _bannerIdx      = 0;
+var _bannerTimer    = null;
+var _bannerItems    = [];
+
+function applyBannerCarousel() {
+  try {
+    var vis     = JSON.parse(localStorage.getItem('bbee_sections') || '{}');
+    var carousel= document.getElementById('bannerCarousel');
+    if (!carousel) return;
+
+    if (vis.banners === false) { carousel.style.display = 'none'; return; }
+
+    var savedBanners = JSON.parse(localStorage.getItem('bbee_banners') || '[]');
+    var settings     = JSON.parse(localStorage.getItem('bbee_carousel') || '{}');
+    var now          = new Date();
+
+    // Filter active banners
+    _bannerItems = savedBanners.filter(function(b) {
+      if (!b.url) return false;
+      if (b.start && new Date(b.start) > now) return false;
+      if (b.end   && new Date(b.end)   < now) return false;
+      return true;
+    });
+
+    if (!_bannerItems.length) { carousel.style.display = 'none'; return; }
+
+    carousel.style.display = 'block';
+    var slides = document.getElementById('bannerSlides');
+    var dots   = document.getElementById('bannerDots');
+
+    // Render slides
+    slides.style.width = (_bannerItems.length * 100) + '%';
+    slides.innerHTML   = _bannerItems.map(function(b) {
+      return '<div style="flex:1;min-width:0;cursor:' + (b.cat?'pointer':'default') + '" onclick="' + (b.cat?'shopeeFilterCat(&quot;'+b.cat+'&quot;,null)':'') + '">' +
+        '<img src="' + b.url + '" style="width:100%;height:auto;max-height:400px;object-fit:cover;display:block">' +
+        (b.label ? '<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.5));padding:20px;color:white;font-family:Cormorant Garamond,serif;font-size:1.2rem;font-weight:600">' + b.label + '</div>' : '') +
+      '</div>';
+    }).join('');
+    carousel.style.position = 'relative';
+
+    // Dots
+    if (settings.dots !== false && _bannerItems.length > 1) {
+      dots.innerHTML = _bannerItems.map(function(_, i) {
+        return '<div onclick="goBanner(' + i + ')" style="width:8px;height:8px;border-radius:50%;background:' + (i===0?'var(--white)':'rgba(255,255,255,.5)') + ';cursor:pointer;transition:background .3s"></div>';
+      }).join('');
+      dots.style.display = 'flex';
+    }
+
+    // Auto-play
+    if (_bannerTimer) clearInterval(_bannerTimer);
+    var speed = settings.speed || 5000;
+    if (speed > 0 && _bannerItems.length > 1) {
+      _bannerTimer = setInterval(function(){ nextBanner(); }, speed);
+    }
+
+    goBanner(0);
+  } catch(e) { console.warn('Banner error:', e); }
+}
+
+function goBanner(idx) {
+  _bannerIdx = Math.max(0, Math.min(idx, _bannerItems.length - 1));
+  var slides = document.getElementById('bannerSlides');
+  if (slides) slides.style.transform = 'translateX(-' + (_bannerIdx * (100/_bannerItems.length)) + '%)';
+  // Update dots
+  document.querySelectorAll('#bannerDots div').forEach(function(d, i) {
+    d.style.background = i === _bannerIdx ? 'var(--white)' : 'rgba(255,255,255,.5)';
+  });
+}
+
+function prevBanner() { goBanner(_bannerIdx - 1 < 0 ? _bannerItems.length - 1 : _bannerIdx - 1); }
+function nextBanner() { goBanner((_bannerIdx + 1) % _bannerItems.length); }
+
+// Apply on load
+document.addEventListener('DOMContentLoaded', function() {
+  applyHomepageSettings();
+});
 
 
 // ══════════════════════════════════════════

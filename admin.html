@@ -1,3 +1,5 @@
+<!-- BBEE CO SHOP — admin.html -->
+<!-- Last updated: 2026-04-25 1:45 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -255,6 +257,11 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
       <div class="nav-section-lbl">Overview</div>
       <div class="nav-item active" onclick="showPage('dashboard')">
         <span class="nav-item-icon">📊</span>Dashboard
+      </div>
+
+      <div class="nav-section-lbl">Content</div>
+      <div class="nav-item" onclick="showPage('homepage')">
+        <span class="nav-item-icon">🏠</span>Homepage
       </div>
 
       <div class="nav-section-lbl">Store</div>
@@ -609,6 +616,226 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ════════ HOMEPAGE MANAGER ════════ -->
+    <div class="page" id="page-homepage">
+
+      <!-- ANNOUNCEMENT BAR -->
+      <div class="form-section" style="margin-bottom:16px">
+        <div class="form-section-title">📢 Announcement Bar</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+            <input type="checkbox" id="announceActive" checked style="width:16px;height:16px;accent-color:var(--black)">
+            <span>Show announcement bar</span>
+          </label>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Message Text</label>
+          <input type="text" class="form-inp" id="announceText" value="Free Shipping on orders ₱2,500+">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Link Text</label>
+            <input type="text" class="form-inp" id="announceLinkText" value="Shop New Arrivals →">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Link Category</label>
+            <select class="form-select" id="announceLinkCat">
+              <option value="">None</option>
+              <option value="All">All Products</option>
+              <option value="Dresses">Dresses</option>
+              <option value="Tops">Tops</option>
+              <option value="Sets">Sets</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Background Color</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="announceBg" value="#111111" style="width:44px;height:36px;border:1.5px solid var(--border);cursor:pointer;padding:2px">
+              <input type="text" class="form-inp" id="announceBgHex" value="#111111" style="flex:1" oninput="document.getElementById('announceBg').value=this.value">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Text Color</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="announceColor" value="#FFFFFF" style="width:44px;height:36px;border:1.5px solid var(--border);cursor:pointer;padding:2px">
+              <input type="text" class="form-inp" id="announceColorHex" value="#FFFFFF" style="flex:1">
+            </div>
+          </div>
+        </div>
+        <button class="topbar-btn primary" onclick="saveAnnouncement()">Save Announcement</button>
+      </div>
+
+      <!-- HERO SECTION -->
+      <div class="form-section" style="margin-bottom:16px">
+        <div class="form-section-title">🎨 Hero Section</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+            <input type="checkbox" id="heroActive" checked style="width:16px;height:16px;accent-color:var(--black)">
+            <span>Show hero section</span>
+          </label>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Eyebrow Text</label>
+            <input type="text" class="form-inp" id="heroEyebrow" value="New Collection 2026">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Main Title</label>
+            <input type="text" class="form-inp" id="heroTitle" value="Cute fits for little ones">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Subtitle</label>
+          <textarea class="form-textarea" id="heroSubtitle" style="min-height:60px">Adorable, comfortable clothing for your little ones. Handpicked styles from Matina, Davao City. 🐝</textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Button 1 Text</label>
+            <input type="text" class="form-inp" id="heroBtn1Text" value="Shop Now →">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Button 1 Category</label>
+            <select class="form-select" id="heroBtn1Cat">
+              <option value="scroll">Scroll to Products</option>
+              <option value="All">All Products</option>
+              <option value="Dresses">Dresses</option>
+              <option value="Sets">Sets</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Button 2 Text (optional)</label>
+            <input type="text" class="form-inp" id="heroBtn2Text" value="View Dresses">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Button 2 Category</label>
+            <select class="form-select" id="heroBtn2Cat">
+              <option value="">Hide button</option>
+              <option value="All">All Products</option>
+              <option value="Dresses" selected>Dresses</option>
+              <option value="Tops">Tops</option>
+              <option value="Sets">Sets</option>
+            </select>
+          </div>
+        </div>
+        <button class="topbar-btn primary" onclick="saveHero()">Save Hero</button>
+      </div>
+
+      <!-- BANNERS (Carousel) -->
+      <div class="form-section" style="margin-bottom:16px">
+        <div class="form-section-title">🖼 Banners & Carousel</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:14px">
+          Upload banner images that appear as a carousel. Recommended size: 1200×400px (desktop) or 800×400px (mobile).
+        </div>
+
+        <!-- Banner list -->
+        <div id="bannersList" style="margin-bottom:14px"></div>
+
+        <!-- Add banner form -->
+        <div style="border:1.5px dashed var(--border);padding:16px;margin-bottom:14px">
+          <div class="form-section-title" style="border:none;padding:0;margin-bottom:12px;font-size:.68rem">Add New Banner</div>
+          <div class="form-group" style="margin-bottom:10px">
+            <label class="form-label">Banner Image</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div id="newBannerPreview" style="width:80px;height:48px;background:var(--off);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🖼</div>
+              <button onclick="document.getElementById('bannerImgInput').click()" class="topbar-btn">Upload Image</button>
+              <input type="file" id="bannerImgInput" accept="image/*" style="display:none" onchange="previewBannerImg(event)">
+            </div>
+            <input type="hidden" id="newBannerUrl">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Link Category (optional)</label>
+              <select class="form-select" id="newBannerCat">
+                <option value="">No link</option>
+                <option value="All">All Products</option>
+                <option value="Dresses">Dresses</option>
+                <option value="Tops">Tops</option>
+                <option value="Sets">Sets</option>
+                <option value="Accessories">Accessories</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Label (optional)</label>
+              <input type="text" class="form-inp" id="newBannerLabel" placeholder="e.g. Summer Sale">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Start Date (optional)</label>
+              <input type="datetime-local" class="form-inp" id="newBannerStart">
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date (optional)</label>
+              <input type="datetime-local" class="form-inp" id="newBannerEnd">
+            </div>
+          </div>
+          <button class="topbar-btn primary" onclick="addBanner()">+ Add Banner</button>
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <div class="form-group" style="flex:0 0 auto">
+            <label class="form-label">Auto-play Speed</label>
+            <select class="form-select" id="carouselSpeed" style="width:140px">
+              <option value="3000">3 seconds</option>
+              <option value="5000" selected>5 seconds</option>
+              <option value="7000">7 seconds</option>
+              <option value="0">Manual only</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:0 0 auto">
+            <label class="form-label">Show indicators</label>
+            <select class="form-select" id="carouselDots" style="width:120px">
+              <option value="true" selected>Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+        <button class="topbar-btn primary" style="margin-top:12px" onclick="saveBanners()">Save Banners</button>
+      </div>
+
+      <!-- SECTIONS VISIBILITY -->
+      <div class="form-section">
+        <div class="form-section-title">📋 Section Visibility</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);cursor:pointer">
+            <div>
+              <div style="font-weight:600;font-size:.88rem">Hero Section</div>
+              <div style="font-size:.75rem;color:var(--muted)">Large banner at top of page</div>
+            </div>
+            <input type="checkbox" id="secHero" checked style="width:18px;height:18px;accent-color:var(--black)">
+          </label>
+          <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);cursor:pointer">
+            <div>
+              <div style="font-weight:600;font-size:.88rem">Banner Carousel</div>
+              <div style="font-size:.75rem;color:var(--muted)">Promotional banners below hero</div>
+            </div>
+            <input type="checkbox" id="secBanners" style="width:18px;height:18px;accent-color:var(--black)">
+          </label>
+          <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);cursor:pointer">
+            <div>
+              <div style="font-weight:600;font-size:.88rem">Announcement Bar</div>
+              <div style="font-size:.75rem;color:var(--muted)">Top banner with promo message</div>
+            </div>
+            <input type="checkbox" id="secAnnounce" checked style="width:18px;height:18px;accent-color:var(--black)">
+          </label>
+          <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);cursor:pointer">
+            <div>
+              <div style="font-weight:600;font-size:.88rem">Newsletter Bar</div>
+              <div style="font-size:.75rem;color:var(--muted)">Floating subscribe bar</div>
+            </div>
+            <input type="checkbox" id="secNewsletter" checked style="width:18px;height:18px;accent-color:var(--black)">
+          </label>
+        </div>
+        <button class="topbar-btn primary" style="margin-top:16px" onclick="saveSections()">Save Visibility Settings</button>
+      </div>
+
     </div>
 
     <!-- ════════ SETTINGS ════════ -->
@@ -1130,6 +1357,7 @@ function showPage(page) {
   if (page === 'analytics') loadAnalytics();
   if (page === 'categories') { loadProducts(); loadCategories(); }
   if (page === 'settings')  loadSettings();
+  if (page === 'homepage')  loadHomepageSettings();
 }
 
 function toggleSidebar() {
@@ -1943,6 +2171,199 @@ function saveProduct() {
       toast('Error: ' + (data.message || 'Unknown error'));
     }
   });
+}
+
+
+
+// ══════════════════════════════════════════
+// HOMEPAGE MANAGER
+// ══════════════════════════════════════════
+
+var homepageSettings = {};
+var banners = [];
+
+function loadHomepageSettings() {
+  try {
+    var saved = localStorage.getItem('bbee_homepage');
+    if (saved) {
+      homepageSettings = JSON.parse(saved);
+      applyHomepageToForm(homepageSettings);
+    }
+  } catch(e) {}
+
+  try {
+    var savedBanners = localStorage.getItem('bbee_banners');
+    if (savedBanners) {
+      banners = JSON.parse(savedBanners);
+      renderBannersList();
+    }
+  } catch(e) {}
+
+  // Load section visibility
+  try {
+    var vis = JSON.parse(localStorage.getItem('bbee_sections') || '{}');
+    document.getElementById('secHero').checked      = vis.hero      !== false;
+    document.getElementById('secBanners').checked   = vis.banners   === true;
+    document.getElementById('secAnnounce').checked  = vis.announce  !== false;
+    document.getElementById('secNewsletter').checked= vis.newsletter !== false;
+  } catch(e) {}
+}
+
+function applyHomepageToForm(s) {
+  if (s.announceText)      document.getElementById('announceText').value      = s.announceText;
+  if (s.announceLinkText)  document.getElementById('announceLinkText').value  = s.announceLinkText;
+  if (s.announceLinkCat)   document.getElementById('announceLinkCat').value   = s.announceLinkCat;
+  if (s.announceBg)        document.getElementById('announceBg').value        = s.announceBg;
+  if (s.announceColor)     document.getElementById('announceColor').value     = s.announceColor;
+  if (s.heroEyebrow)       document.getElementById('heroEyebrow').value       = s.heroEyebrow;
+  if (s.heroTitle)         document.getElementById('heroTitle').value         = s.heroTitle;
+  if (s.heroSubtitle)      document.getElementById('heroSubtitle').value      = s.heroSubtitle;
+  if (s.heroBtn1Text)      document.getElementById('heroBtn1Text').value      = s.heroBtn1Text;
+  if (s.heroBtn2Text)      document.getElementById('heroBtn2Text').value      = s.heroBtn2Text;
+}
+
+// ── ANNOUNCEMENT ──
+function saveAnnouncement() {
+  var s = homepageSettings;
+  s.announceText     = document.getElementById('announceText').value;
+  s.announceLinkText = document.getElementById('announceLinkText').value;
+  s.announceLinkCat  = document.getElementById('announceLinkCat').value;
+  s.announceBg       = document.getElementById('announceBg').value;
+  s.announceColor    = document.getElementById('announceColor').value;
+  s.announceActive   = document.getElementById('announceActive').checked;
+  saveHomepage(s);
+  toast('Announcement saved! Refresh shop to see changes.');
+}
+
+// ── HERO ──
+function saveHero() {
+  var s = homepageSettings;
+  s.heroActive   = document.getElementById('heroActive').checked;
+  s.heroEyebrow  = document.getElementById('heroEyebrow').value;
+  s.heroTitle    = document.getElementById('heroTitle').value;
+  s.heroSubtitle = document.getElementById('heroSubtitle').value;
+  s.heroBtn1Text = document.getElementById('heroBtn1Text').value;
+  s.heroBtn1Cat  = document.getElementById('heroBtn1Cat').value;
+  s.heroBtn2Text = document.getElementById('heroBtn2Text').value;
+  s.heroBtn2Cat  = document.getElementById('heroBtn2Cat').value;
+  saveHomepage(s);
+  toast('Hero section saved! Refresh shop to see changes.');
+}
+
+// ── BANNERS ──
+function previewBannerImg(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', UPLOAD_PRESET);
+  document.getElementById('newBannerPreview').innerHTML = '<div style="font-size:.7rem;color:var(--muted)">Uploading...</div>';
+  toast('Uploading banner...');
+  fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method:'POST', body:fd })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      document.getElementById('newBannerUrl').value = d.secure_url;
+      document.getElementById('newBannerPreview').innerHTML = '<img src="' + d.secure_url + '" style="width:80px;height:48px;object-fit:cover">';
+      toast('Banner uploaded!');
+    });
+}
+
+function addBanner() {
+  var url = document.getElementById('newBannerUrl').value;
+  if (!url) { toast('Please upload a banner image first!'); return; }
+  banners.push({
+    url:   url,
+    cat:   document.getElementById('newBannerCat').value,
+    label: document.getElementById('newBannerLabel').value,
+    start: document.getElementById('newBannerStart').value,
+    end:   document.getElementById('newBannerEnd').value,
+    active: true
+  });
+  // Reset form
+  document.getElementById('newBannerUrl').value   = '';
+  document.getElementById('newBannerLabel').value = '';
+  document.getElementById('newBannerStart').value = '';
+  document.getElementById('newBannerEnd').value   = '';
+  document.getElementById('newBannerPreview').innerHTML = '🖼';
+  document.getElementById('newBannerCat').value   = '';
+  renderBannersList();
+  toast('Banner added!');
+}
+
+function renderBannersList() {
+  var el = document.getElementById('bannersList');
+  if (!el) return;
+  if (!banners.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.82rem;border:1px solid var(--border)">No banners yet. Add one below.</div>';
+    return;
+  }
+  el.innerHTML = banners.map(function(b, i) {
+    var now = new Date();
+    var isActive = b.active &&
+      (!b.start || new Date(b.start) <= now) &&
+      (!b.end   || new Date(b.end)   >= now);
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--border);margin-bottom:8px;background:' + (isActive?'var(--green-lt)':'var(--off)') + '">' +
+      '<img src="' + b.url + '" style="width:90px;height:54px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)">' +
+      '<div style="flex:1">' +
+        '<div style="font-weight:600;font-size:.85rem">' + (b.label || 'Banner ' + (i+1)) + '</div>' +
+        '<div style="font-size:.72rem;color:var(--muted)">' +
+          (b.cat ? 'Links to: ' + b.cat : 'No link') +
+          (b.start ? ' · From: ' + b.start.split('T')[0] : '') +
+          (b.end   ? ' · To: '   + b.end.split('T')[0]   : '') +
+        '</div>' +
+        '<span style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;background:' + (isActive?'var(--green)':'var(--muted)') + ';color:white">' +
+          (isActive ? 'ACTIVE' : 'INACTIVE') +
+        '</span>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:6px">' +
+        (i > 0 ? '<button class="act-btn act-btn-outline" onclick="moveBanner(' + i + ',-1)">↑</button>' : '') +
+        (i < banners.length-1 ? '<button class="act-btn act-btn-outline" onclick="moveBanner(' + i + ',1)">↓</button>' : '') +
+        '<button class="act-btn act-btn-danger" onclick="removeBanner(' + i + ')">✕</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function moveBanner(idx, dir) {
+  var newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= banners.length) return;
+  var tmp = banners[idx];
+  banners[idx] = banners[newIdx];
+  banners[newIdx] = tmp;
+  renderBannersList();
+}
+
+function removeBanner(idx) {
+  if (!confirm('Remove this banner?')) return;
+  banners.splice(idx, 1);
+  renderBannersList();
+}
+
+function saveBanners() {
+  var speed = document.getElementById('carouselSpeed').value;
+  var dots  = document.getElementById('carouselDots').value;
+  try {
+    localStorage.setItem('bbee_banners', JSON.stringify(banners));
+    localStorage.setItem('bbee_carousel', JSON.stringify({ speed: parseInt(speed), dots: dots === 'true' }));
+  } catch(e) {}
+  toast('Banners saved! Refresh shop to see changes.');
+}
+
+// ── SECTIONS ──
+function saveSections() {
+  var vis = {
+    hero:       document.getElementById('secHero').checked,
+    banners:    document.getElementById('secBanners').checked,
+    announce:   document.getElementById('secAnnounce').checked,
+    newsletter: document.getElementById('secNewsletter').checked
+  };
+  try { localStorage.setItem('bbee_sections', JSON.stringify(vis)); } catch(e) {}
+  toast('Visibility settings saved! Refresh shop to apply.');
+}
+
+function saveHomepage(s) {
+  homepageSettings = s;
+  try { localStorage.setItem('bbee_homepage', JSON.stringify(s)); } catch(e) {}
 }
 
 
