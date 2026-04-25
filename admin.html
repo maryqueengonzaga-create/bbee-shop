@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — admin.html -->
-<!-- Last updated: 2026-04-25 9:00 AM PHT -->
+<!-- Last updated: 2026-04-25 9:30 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2360,9 +2360,9 @@ function saveSections() {
   };
   try { localStorage.setItem('bbee_sections', JSON.stringify(vis)); } catch(e) {}
   toast('✅ Visibility settings saved!');
-  // Also update homepageSettings so pushHomepageToGitHub has latest data
   homepageSettings = homepageSettings || {};
-  pushHomepageToGitHub();
+  // Pass vis directly to ensure latest values
+  pushHomepageToGitHubWithData(vis);
 }
 
 function saveHomepage(s) {
@@ -2370,6 +2370,18 @@ function saveHomepage(s) {
   try { localStorage.setItem('bbee_homepage', JSON.stringify(s)); } catch(e) {}
   // Push to GitHub so ALL browsers/devices can read it
   pushHomepageToGitHub();
+}
+
+function pushHomepageToGitHubWithData(explicitVis) {
+  var vis = explicitVis || {};
+  try { if (!explicitVis) vis = JSON.parse(localStorage.getItem('bbee_sections') || '{}'); } catch(e) {}
+  var payload = {
+    settings: homepageSettings,
+    banners:  banners,
+    carousel: JSON.parse(localStorage.getItem('bbee_carousel') || '{}'),
+    sections: vis
+  };
+  _doGitHubPush(payload);
 }
 
 function pushHomepageToGitHub() {
@@ -2388,21 +2400,18 @@ function pushHomepageToGitHub() {
     sections: vis
   };
 
+  _doGitHubPush(payload);
+}
+
+function _doGitHubPush(payload) {
   var url = APPS_SCRIPT_URL + '?type=SAVE_HOMEPAGE&data=' + 
     encodeURIComponent(JSON.stringify(payload));
-    
   fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(d) {
-      if (d.status === 'ok') {
-        toast('✅ Saved & synced to GitHub!');
-      }
-      // If sync fails, silently ignore - localStorage save already worked
+      if (d.status === 'ok') toast('✅ Saved & synced to GitHub!');
     })
-    .catch(function() { 
-      // Sync failed but settings are saved locally
-      console.warn('GitHub sync failed - settings saved locally only');
-    });
+    .catch(function() { console.warn('GitHub sync failed'); });
 }
 
 

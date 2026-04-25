@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — index.html -->
-<!-- Last updated: 2026-04-25 9:00 AM PHT -->
+<!-- Last updated: 2026-04-25 9:30 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -675,6 +675,7 @@ h1,h2,h3,.display{font-family:'Cormorant Garamond',serif;font-weight:600;line-he
   .newsletter-bar-form{min-width:100%;order:3}
 }
 
+.hp-hidden{display:none !important;height:0 !important;overflow:hidden !important;margin:0 !important;padding:0 !important}
 </style>
 </head>
 <body>
@@ -2895,9 +2896,12 @@ function _applyHomepageData(s, vis, bnrs, carouselSettings) {
     var hero = document.querySelector('.hero');
     if (hero) {
       if (vis.hero === false) {
-        hero.style.cssText = 'display:none !important;margin:0;padding:0;height:0;overflow:hidden';
+        hero.style.cssText = 'display:none !important;margin:0 !important;padding:0 !important;height:0 !important;overflow:hidden !important;border:none !important;min-height:0 !important';
+        // Add a class as backup
+        hero.classList.add('hp-hidden');
       } else {
         hero.style.cssText = '';
+        hero.classList.remove('hp-hidden');
         if (s.heroEyebrow) { var ey = hero.querySelector('.hero-eyebrow'); if (ey) ey.textContent = s.heroEyebrow; }
         if (s.heroTitle)   { var ht = hero.querySelector('.hero-title');   if (ht) ht.innerHTML  = s.heroTitle;   }
         if (s.heroSubtitle){ var hs = hero.querySelector('.hero-subtitle');if (hs) hs.textContent = s.heroSubtitle;}
