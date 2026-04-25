@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — admin.html -->
-<!-- Last updated: 2026-04-25 2:10 AM PHT -->
+<!-- Last updated: 2026-04-25 8:45 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2372,48 +2372,26 @@ function pushHomepageToGitHub() {
   var vis = {};
   try { vis = JSON.parse(localStorage.getItem('bbee_sections') || '{}'); } catch(e) {}
   var payload = {
-    updated:  new Date().toISOString(),
     settings: homepageSettings,
     banners:  banners,
     carousel: JSON.parse(localStorage.getItem('bbee_carousel') || '{}'),
     sections: vis
   };
-  
-  var GITHUB_TOKEN  = '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';
-  var GITHUB_OWNER  = 'maryqueengonzaga-create';
-  var GITHUB_REPO   = 'bbee-shop';
-  var FILE          = 'homepage.json';
-  
-  // Get current SHA
-  fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + FILE, {
-    headers: { 'Authorization': 'token ' + GITHUB_TOKEN }
-  })
-  .then(function(r){ return r.ok ? r.json() : null; })
-  .then(function(data) {
-    var sha     = data ? data.sha : null;
-    var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
-    var body    = { message: '🏠 Homepage settings update', content: encoded, branch: 'main' };
-    if (sha) body.sha = sha;
+
+  // Route through Apps Script (token is safe on server side)
+  var url = APPS_SCRIPT_URL + '?type=SAVE_HOMEPAGE&data=' + 
+    encodeURIComponent(JSON.stringify(payload));
     
-    return fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + FILE, {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'token ' + GITHUB_TOKEN,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
-  })
-  .then(function(r) {
-    if (r && (r.status === 200 || r.status === 201)) {
-      toast('✅ Saved & synced to GitHub!');
-    } else {
-      toast('Saved locally (GitHub sync failed)');
-    }
-  })
-  .catch(function() {
-    toast('Saved locally only');
-  });
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.status === 'ok') {
+        toast('✅ Saved & synced!');
+      } else {
+        toast('Saved locally. Sync: ' + (d.message||''));
+      }
+    })
+    .catch(function() { toast('Saved locally only'); });
 }
 
 
