@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — index.html -->
-<!-- Last updated: 2026-04-25 8:45 AM PHT -->
+<!-- Last updated: 2026-04-25 8:50 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2826,7 +2826,10 @@ function showLoadingSkeleton() {
 // ══════════════════════════════════════════
 
 function applyHomepageSettings() {
-  // Try to fetch from GitHub JSON first (works in all browsers/incognito)
+  // Apply from localStorage IMMEDIATELY (no network delay)
+  _applyFromLocalStorage();
+
+  // Then try GitHub JSON for fresh data (works in all browsers/incognito)
   fetch(HOMEPAGE_JSON_URL + '?v=' + Date.now())
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data) {
@@ -2854,7 +2857,7 @@ function _applyFromLocalStorage() {
     var bnrs    = JSON.parse(localStorage.getItem('bbee_banners')  || '[]');
     var carousel= JSON.parse(localStorage.getItem('bbee_carousel') || '{}');
     _applyHomepageData(s, vis, bnrs, carousel);
-  } catch(e) {}
+  } catch(e) { console.warn('localStorage apply error:', e); }
 }
 
 function _applyHomepageData(s, vis, bnrs, carouselSettings) {
@@ -2881,16 +2884,18 @@ function _applyHomepageData(s, vis, bnrs, carouselSettings) {
     }
 
     // Hero section
-    var heroWrap = document.querySelector('.hero');
-    // Find parent section if exists
-    var hero = heroWrap;
+    var hero = document.querySelector('.hero');
     if (hero) {
       if (vis.hero === false) {
-        hero.style.display    = 'none';
-        hero.style.margin     = '0';
-        hero.style.padding    = '0';
+        hero.style.display = 'none';
+        hero.style.margin  = '0';
+        hero.style.padding = '0';
+        hero.style.height  = '0';
+        hero.style.overflow = 'hidden';
       } else {
-        hero.style.display = '';
+        hero.style.display  = '';
+        hero.style.height   = '';
+        hero.style.overflow = '';
         if (s.heroEyebrow) {
           var ey = hero.querySelector('.hero-eyebrow');
           if (ey) ey.textContent = s.heroEyebrow;

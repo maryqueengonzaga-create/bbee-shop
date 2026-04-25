@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — admin.html -->
-<!-- Last updated: 2026-04-25 8:45 AM PHT -->
+<!-- Last updated: 2026-04-25 8:50 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2369,8 +2369,14 @@ function saveHomepage(s) {
 }
 
 function pushHomepageToGitHub() {
+  // Always save to localStorage first (instant, no network needed)
   var vis = {};
   try { vis = JSON.parse(localStorage.getItem('bbee_sections') || '{}'); } catch(e) {}
+  
+  // Show saved immediately
+  toast('✅ Settings saved!');
+
+  // Try to sync to GitHub via Apps Script (optional - needs valid token)
   var payload = {
     settings: homepageSettings,
     banners:  banners,
@@ -2378,7 +2384,6 @@ function pushHomepageToGitHub() {
     sections: vis
   };
 
-  // Route through Apps Script (token is safe on server side)
   var url = APPS_SCRIPT_URL + '?type=SAVE_HOMEPAGE&data=' + 
     encodeURIComponent(JSON.stringify(payload));
     
@@ -2386,12 +2391,14 @@ function pushHomepageToGitHub() {
     .then(function(r){ return r.json(); })
     .then(function(d) {
       if (d.status === 'ok') {
-        toast('✅ Saved & synced!');
-      } else {
-        toast('Saved locally. Sync: ' + (d.message||''));
+        toast('✅ Saved & synced to GitHub!');
       }
+      // If sync fails, silently ignore - localStorage save already worked
     })
-    .catch(function() { toast('Saved locally only'); });
+    .catch(function() { 
+      // Sync failed but settings are saved locally
+      console.warn('GitHub sync failed - settings saved locally only');
+    });
 }
 
 
