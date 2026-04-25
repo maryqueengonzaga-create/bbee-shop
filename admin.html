@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — admin.html -->
-<!-- Last updated: 2026-04-25 9:30 AM PHT -->
+<!-- Last updated: 2026-04-25 9:45 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -623,21 +623,21 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
 
       <!-- ANNOUNCEMENT BAR -->
       <div class="form-section" style="margin-bottom:16px">
-        <div class="form-section-title">📢 Announcement Bar</div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="form-section-title" style="margin:0;border:none;padding:0">📢 Announcement Bar</div>
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
             <input type="checkbox" id="announceActive" checked style="width:16px;height:16px;accent-color:var(--black)">
-            <span>Show announcement bar</span>
+            <span>Visible</span>
           </label>
         </div>
         <div class="form-group" style="margin-bottom:12px">
           <label class="form-label">Message Text</label>
-          <input type="text" class="form-inp" id="announceText" value="Free Shipping on orders ₱2,500+">
+          <input type="text" class="form-inp" id="announceText" placeholder="Free Shipping on orders ₱2,500+">
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Link Text</label>
-            <input type="text" class="form-inp" id="announceLinkText" value="Shop New Arrivals →">
+            <input type="text" class="form-inp" id="announceLinkText" placeholder="Shop New Arrivals →">
           </div>
           <div class="form-group">
             <label class="form-label">Link Category</label>
@@ -656,50 +656,49 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
             <label class="form-label">Background Color</label>
             <div style="display:flex;gap:8px;align-items:center">
               <input type="color" id="announceBg" value="#111111" style="width:44px;height:36px;border:1.5px solid var(--border);cursor:pointer;padding:2px">
-              <input type="text" class="form-inp" id="announceBgHex" value="#111111" style="flex:1" oninput="document.getElementById('announceBg').value=this.value">
+              <input type="text" class="form-inp" id="announceBgHex" value="#111111" style="flex:1" oninput="syncColor('announceBg',this.value)">
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Text Color</label>
             <div style="display:flex;gap:8px;align-items:center">
               <input type="color" id="announceColor" value="#FFFFFF" style="width:44px;height:36px;border:1.5px solid var(--border);cursor:pointer;padding:2px">
-              <input type="text" class="form-inp" id="announceColorHex" value="#FFFFFF" style="flex:1">
+              <input type="text" class="form-inp" id="announceColorHex" value="#FFFFFF" style="flex:1" oninput="syncColor('announceColor',this.value)">
             </div>
           </div>
         </div>
-        <button class="topbar-btn primary" onclick="saveAnnouncement()">Save Announcement</button>
       </div>
 
       <!-- HERO SECTION -->
       <div class="form-section" style="margin-bottom:16px">
-        <div class="form-section-title">🎨 Hero Section</div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="form-section-title" style="margin:0;border:none;padding:0">🎨 Hero Section</div>
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
             <input type="checkbox" id="heroActive" checked style="width:16px;height:16px;accent-color:var(--black)">
-            <span>Show hero section</span>
+            <span>Visible</span>
           </label>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Eyebrow Text</label>
-            <input type="text" class="form-inp" id="heroEyebrow" value="New Collection 2026">
+            <input type="text" class="form-inp" id="heroEyebrow" placeholder="New Collection 2026">
           </div>
           <div class="form-group">
             <label class="form-label">Main Title</label>
-            <input type="text" class="form-inp" id="heroTitle" value="Cute fits for little ones">
+            <input type="text" class="form-inp" id="heroTitle" placeholder="Cute fits for little ones">
           </div>
         </div>
         <div class="form-group" style="margin-bottom:12px">
           <label class="form-label">Subtitle</label>
-          <textarea class="form-textarea" id="heroSubtitle" style="min-height:60px">Adorable, comfortable clothing for your little ones. Handpicked styles from Matina, Davao City. 🐝</textarea>
+          <textarea class="form-textarea" id="heroSubtitle" placeholder="Adorable, comfortable clothing..." style="min-height:60px"></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Button 1 Text</label>
-            <input type="text" class="form-inp" id="heroBtn1Text" value="Shop Now →">
+            <input type="text" class="form-inp" id="heroBtn1Text" placeholder="Shop Now →">
           </div>
           <div class="form-group">
-            <label class="form-label">Button 1 Category</label>
+            <label class="form-label">Button 1 Action</label>
             <select class="form-select" id="heroBtn1Cat">
               <option value="scroll">Scroll to Products</option>
               <option value="All">All Products</option>
@@ -710,36 +709,35 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Button 2 Text (optional)</label>
-            <input type="text" class="form-inp" id="heroBtn2Text" value="View Dresses">
+            <label class="form-label">Button 2 Text <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="text" class="form-inp" id="heroBtn2Text" placeholder="View Dresses">
           </div>
           <div class="form-group">
             <label class="form-label">Button 2 Category</label>
             <select class="form-select" id="heroBtn2Cat">
               <option value="">Hide button</option>
               <option value="All">All Products</option>
-              <option value="Dresses" selected>Dresses</option>
+              <option value="Dresses">Dresses</option>
               <option value="Tops">Tops</option>
               <option value="Sets">Sets</option>
             </select>
           </div>
         </div>
-        <button class="topbar-btn primary" onclick="saveHero()">Save Hero</button>
       </div>
 
-      <!-- BANNERS (Carousel) -->
+      <!-- BANNER CAROUSEL -->
       <div class="form-section" style="margin-bottom:16px">
-        <div class="form-section-title">🖼 Banners & Carousel</div>
-        <div style="font-size:.75rem;color:var(--muted);margin-bottom:14px">
-          Upload banner images that appear as a carousel. Recommended size: 1200×400px (desktop) or 800×400px (mobile).
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="form-section-title" style="margin:0;border:none;padding:0">🖼 Banner Carousel</div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+            <input type="checkbox" id="secBanners" style="width:16px;height:16px;accent-color:var(--black)">
+            <span>Visible</span>
+          </label>
         </div>
-
-        <!-- Banner list -->
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:14px">Recommended: 1200×400px. Appears above the search bar.</div>
         <div id="bannersList" style="margin-bottom:14px"></div>
-
-        <!-- Add banner form -->
         <div style="border:1.5px dashed var(--border);padding:16px;margin-bottom:14px">
-          <div class="form-section-title" style="border:none;padding:0;margin-bottom:12px;font-size:.68rem">Add New Banner</div>
+          <div style="font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Add New Banner</div>
           <div class="form-group" style="margin-bottom:10px">
             <label class="form-label">Banner Image</label>
             <div style="display:flex;gap:8px;align-items:center">
@@ -751,7 +749,7 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Link Category (optional)</label>
+              <label class="form-label">Link Category</label>
               <select class="form-select" id="newBannerCat">
                 <option value="">No link</option>
                 <option value="All">All Products</option>
@@ -778,8 +776,7 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
           </div>
           <button class="topbar-btn primary" onclick="addBanner()">+ Add Banner</button>
         </div>
-
-        <div style="display:flex;gap:10px">
+        <div style="display:flex;gap:12px;align-items:flex-end">
           <div class="form-group" style="flex:0 0 auto">
             <label class="form-label">Auto-play Speed</label>
             <select class="form-select" id="carouselSpeed" style="width:140px">
@@ -790,54 +787,43 @@ body{font-family:'Jost',sans-serif;background:var(--off);color:var(--text);min-h
             </select>
           </div>
           <div class="form-group" style="flex:0 0 auto">
-            <label class="form-label">Show indicators</label>
-            <select class="form-select" id="carouselDots" style="width:120px">
-              <option value="true" selected>Yes</option>
-              <option value="false">No</option>
+            <label class="form-label">Dot indicators</label>
+            <select class="form-select" id="carouselDots" style="width:100px">
+              <option value="true" selected>Show</option>
+              <option value="false">Hide</option>
             </select>
           </div>
         </div>
-        <button class="topbar-btn primary" style="margin-top:12px" onclick="saveBanners()">Save Banners</button>
       </div>
 
-      <!-- SECTIONS VISIBILITY -->
-      <div class="form-section">
-        <div class="form-section-title">📋 Section Visibility</div>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);cursor:pointer">
-            <div>
-              <div style="font-weight:600;font-size:.88rem">Hero Section</div>
-              <div style="font-size:.75rem;color:var(--muted)">Large banner at top of page</div>
-            </div>
-            <input type="checkbox" id="secHero" checked style="width:18px;height:18px;accent-color:var(--black)">
-          </label>
-          <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);cursor:pointer">
-            <div>
-              <div style="font-weight:600;font-size:.88rem">Banner Carousel</div>
-              <div style="font-size:.75rem;color:var(--muted)">Promotional banners below hero</div>
-            </div>
-            <input type="checkbox" id="secBanners" style="width:18px;height:18px;accent-color:var(--black)">
-          </label>
+      <!-- OTHER SECTIONS -->
+      <div class="form-section" style="margin-bottom:24px">
+        <div class="form-section-title">📋 Other Sections</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
           <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);cursor:pointer">
             <div>
               <div style="font-weight:600;font-size:.88rem">Announcement Bar</div>
-              <div style="font-size:.75rem;color:var(--muted)">Top banner with promo message</div>
+              <div style="font-size:.75rem;color:var(--muted)">Top message bar</div>
             </div>
             <input type="checkbox" id="secAnnounce" checked style="width:18px;height:18px;accent-color:var(--black)">
           </label>
           <label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);cursor:pointer">
             <div>
               <div style="font-weight:600;font-size:.88rem">Newsletter Bar</div>
-              <div style="font-size:.75rem;color:var(--muted)">Floating subscribe bar</div>
+              <div style="font-size:.75rem;color:var(--muted)">Floating subscribe popup</div>
             </div>
             <input type="checkbox" id="secNewsletter" checked style="width:18px;height:18px;accent-color:var(--black)">
           </label>
         </div>
-        <button class="topbar-btn primary" style="margin-top:16px" onclick="saveSections()">Save Visibility Settings</button>
+      </div>
+
+      <!-- ONE SAVE BUTTON -->
+      <div style="position:sticky;bottom:0;background:var(--white);padding:16px 0;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center">
+        <button class="topbar-btn primary" style="padding:12px 32px;font-size:.85rem" onclick="saveAllHomepage()">💾 Save All Changes</button>
+        <span style="font-size:.75rem;color:var(--muted)" id="homepageSaveStatus"></span>
       </div>
 
     </div>
-
     <!-- ════════ SETTINGS ════════ -->
     <div class="page" id="page-settings">
       <div style="max-width:700px">
@@ -2176,78 +2162,137 @@ function saveProduct() {
 
 
 // ══════════════════════════════════════════
-// HOMEPAGE MANAGER
+// HOMEPAGE MANAGER — Single Save
 // ══════════════════════════════════════════
 
 var homepageSettings = {};
-var banners = [];
+var banners          = [];
+
+function syncColor(id, val) {
+  var el = document.getElementById(id);
+  if (el && val.match(/^#[0-9A-Fa-f]{6}$/)) el.value = val;
+}
 
 function loadHomepageSettings() {
   try {
-    var saved = localStorage.getItem('bbee_homepage');
-    if (saved) {
-      homepageSettings = JSON.parse(saved);
-      applyHomepageToForm(homepageSettings);
-    }
+    var saved = JSON.parse(localStorage.getItem('bbee_homepage') || '{}');
+    homepageSettings = saved;
+    applyToForm(saved);
   } catch(e) {}
-
   try {
-    var savedBanners = localStorage.getItem('bbee_banners');
-    if (savedBanners) {
-      banners = JSON.parse(savedBanners);
-      renderBannersList();
-    }
+    var savedBanners = JSON.parse(localStorage.getItem('bbee_banners') || '[]');
+    banners = savedBanners;
+    renderBannersList();
   } catch(e) {}
-
-  // Load section visibility
   try {
     var vis = JSON.parse(localStorage.getItem('bbee_sections') || '{}');
-    document.getElementById('secHero').checked      = vis.hero      !== false;
-    document.getElementById('secBanners').checked   = vis.banners   === true;
-    document.getElementById('secAnnounce').checked  = vis.announce  !== false;
-    document.getElementById('secNewsletter').checked= vis.newsletter !== false;
+    var hCheck = document.getElementById('heroActive');
+    var aCheck = document.getElementById('secAnnounce');
+    var bCheck = document.getElementById('secBanners');
+    var nCheck = document.getElementById('secNewsletter');
+    if (hCheck) hCheck.checked = vis.hero      !== false;
+    if (aCheck) aCheck.checked = vis.announce  !== false;
+    if (bCheck) bCheck.checked = vis.banners   === true;
+    if (nCheck) nCheck.checked = vis.newsletter !== false;
+  } catch(e) {}
+  try {
+    var carousel = JSON.parse(localStorage.getItem('bbee_carousel') || '{}');
+    if (carousel.speed !== undefined) document.getElementById('carouselSpeed').value = carousel.speed;
+    if (carousel.dots  !== undefined) document.getElementById('carouselDots').value  = carousel.dots ? 'true' : 'false';
   } catch(e) {}
 }
 
-function applyHomepageToForm(s) {
-  if (s.announceText)      document.getElementById('announceText').value      = s.announceText;
-  if (s.announceLinkText)  document.getElementById('announceLinkText').value  = s.announceLinkText;
-  if (s.announceLinkCat)   document.getElementById('announceLinkCat').value   = s.announceLinkCat;
-  if (s.announceBg)        document.getElementById('announceBg').value        = s.announceBg;
-  if (s.announceColor)     document.getElementById('announceColor').value     = s.announceColor;
-  if (s.heroEyebrow)       document.getElementById('heroEyebrow').value       = s.heroEyebrow;
-  if (s.heroTitle)         document.getElementById('heroTitle').value         = s.heroTitle;
-  if (s.heroSubtitle)      document.getElementById('heroSubtitle').value      = s.heroSubtitle;
-  if (s.heroBtn1Text)      document.getElementById('heroBtn1Text').value      = s.heroBtn1Text;
-  if (s.heroBtn2Text)      document.getElementById('heroBtn2Text').value      = s.heroBtn2Text;
+function applyToForm(s) {
+  var fields = {
+    announceText:     s.announceText,
+    announceLinkText: s.announceLinkText,
+    announceLinkCat:  s.announceLinkCat,
+    announceBg:       s.announceBg,
+    announceBgHex:    s.announceBg,
+    announceColor:    s.announceColor,
+    announceColorHex: s.announceColor,
+    heroEyebrow:      s.heroEyebrow,
+    heroTitle:        s.heroTitle,
+    heroSubtitle:     s.heroSubtitle,
+    heroBtn1Text:     s.heroBtn1Text,
+    heroBtn1Cat:      s.heroBtn1Cat,
+    heroBtn2Text:     s.heroBtn2Text,
+    heroBtn2Cat:      s.heroBtn2Cat
+  };
+  Object.keys(fields).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && fields[id] !== undefined) el.value = fields[id];
+  });
 }
 
-// ── ANNOUNCEMENT ──
-function saveAnnouncement() {
-  var s = homepageSettings;
-  s.announceText     = document.getElementById('announceText').value;
-  s.announceLinkText = document.getElementById('announceLinkText').value;
-  s.announceLinkCat  = document.getElementById('announceLinkCat').value;
-  s.announceBg       = document.getElementById('announceBg').value;
-  s.announceColor    = document.getElementById('announceColor').value;
-  s.announceActive   = document.getElementById('announceActive').checked;
-  saveHomepage(s);
-  toast('✅ Announcement saved!');
-}
+// ── SINGLE SAVE ──
+function saveAllHomepage() {
+  var statusEl = document.getElementById('homepageSaveStatus');
+  if (statusEl) statusEl.textContent = 'Saving...';
 
-// ── HERO ──
-function saveHero() {
-  var s = homepageSettings;
-  s.heroActive   = document.getElementById('heroActive').checked;
-  s.heroEyebrow  = document.getElementById('heroEyebrow').value;
-  s.heroTitle    = document.getElementById('heroTitle').value;
-  s.heroSubtitle = document.getElementById('heroSubtitle').value;
-  s.heroBtn1Text = document.getElementById('heroBtn1Text').value;
-  s.heroBtn1Cat  = document.getElementById('heroBtn1Cat').value;
-  s.heroBtn2Text = document.getElementById('heroBtn2Text').value;
-  s.heroBtn2Cat  = document.getElementById('heroBtn2Cat').value;
-  saveHomepage(s);
-  toast('✅ Hero section saved!');
+  // Collect all settings
+  var s = {
+    // Announcement
+    announceText:     document.getElementById('announceText').value,
+    announceLinkText: document.getElementById('announceLinkText').value,
+    announceLinkCat:  document.getElementById('announceLinkCat').value,
+    announceBg:       document.getElementById('announceBg').value,
+    announceColor:    document.getElementById('announceColor').value,
+    announceActive:   document.getElementById('announceActive').checked,
+    // Hero
+    heroActive:       document.getElementById('heroActive').checked,
+    heroEyebrow:      document.getElementById('heroEyebrow').value,
+    heroTitle:        document.getElementById('heroTitle').value,
+    heroSubtitle:     document.getElementById('heroSubtitle').value,
+    heroBtn1Text:     document.getElementById('heroBtn1Text').value,
+    heroBtn1Cat:      document.getElementById('heroBtn1Cat').value,
+    heroBtn2Text:     document.getElementById('heroBtn2Text').value,
+    heroBtn2Cat:      document.getElementById('heroBtn2Cat').value
+  };
+
+  // Section visibility
+  var vis = {
+    hero:       document.getElementById('heroActive').checked,
+    banners:    document.getElementById('secBanners').checked,
+    announce:   document.getElementById('secAnnounce').checked,
+    newsletter: document.getElementById('secNewsletter').checked
+  };
+
+  // Carousel settings
+  var carousel = {
+    speed: parseInt(document.getElementById('carouselSpeed').value) || 5000,
+    dots:  document.getElementById('carouselDots').value === 'true'
+  };
+
+  // Save to localStorage
+  try {
+    localStorage.setItem('bbee_homepage', JSON.stringify(s));
+    localStorage.setItem('bbee_sections', JSON.stringify(vis));
+    localStorage.setItem('bbee_banners',  JSON.stringify(banners));
+    localStorage.setItem('bbee_carousel', JSON.stringify(carousel));
+  } catch(e) {}
+
+  homepageSettings = s;
+
+  // Push to GitHub via Apps Script
+  var payload = { settings: s, banners: banners, carousel: carousel, sections: vis };
+  var url = APPS_SCRIPT_URL + '?type=SAVE_HOMEPAGE&data=' + encodeURIComponent(JSON.stringify(payload));
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.status === 'ok') {
+        toast('✅ All changes saved & synced!');
+        if (statusEl) statusEl.textContent = 'Saved ' + new Date().toLocaleTimeString('en-PH', {hour:'2-digit',minute:'2-digit'});
+      } else {
+        toast('⚠️ Saved locally (sync failed)');
+        if (statusEl) statusEl.textContent = 'Saved locally only';
+      }
+    })
+    .catch(function() {
+      toast('⚠️ Saved locally only');
+      if (statusEl) statusEl.textContent = 'Saved locally only';
+    });
 }
 
 // ── BANNERS ──
@@ -2257,14 +2302,13 @@ function previewBannerImg(event) {
   var fd = new FormData();
   fd.append('file', file);
   fd.append('upload_preset', UPLOAD_PRESET);
-  document.getElementById('newBannerPreview').innerHTML = '<div style="font-size:.7rem;color:var(--muted)">Uploading...</div>';
-  toast('Uploading banner...');
+  document.getElementById('newBannerPreview').innerHTML = '<div style="font-size:.7rem;color:var(--muted);padding:4px">Uploading...</div>';
   fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method:'POST', body:fd })
     .then(function(r){ return r.json(); })
     .then(function(d) {
       document.getElementById('newBannerUrl').value = d.secure_url;
       document.getElementById('newBannerPreview').innerHTML = '<img src="' + d.secure_url + '" style="width:80px;height:48px;object-fit:cover">';
-      toast('Banner uploaded!');
+      toast('Image uploaded!');
     });
 }
 
@@ -2279,7 +2323,6 @@ function addBanner() {
     end:   document.getElementById('newBannerEnd').value,
     active: true
   });
-  // Reset form
   document.getElementById('newBannerUrl').value   = '';
   document.getElementById('newBannerLabel').value = '';
   document.getElementById('newBannerStart').value = '';
@@ -2287,49 +2330,41 @@ function addBanner() {
   document.getElementById('newBannerPreview').innerHTML = '🖼';
   document.getElementById('newBannerCat').value   = '';
   renderBannersList();
-  toast('Banner added!');
+  toast('Banner added! Click "Save All Changes" to publish.');
 }
 
 function renderBannersList() {
   var el = document.getElementById('bannersList');
   if (!el) return;
   if (!banners.length) {
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.82rem;border:1px solid var(--border)">No banners yet. Add one below.</div>';
+    el.innerHTML = '<div style="text-align:center;padding:14px;color:var(--muted);font-size:.8rem;border:1px solid var(--border)">No banners yet.</div>';
     return;
   }
+  var now = new Date();
   el.innerHTML = banners.map(function(b, i) {
-    var now = new Date();
-    var isActive = b.active &&
-      (!b.start || new Date(b.start) <= now) &&
-      (!b.end   || new Date(b.end)   >= now);
-    return '<div style="display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--border);margin-bottom:8px;background:' + (isActive?'var(--green-lt)':'var(--off)') + '">' +
-      '<img src="' + b.url + '" style="width:90px;height:54px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)">' +
-      '<div style="flex:1">' +
-        '<div style="font-weight:600;font-size:.85rem">' + (b.label || 'Banner ' + (i+1)) + '</div>' +
-        '<div style="font-size:.72rem;color:var(--muted)">' +
-          (b.cat ? 'Links to: ' + b.cat : 'No link') +
-          (b.start ? ' · From: ' + b.start.split('T')[0] : '') +
-          (b.end   ? ' · To: '   + b.end.split('T')[0]   : '') +
-        '</div>' +
-        '<span style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;background:' + (isActive?'var(--green)':'var(--muted)') + ';color:white">' +
-          (isActive ? 'ACTIVE' : 'INACTIVE') +
-        '</span>' +
+    var isActive = (!b.start || new Date(b.start) <= now) && (!b.end || new Date(b.end) >= now);
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--border);margin-bottom:6px">' +
+      '<img src="' + b.url + '" style="width:72px;height:44px;object-fit:cover;flex-shrink:0">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-weight:600;font-size:.82rem">' + (b.label || 'Banner ' + (i+1)) + '</div>' +
+        '<div style="font-size:.7rem;color:var(--muted)">' + (b.cat?'→ '+b.cat:'No link') + 
+          (b.start?' · From '+b.start.split('T')[0]:'') + 
+          (b.end?' · To '+b.end.split('T')[0]:'') + '</div>' +
       '</div>' +
-      '<div style="display:flex;flex-direction:column;gap:6px">' +
-        (i > 0 ? '<button class="act-btn act-btn-outline" onclick="moveBanner(' + i + ',-1)">↑</button>' : '') +
-        (i < banners.length-1 ? '<button class="act-btn act-btn-outline" onclick="moveBanner(' + i + ',1)">↓</button>' : '') +
-        '<button class="act-btn act-btn-danger" onclick="removeBanner(' + i + ')">✕</button>' +
+      '<span style="font-size:.6rem;font-weight:700;padding:2px 6px;background:' + (isActive?'var(--green)':'var(--muted)') + ';color:white">' + (isActive?'LIVE':'OFF') + '</span>' +
+      '<div style="display:flex;gap:4px">' +
+        (i>0?'<button class="act-btn act-btn-outline" onclick="moveBanner('+i+',-1)">↑</button>':'') +
+        (i<banners.length-1?'<button class="act-btn act-btn-outline" onclick="moveBanner('+i+',1)">↓</button>':'') +
+        '<button class="act-btn act-btn-danger" onclick="removeBanner('+i+')">✕</button>' +
       '</div>' +
     '</div>';
   }).join('');
 }
 
 function moveBanner(idx, dir) {
-  var newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= banners.length) return;
-  var tmp = banners[idx];
-  banners[idx] = banners[newIdx];
-  banners[newIdx] = tmp;
+  var ni = idx + dir;
+  if (ni < 0 || ni >= banners.length) return;
+  var t = banners[idx]; banners[idx] = banners[ni]; banners[ni] = t;
   renderBannersList();
 }
 
@@ -2339,80 +2374,15 @@ function removeBanner(idx) {
   renderBannersList();
 }
 
-function saveBanners() {
-  var speed = document.getElementById('carouselSpeed').value;
-  var dots  = document.getElementById('carouselDots').value;
-  try {
-    localStorage.setItem('bbee_banners', JSON.stringify(banners));
-    localStorage.setItem('bbee_carousel', JSON.stringify({ speed: parseInt(speed), dots: dots === 'true' }));
-  } catch(e) {}
-  toast('✅ Banners saved!');
-  pushHomepageToGitHub();
-}
-
-// ── SECTIONS ──
-function saveSections() {
-  var vis = {
-    hero:       document.getElementById('secHero').checked,
-    banners:    document.getElementById('secBanners').checked,
-    announce:   document.getElementById('secAnnounce').checked,
-    newsletter: document.getElementById('secNewsletter').checked
-  };
-  try { localStorage.setItem('bbee_sections', JSON.stringify(vis)); } catch(e) {}
-  toast('✅ Visibility settings saved!');
-  homepageSettings = homepageSettings || {};
-  // Pass vis directly to ensure latest values
-  pushHomepageToGitHubWithData(vis);
-}
-
-function saveHomepage(s) {
-  homepageSettings = s;
-  try { localStorage.setItem('bbee_homepage', JSON.stringify(s)); } catch(e) {}
-  // Push to GitHub so ALL browsers/devices can read it
-  pushHomepageToGitHub();
-}
-
-function pushHomepageToGitHubWithData(explicitVis) {
-  var vis = explicitVis || {};
-  try { if (!explicitVis) vis = JSON.parse(localStorage.getItem('bbee_sections') || '{}'); } catch(e) {}
-  var payload = {
-    settings: homepageSettings,
-    banners:  banners,
-    carousel: JSON.parse(localStorage.getItem('bbee_carousel') || '{}'),
-    sections: vis
-  };
-  _doGitHubPush(payload);
-}
-
-function pushHomepageToGitHub() {
-  // Always save to localStorage first (instant, no network needed)
-  var vis = {};
-  try { vis = JSON.parse(localStorage.getItem('bbee_sections') || '{}'); } catch(e) {}
-  
-  // Show saved immediately
-  toast('✅ Settings saved!');
-
-  // Try to sync to GitHub via Apps Script (optional - needs valid token)
-  var payload = {
-    settings: homepageSettings,
-    banners:  banners,
-    carousel: JSON.parse(localStorage.getItem('bbee_carousel') || '{}'),
-    sections: vis
-  };
-
-  _doGitHubPush(payload);
-}
-
-function _doGitHubPush(payload) {
-  var url = APPS_SCRIPT_URL + '?type=SAVE_HOMEPAGE&data=' + 
-    encodeURIComponent(JSON.stringify(payload));
-  fetch(url)
-    .then(function(r){ return r.json(); })
-    .then(function(d) {
-      if (d.status === 'ok') toast('✅ Saved & synced to GitHub!');
-    })
-    .catch(function() { console.warn('GitHub sync failed'); });
-}
+// Legacy functions (kept for compatibility)
+function saveAnnouncement() { saveAllHomepage(); }
+function saveHero()         { saveAllHomepage(); }
+function saveBanners()      { saveAllHomepage(); }
+function saveSections()     { saveAllHomepage(); }
+function saveHomepage(s)    { homepageSettings = s; try { localStorage.setItem('bbee_homepage', JSON.stringify(s)); } catch(e) {} }
+function pushHomepageToGitHub()            { saveAllHomepage(); }
+function pushHomepageToGitHubWithData(v)   { saveAllHomepage(); }
+function _doGitHubPush(p)                  {}
 
 
 // ── INVENTORY ──

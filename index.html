@@ -1,5 +1,5 @@
 <!-- BBEE CO SHOP — index.html -->
-<!-- Last updated: 2026-04-25 9:30 AM PHT -->
+<!-- Last updated: 2026-04-25 9:45 AM PHT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2894,14 +2894,28 @@ function _applyHomepageData(s, vis, bnrs, carouselSettings) {
 
     // ── HERO SECTION ──
     var hero = document.querySelector('.hero');
-    if (hero) {
-      if (vis.hero === false) {
-        hero.style.cssText = 'display:none !important;margin:0 !important;padding:0 !important;height:0 !important;overflow:hidden !important;border:none !important;min-height:0 !important';
-        // Add a class as backup
-        hero.classList.add('hp-hidden');
-      } else {
-        hero.style.cssText = '';
-        hero.classList.remove('hp-hidden');
+    if (!hero) {
+      // Retry if not in DOM yet
+      setTimeout(function(){ _applyHomepageData(s, vis, bnrs, carouselSettings); }, 500);
+      return;
+    }
+    if (vis.hero === false) {
+      hero.style.setProperty('display', 'none', 'important');
+      hero.style.setProperty('height',  '0',    'important');
+      hero.style.setProperty('padding', '0',    'important');
+      hero.style.setProperty('margin',  '0',    'important');
+      hero.style.setProperty('overflow','hidden','important');
+      hero.style.setProperty('border',  'none', 'important');
+      hero.classList.add('hp-hidden');
+    } else {
+      hero.style.removeProperty('display');
+      hero.style.removeProperty('height');
+      hero.style.removeProperty('padding');
+      hero.style.removeProperty('margin');
+      hero.style.removeProperty('overflow');
+      hero.style.removeProperty('border');
+      hero.classList.remove('hp-hidden');
+      if (hero) {
         if (s.heroEyebrow) { var ey = hero.querySelector('.hero-eyebrow'); if (ey) ey.textContent = s.heroEyebrow; }
         if (s.heroTitle)   { var ht = hero.querySelector('.hero-title');   if (ht) ht.innerHTML  = s.heroTitle;   }
         if (s.heroSubtitle){ var hs = hero.querySelector('.hero-subtitle');if (hs) hs.textContent = s.heroSubtitle;}
